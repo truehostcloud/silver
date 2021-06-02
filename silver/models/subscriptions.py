@@ -89,8 +89,8 @@ class MeteredFeatureUnitsLog(models.Model):
             else:
                 action_type = "change"
             err_msg = (
-                    "You cannot %s a metered feature units log belonging to "
-                    "an %s subscription." % (action_type, self.subscription.state)
+                "You cannot %s a metered feature units log belonging to "
+                "an %s subscription." % (action_type, self.subscription.state)
             )
             raise ValidationError(err_msg)
 
@@ -98,15 +98,15 @@ class MeteredFeatureUnitsLog(models.Model):
             start_date = self.subscription.bucket_start_date()
             end_date = self.subscription.bucket_end_date()
             if get_object_or_None(
-                    MeteredFeatureUnitsLog,
-                    start_date=start_date,
-                    end_date=end_date,
-                    metered_feature=self.metered_feature,
-                    subscription=self.subscription,
+                MeteredFeatureUnitsLog,
+                start_date=start_date,
+                end_date=end_date,
+                metered_feature=self.metered_feature,
+                subscription=self.subscription,
             ):
                 err_msg = (
-                        "A %s units log for the current date already exists."
-                        " You can edit that one." % self.metered_feature
+                    "A %s units log for the current date already exists."
+                    " You can edit that one." % self.metered_feature
                 )
                 raise ValidationError(err_msg)
 
@@ -172,7 +172,7 @@ class Subscription(models.Model):
         blank=True,
         null=True,
         help_text="The date at which the trial ends. "
-                  "If set, overrides the computed trial end date from the plan.",
+        "If set, overrides the computed trial end date from the plan.",
     )
     start_date = models.DateField(
         blank=True, null=True, help_text="The starting date for the subscription."
@@ -205,7 +205,7 @@ class Subscription(models.Model):
                 errors.update(
                     {
                         "trial_end": "The trial end date cannot be older than "
-                                     "the subscription's start date."
+                        "the subscription's start date."
                     }
                 )
         if self.ended_at:
@@ -213,14 +213,14 @@ class Subscription(models.Model):
                 errors.update(
                     {
                         "ended_at": "The ended at date cannot be set if the "
-                                    "subscription is not canceled or ended."
+                        "subscription is not canceled or ended."
                     }
                 )
             elif self.ended_at < self.start_date:
                 errors.update(
                     {
                         "ended_at": "The ended at date cannot be older than the"
-                                    "subscription's start date."
+                        "subscription's start date."
                     }
                 )
 
@@ -232,12 +232,12 @@ class Subscription(models.Model):
         return self.plan.provider
 
     def _get_aligned_start_date_after_date(
-            self,
-            reference_date,
-            interval_type,
-            bymonth=None,
-            byweekday=None,
-            bymonthday=None,
+        self,
+        reference_date,
+        interval_type,
+        bymonth=None,
+        byweekday=None,
+        bymonthday=None,
     ):
         return list(
             rrule.rrule(
@@ -251,14 +251,14 @@ class Subscription(models.Model):
         )[-1].date()
 
     def _get_last_start_date_within_range(
-            self,
-            range_start,
-            range_end,
-            interval_type,
-            interval_count,
-            bymonth=None,
-            byweekday=None,
-            bymonthday=None,
+        self,
+        range_start,
+        range_end,
+        interval_type,
+        interval_count,
+        bymonth=None,
+        byweekday=None,
+        bymonthday=None,
     ):
         # we try to obtain a start date aligned to the given rules
         aligned_start_date = self._get_aligned_start_date_after_date(
@@ -316,19 +316,16 @@ class Subscription(models.Model):
 
         if ignore_trial or not self.trial_end:
             return start_date_ignoring_trial
-        else:  # Trial period is considered
-            if self.trial_end < reference_date:  # Trial period ended
-                # The day after the trial ended can be a start date (once, right after trial ended)
-                date_after_trial_end = self.trial_end + ONE_DAY
+        if self.trial_end < reference_date:  # Trial period ended
+            # The day after the trial ended can be a start date (once, right after trial ended)
+            date_after_trial_end = self.trial_end + ONE_DAY
 
-                return max(date_after_trial_end, start_date_ignoring_trial)
-            else:  # Trial is still ongoing
-                if granulate or self.separate_cycles_during_trial:
-                    # The trial period is split into cycles according to the rules defined above
-                    return start_date_ignoring_trial
-                else:
-                    # Otherwise, the start date of the trial period is the subscription start date
-                    return self.start_date
+            return max(date_after_trial_end, start_date_ignoring_trial)
+        if granulate or self.separate_cycles_during_trial:
+            # The trial period is split into cycles according to the rules defined above
+            return start_date_ignoring_trial
+        # Otherwise, the start date of the trial period is the subscription start date
+        return self.start_date
 
     def _cycle_end_date(self, reference_date=None, ignore_trial=None, granulate=None):
         ignore_trial_default = False
@@ -350,7 +347,7 @@ class Subscription(models.Model):
 
         # during trial and trial cycle is not separated into intervals
         if self.on_trial(reference_date) and not (
-                self.separate_cycles_during_trial or granulate
+            self.separate_cycles_during_trial or granulate
         ):
             return min(self.trial_end, (self.ended_at or datetime.max.date()))
 
@@ -364,7 +361,7 @@ class Subscription(models.Model):
             relative_delta = {"days": self.plan.interval_count}
 
         maximum_cycle_end_date = (
-                real_cycle_start_date + relativedelta(**relative_delta) - ONE_DAY
+            real_cycle_start_date + relativedelta(**relative_delta) - ONE_DAY
         )
 
         # We know that the cycle end_date is the day before the next cycle start_date,
@@ -379,7 +376,7 @@ class Subscription(models.Model):
                 return min(
                     maximum_cycle_end_date, (self.ended_at or datetime.max.date())
                 )
-            elif reference_cycle_start_date < real_cycle_start_date:
+            if reference_cycle_start_date < real_cycle_start_date:
                 # This should never happen in normal conditions, but it may stop infinite looping
                 return None
 
@@ -461,7 +458,7 @@ class Subscription(models.Model):
 
         generate_after = timedelta(seconds=self.plan.generate_after)
         while timezone.now() - generate_after < datetime.combine(
-                start_date, datetime.min.time()
+            start_date, datetime.min.time()
         ).replace(tzinfo=timezone.get_current_timezone()):
             end_date = start_date - ONE_DAY
             start_date = self.bucket_start_date(end_date)
@@ -531,8 +528,8 @@ class Subscription(models.Model):
 
         if self.cycle_billing_duration:
             if (
-                    self.start_date
-                    > first_day_of_month(billing_date) + self.cycle_billing_duration
+                self.start_date
+                > first_day_of_month(billing_date) + self.cycle_billing_duration
             ):
                 # There was nothing to bill on the last day of the first cycle billing duration
                 return False
@@ -542,7 +539,7 @@ class Subscription(models.Model):
                 billing_date, ignore_trial=False
             )
             latest_possible_billing_datetime = (
-                    cycle_start_datetime_ignoring_trial + self.cycle_billing_duration
+                cycle_start_datetime_ignoring_trial + self.cycle_billing_duration
             )
 
             billing_date = min(billing_date, latest_possible_billing_datetime)
@@ -583,8 +580,8 @@ class Subscription(models.Model):
 
             if self.state == self.STATES.CANCELED:
                 return (
-                        metered_features_billed_up_to < cycle_start_date
-                        or plan_should_be_billed
+                    metered_features_billed_up_to < cycle_start_date
+                    or plan_should_be_billed
                 )
 
             return plan_should_be_billed
@@ -597,8 +594,8 @@ class Subscription(models.Model):
     def _has_existing_customer_with_consolidated_billing(self):
         # TODO: move to Customer
         return (
-                self.customer.consolidated_billing
-                and self.customer.subscriptions.filter(state=self.STATES.ACTIVE).count() > 1
+            self.customer.consolidated_billing
+            and self.customer.subscriptions.filter(state=self.STATES.ACTIVE).count() > 1
         )
 
     @property
@@ -620,16 +617,16 @@ class Subscription(models.Model):
 
     def _should_activate_with_free_trial(self):
         return (
-                Subscription.objects.filter(
-                    plan__provider=self.plan.provider,
-                    customer=self.customer,
-                    state__in=[
-                        Subscription.STATES.ACTIVE,
-                        Subscription.STATES.CANCELED,
-                        Subscription.STATES.ENDED,
-                    ],
-                ).count()
-                == 0
+            Subscription.objects.filter(
+                plan__provider=self.plan.provider,
+                customer=self.customer,
+                state__in=[
+                    Subscription.STATES.ACTIVE,
+                    Subscription.STATES.CANCELED,
+                    Subscription.STATES.ENDED,
+                ],
+            ).count()
+            == 0
         )
 
     ##########################################################################
@@ -793,7 +790,7 @@ class Subscription(models.Model):
         return Decimal("0.00")
 
     def _get_consumed_units_from_total_included_in_trial(
-            self, metered_feature, consumed_units
+        self, metered_feature, consumed_units
     ):
         """
         :returns: (consumed_units, free_units)
@@ -804,8 +801,7 @@ class Subscription(models.Model):
             if consumed_units > included_units_during_trial:
                 extra_consumed = consumed_units - included_units_during_trial
                 return extra_consumed, included_units_during_trial
-            else:
-                return 0, consumed_units
+            return 0, consumed_units
         elif metered_feature.included_units_during_trial == Decimal("0.0000"):
             return consumed_units, 0
         elif metered_feature.included_units_during_trial is None:
@@ -824,43 +820,41 @@ class Subscription(models.Model):
             return self._get_consumed_units_from_total_included_in_trial(
                 metered_feature, consumed_units
             )
+        # It's still on trial but has been billed before
+        # The following part tries to handle the case when the trial
+        # spans over 2 months and the subscription has been already billed
+        # once => this month it is still on trial but it only
+        # has remaining = consumed_last_cycle - included_during_trial
+        last_log_entry = self.billing_logs.all()[0]
+        if last_log_entry.invoice:
+            qs = last_log_entry.invoice.invoice_entries.filter(
+                product_code=metered_feature.product_code
+            )
+        elif last_log_entry.proforma:
+            qs = last_log_entry.proforma.proforma_entries.filter(
+                product_code=metered_feature.product_code
+            )
         else:
-            # It's still on trial but has been billed before
-            # The following part tries to handle the case when the trial
-            # spans over 2 months and the subscription has been already billed
-            # once => this month it is still on trial but it only
-            # has remaining = consumed_last_cycle - included_during_trial
-            last_log_entry = self.billing_logs.all()[0]
-            if last_log_entry.invoice:
-                qs = last_log_entry.invoice.invoice_entries.filter(
-                    product_code=metered_feature.product_code
-                )
-            elif last_log_entry.proforma:
-                qs = last_log_entry.proforma.proforma_entries.filter(
-                    product_code=metered_feature.product_code
-                )
-            else:
-                qs = DocumentEntry.objects.none()
+            qs = DocumentEntry.objects.none()
 
-            if not qs.exists():
-                return self._get_consumed_units_from_total_included_in_trial(
-                    metered_feature, consumed_units
-                )
+        if not qs.exists():
+            return self._get_consumed_units_from_total_included_in_trial(
+                metered_feature, consumed_units
+            )
 
-            consumed = [qs_item.quantity for qs_item in qs if qs_item.unit_price >= 0]
-            consumed_in_last_billing_cycle = sum(consumed)
+        consumed = [qs_item.quantity for qs_item in qs if qs_item.unit_price >= 0]
+        consumed_in_last_billing_cycle = sum(consumed)
 
-            if metered_feature.included_units_during_trial:
-                included_during_trial = metered_feature.included_units_during_trial
-                if consumed_in_last_billing_cycle > included_during_trial:
-                    return consumed_units, 0
-                else:
-                    remaining = included_during_trial - consumed_in_last_billing_cycle
-                    if consumed_units > remaining:
-                        return consumed_units - remaining, remaining
-                    elif consumed_units <= remaining:
-                        return 0, consumed_units
-            return 0, consumed_units
+        if metered_feature.included_units_during_trial:
+            included_during_trial = metered_feature.included_units_during_trial
+            if consumed_in_last_billing_cycle > included_during_trial:
+                return consumed_units, 0
+            remaining = included_during_trial - consumed_in_last_billing_cycle
+            if consumed_units > remaining:
+                return consumed_units - remaining, remaining
+            if consumed_units <= remaining:
+                return 0, consumed_units
+        return 0, consumed_units
 
     def _add_mfs_for_trial(self, start_date, end_date, invoice=None, proforma=None):
         prorated, percent = self._get_proration_status_and_percent(start_date, end_date)
@@ -1008,7 +1002,7 @@ class Subscription(models.Model):
         ).total
 
     def _get_consumed_units(
-            self, metered_feature, proration_percent, start_date, end_date
+        self, metered_feature, proration_percent, start_date, end_date
     ):
         included_units = proration_percent * metered_feature.included_units
 
@@ -1092,13 +1086,12 @@ class Subscription(models.Model):
 
         if start_date == first_day_of_month and end_date == last_day_of_month:
             return False, Decimal("1.0000")
-        else:
-            days_in_full_interval = (last_day_of_month - first_day_of_month).days + 1
-            days_in_interval = (end_date - start_date).days + 1
-            percent = 1.0 * days_in_interval / days_in_full_interval
-            percent = Decimal(percent).quantize(Decimal("0.0000"))
+        days_in_full_interval = (last_day_of_month - first_day_of_month).days + 1
+        days_in_interval = (end_date - start_date).days + 1
+        percent = 1.0 * days_in_interval / days_in_full_interval
+        percent = Decimal(percent).quantize(Decimal("0.0000"))
 
-            return True, percent
+        return True, percent
 
     def _entry_unit(self, context):
         unit_template_path = field_template_path(

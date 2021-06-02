@@ -98,8 +98,8 @@ class BillingDocumentManager(models.Manager):
     def get_queryset(self):
         return (
             super(BillingDocumentManager, self)
-                .get_queryset()
-                .select_related("customer", "provider", "related_document")
+            .get_queryset()
+            .select_related("customer", "provider", "related_document")
         )
 
 
@@ -174,7 +174,7 @@ class BillingDocumentBase(models.Model):
         null=True,
         blank=True,
         help_text="Currency exchange rate from document currency to "
-                  "transaction_currency.",
+        "transaction_currency.",
     )
     transaction_xe_date = models.DateField(
         null=True, blank=True, help_text="Date of the transaction exchange rate."
@@ -420,16 +420,14 @@ class BillingDocumentBase(models.Model):
             # An invoice/proforma with this provider and series does not exist
             if self.series == self.default_series:
                 return self._starting_number
-            else:
-                return default_starting_number
+            return default_starting_number
         else:
             # An invoice with this provider and series already exists
             max_existing_number = documents.aggregate(Max("number"))["number__max"]
             if max_existing_number:
                 if self._starting_number and self.series == self.default_series:
                     return max(max_existing_number + 1, self._starting_number)
-                else:
-                    return max_existing_number + 1
+                return max_existing_number + 1
             else:
                 return default_starting_number
 
@@ -437,8 +435,7 @@ class BillingDocumentBase(models.Model):
         if self.series:
             if self.number:
                 return "%s-%d" % (self.series, self.number)
-            else:
-                return "%s-draft-id:%d" % (self.series, self.pk)
+            return "%s-draft-id:%d" % (self.series, self.pk)
 
         else:
             return "draft-id:%d" % self.pk
@@ -631,8 +628,8 @@ class BillingDocumentBase(models.Model):
             [
                 transaction.amount
                 for transaction in self.transactions.filter(
-                state=Transaction.States.Settled
-            )
+                    state=Transaction.States.Settled
+                )
             ]
         )
 
@@ -645,8 +642,8 @@ class BillingDocumentBase(models.Model):
             [
                 transaction.amount
                 for transaction in self.transactions.filter(
-                state=Transaction.States.Pending
-            )
+                    state=Transaction.States.Pending
+                )
             ]
         )
 
@@ -659,12 +656,12 @@ class BillingDocumentBase(models.Model):
             [
                 transaction.amount
                 for transaction in self.transactions.filter(
-                state__in=[
-                    Transaction.States.Initial,
-                    Transaction.States.Pending,
-                    Transaction.States.Settled,
-                ]
-            )
+                    state__in=[
+                        Transaction.States.Initial,
+                        Transaction.States.Pending,
+                        Transaction.States.Settled,
+                    ]
+                )
             ]
         )
 
@@ -715,19 +712,19 @@ def post_document_save(sender, instance, created=False, **kwargs):
 
     # Create a transaction if the document was recently issued
     if (
-            document.state == BillingDocumentBase.STATES.ISSUED
-            and settings.SILVER_AUTOMATICALLY_CREATE_TRANSACTIONS
+        document.state == BillingDocumentBase.STATES.ISSUED
+        and settings.SILVER_AUTOMATICALLY_CREATE_TRANSACTIONS
     ):
         # But only if there is no pending transaction
         Transaction = apps.get_model("silver", "Transaction")
 
         # The related document might have the only reference to an existing transaction
         if not (document.related_document or document).transactions.filter(
-                state__in=[
-                    Transaction.States.Pending,
-                    Transaction.States.Initial,
-                    Transaction.States.Settled,
-                ]
+            state__in=[
+                Transaction.States.Pending,
+                Transaction.States.Initial,
+                Transaction.States.Settled,
+            ]
         ):
             create_transaction_for_document(document)
 

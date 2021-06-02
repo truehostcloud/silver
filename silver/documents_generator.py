@@ -37,7 +37,7 @@ logger = logging.getLogger(__name__)
 
 class DocumentsGenerator(object):
     def generate(
-            self, subscription=None, billing_date=None, customers=None, force_generate=False
+        self, subscription=None, billing_date=None, customers=None, force_generate=False
     ):
         """
         The `public` method called when one wants to generate the billing documents.
@@ -108,7 +108,7 @@ class DocumentsGenerator(object):
         )
 
     def get_subscriptions_prepared_for_billing(
-            self, customer, billing_date, force_generate
+        self, customer, billing_date, force_generate
     ):
         # Select all the active or canceled subscriptions
         subs_to_bill = []
@@ -122,7 +122,7 @@ class DocumentsGenerator(object):
         return subs_to_bill
 
     def _bill_subscription_into_document(
-            self, subscription, billing_date, document=None
+        self, subscription, billing_date, document=None
     ):
         if not document:
             document = self._create_document(subscription, billing_date)
@@ -147,7 +147,7 @@ class DocumentsGenerator(object):
         return document
 
     def _generate_for_user_with_consolidated_billing(
-            self, customer, billing_date, force_generate
+        self, customer, billing_date, force_generate
     ):
         """
         Generates the billing documents for all the subscriptions of a customer
@@ -160,7 +160,7 @@ class DocumentsGenerator(object):
 
         existing_provider_documents = {}
         for subscription in self.get_subscriptions_prepared_for_billing(
-                customer, billing_date, force_generate
+            customer, billing_date, force_generate
         ):
             provider = subscription.plan.provider
 
@@ -177,7 +177,7 @@ class DocumentsGenerator(object):
                 document.issue()
 
     def _generate_for_user_without_consolidated_billing(
-            self, customer, billing_date, force_generate
+        self, customer, billing_date, force_generate
     ):
         """
         Generates the billing documents for all the subscriptions of a customer
@@ -186,7 +186,7 @@ class DocumentsGenerator(object):
 
         # The user does not use consolidated_billing => add each subscription to a separate document
         for subscription in self.get_subscriptions_prepared_for_billing(
-                customer, billing_date, force_generate
+            customer, billing_date, force_generate
         ):
             provider = subscription.plan.provider
 
@@ -196,7 +196,7 @@ class DocumentsGenerator(object):
                 document.issue()
 
     def _generate_for_single_subscription(
-            self, subscription=None, billing_date=None, force_generate=False
+        self, subscription=None, billing_date=None, force_generate=False
     ):
         """
         Generates the billing documents corresponding to a single subscription.
@@ -216,13 +216,13 @@ class DocumentsGenerator(object):
             document.issue()
 
     def add_subscription_cycles_to_document(
-            self,
-            billing_date,
-            metered_features_billed_up_to,
-            plan_billed_up_to,
-            subscription,
-            proforma=None,
-            invoice=None,
+        self,
+        billing_date,
+        metered_features_billed_up_to,
+        plan_billed_up_to,
+        subscription,
+        proforma=None,
+        invoice=None,
     ):
         relative_start_date = metered_features_billed_up_to + ONE_DAY
         plan_now_billed_up_to = plan_billed_up_to
@@ -251,8 +251,8 @@ class DocumentsGenerator(object):
 
             # This is here in order to separate the trial entries from the paid ones
             if (
-                    subscription.trial_end
-                    and relative_start_date <= subscription.trial_end <= relative_end_date
+                subscription.trial_end
+                and relative_start_date <= subscription.trial_end <= relative_end_date
             ):
                 relative_end_date = subscription.trial_end
 

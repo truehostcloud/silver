@@ -103,7 +103,7 @@ class TestPaymentUrls(APITestCase):
             return None
 
         with patch(
-                "silver.fixtures.test_fixtures.ManualProcessor.get_view", new=get_view
+            "silver.fixtures.test_fixtures.ManualProcessor.get_view", new=get_view
         ):
             response = self.client.get(get_payment_url(transaction, None))
 
@@ -128,7 +128,7 @@ class TestPaymentUrls(APITestCase):
             return not_implemented_view
 
         with patch(
-                "silver.fixtures.test_fixtures.ManualProcessor.get_view", new=get_view
+            "silver.fixtures.test_fixtures.ManualProcessor.get_view", new=get_view
         ):
             response = self.client.get(get_payment_url(transaction, None))
 

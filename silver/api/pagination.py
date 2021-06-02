@@ -35,8 +35,7 @@ class LinkHeaderPagination(PageNumberPagination):
         if display_page_query_param:
             page_number = self.page.paginator.validate_number(1)
             return replace_query_param(url, self.page_query_param, page_number)
-        else:
-            return remove_query_param(url, self.page_query_param)
+        return remove_query_param(url, self.page_query_param)
 
     def get_paginated_response(self, data):
         next_url = self.get_next_link()

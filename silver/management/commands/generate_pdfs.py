@@ -31,8 +31,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         for document in chain(
-                Invoice.objects.filter(pdf__dirty__gt=0),
-                Proforma.objects.filter(pdf__dirty__gt=0),
+            Invoice.objects.filter(pdf__dirty__gt=0),
+            Proforma.objects.filter(pdf__dirty__gt=0),
         ):
             try:
                 document.generate_pdf()

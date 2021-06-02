@@ -64,20 +64,19 @@ def complete_payment_view(request, transaction, expired=None):
     if "return_url" in request.GET:
         redirect_url = six.moves.urllib.parse.unquote(
             furl(request.GET["return_url"])
-                .add({"transaction_uuid": transaction.uuid})
-                .url
+            .add({"transaction_uuid": transaction.uuid})
+            .url
         )
         return HttpResponseRedirect(redirect_url)
-    else:
-        return render(
-            request,
-            "transactions/complete_payment.html",
-            {
-                "transaction": transaction,
-                "document": transaction.document,
-                "fail_data": FAIL_CODES.get(transaction.fail_code),
-            },
-        )
+    return render(
+        request,
+        "transactions/complete_payment.html",
+        {
+            "transaction": transaction,
+            "document": transaction.document,
+            "fail_data": FAIL_CODES.get(transaction.fail_code),
+        },
+    )
 
 
 @csrf_exempt
@@ -137,11 +136,11 @@ class DocumentAutocomplete(autocomplete.Select2QuerySetView):
                 query = Q(series=q[0]) | Q(number=q[1])
             else:
                 query = (
-                        Q(series__istartswith=self.q)
-                        | Q(number__istartswith=self.q)
-                        | Q(customer__first_name__icontains=self.q)
-                        | Q(customer__last_name__icontains=self.q)
-                        | Q(customer__company__icontains=self.q)
+                    Q(series__istartswith=self.q)
+                    | Q(number__istartswith=self.q)
+                    | Q(customer__first_name__icontains=self.q)
+                    | Q(customer__last_name__icontains=self.q)
+                    | Q(customer__company__icontains=self.q)
                 )
             queryset = queryset.filter(query)
 
@@ -251,10 +250,10 @@ class PaymentMethodAutocomplete(autocomplete.Select2QuerySetView):
 
         if self.q:
             query = (
-                    Q(customer__first_name__istartswith=self.q)
-                    | Q(customer__last_name__istartswith=self.q)
-                    | Q(payment_processor__istartswith=self.q)
-                    | Q(display_info__istartswith=self.q)
+                Q(customer__first_name__istartswith=self.q)
+                | Q(customer__last_name__istartswith=self.q)
+                | Q(payment_processor__istartswith=self.q)
+                | Q(display_info__istartswith=self.q)
             )
             queryset = queryset.filter(query)
 
