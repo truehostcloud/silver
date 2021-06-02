@@ -41,10 +41,10 @@ document_entry_definition = ResourceDefinition(
         "total": {
             "read_only": True,
             "output": lambda entry: "%.2f"
-                                    % (
-                                            entry.total_before_tax
-                                            * Decimal(1 + entry.document.sales_tax_percent / 100)
-                                    ),
+            % (
+                entry.total_before_tax
+                * Decimal(1 + entry.document.sales_tax_percent / 100)
+            ),
         },
         "start_date": {
             "required": False,

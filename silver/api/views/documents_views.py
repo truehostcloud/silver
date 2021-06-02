@@ -41,8 +41,8 @@ class InvoiceListCreate(generics.ListCreateAPIView):
     serializer_class = InvoiceSerializer
     queryset = (
         Invoice.objects.all()
-            .select_related("related_document")
-            .prefetch_related("invoice_transactions")
+        .select_related("related_document")
+        .prefetch_related("invoice_transactions")
     )
     filter_backends = (DjangoFilterBackend,)
     filterset_class = InvoiceFilter
@@ -239,8 +239,8 @@ class ProformaListCreate(generics.ListCreateAPIView):
     serializer_class = ProformaSerializer
     queryset = (
         Proforma.objects.all()
-            .select_related("related_document")
-            .prefetch_related("proforma_transactions")
+        .select_related("related_document")
+        .prefetch_related("proforma_transactions")
     )
     filter_backends = (DjangoFilterBackend,)
     filterset_class = ProformaFilter

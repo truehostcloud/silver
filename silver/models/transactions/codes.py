@@ -38,7 +38,7 @@ FAIL_CODES = {
     },
     "limit_exceeded": {
         "message": "The attempted transaction exceeds the withdrawal limit of "
-                   "the payment method.",
+        "the payment method.",
         "solve_message": "Raise your payment method's limit or use another one.",
     },
     "transaction_declined": {

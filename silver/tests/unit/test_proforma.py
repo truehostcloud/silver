@@ -74,7 +74,7 @@ class TestProforma(TestCase):
 
         entry_fields = [entry.name for entry in DocumentEntry._meta.get_fields()]
         for clone_entry, original_entry in zip(
-                clone.proforma_entries.all(), proforma.proforma_entries.all()
+            clone.proforma_entries.all(), proforma.proforma_entries.all()
         ):
             for entry in entry_fields:
                 if entry not in ("id", "proforma", "invoice"):
@@ -92,9 +92,9 @@ class TestProforma(TestCase):
         proforma.cancel()
 
         assert (
-                proforma.state
-                == proforma.related_document.state
-                == Proforma.STATES.CANCELED
+            proforma.state
+            == proforma.related_document.state
+            == Proforma.STATES.CANCELED
         )
 
     def _get_decimal_places(self, number):

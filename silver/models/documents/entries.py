@@ -90,8 +90,8 @@ class DocumentEntry(models.Model):
     @require_transaction_currency_and_xe_rate
     def total_in_transaction_currency(self):
         return (
-                self.total_before_tax_in_transaction_currency
-                + self.tax_value_in_transaction_currency
+            self.total_before_tax_in_transaction_currency
+            + self.tax_value_in_transaction_currency
         )
 
     @property

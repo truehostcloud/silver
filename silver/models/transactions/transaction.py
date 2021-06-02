@@ -227,8 +227,8 @@ class Transaction(AutoCleanModelMixin, models.Model):
                 self.currency = self.document.transaction_currency
 
             if (
-                    self.payment_method.allowed_currencies
-                    and self.currency not in self.payment_method.allowed_currencies
+                self.payment_method.allowed_currencies
+                and self.currency not in self.payment_method.allowed_currencies
             ):
                 message = (
                     "Currency {} is not allowed by the payment method. Allowed currencies "
@@ -239,8 +239,8 @@ class Transaction(AutoCleanModelMixin, models.Model):
                 raise ValidationError(message)
             if self.amount:
                 if (
-                        self.amount
-                        > self.document.amount_to_be_charged_in_transaction_currency
+                    self.amount
+                    > self.document.amount_to_be_charged_in_transaction_currency
                 ):
                     message = (
                         "Amount is greater than the amount that should be charged in order "
@@ -308,9 +308,9 @@ class Transaction(AutoCleanModelMixin, models.Model):
 
     def update_document_state(self):
         if (
-                self.state == Transaction.States.Settled
-                and not self.document.amount_to_be_charged_in_transaction_currency
-                and self.document.state != self.document.STATES.PAID
+            self.state == Transaction.States.Settled
+            and not self.document.amount_to_be_charged_in_transaction_currency
+            and self.document.state != self.document.STATES.PAID
         ):
             self.document.pay()
 

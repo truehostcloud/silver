@@ -60,7 +60,7 @@ class InvoiceAdminTestCase(TestCase):
         mock_invoice.create_storno = mock_action
 
         with patch.multiple(
-                "silver.admin", LogEntry=mock_log_entry, Invoice=mock_invoice
+            "silver.admin", LogEntry=mock_log_entry, Invoice=mock_invoice
         ):
             actions = ["issue", "pay", "cancel", "clone", "create_storno"]
 
@@ -111,7 +111,7 @@ class InvoiceAdminTestCase(TestCase):
         mock_invoice.create_invoice = mock_action
 
         with patch.multiple(
-                "silver.admin", LogEntry=mock_log_entry, Invoice=mock_invoice
+            "silver.admin", LogEntry=mock_log_entry, Invoice=mock_invoice
         ):
             actions = ["issue", "pay", "cancel", "clone"]
 

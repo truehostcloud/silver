@@ -161,7 +161,7 @@ class TestInvoiceGenerationCommand(TestCase):
             ]
         )
         prorated_plan_value = (
-                Decimal(18 / 30.0).quantize(Decimal("0.0000")) * plan.amount
+            Decimal(18 / 30.0).quantize(Decimal("0.0000")) * plan.amount
         )
         consumed_mfs_value = (consumed_1 + consumed_2) * mf_price
         assert proforma.total == prorated_plan_value + consumed_mfs_value
@@ -226,7 +226,7 @@ class TestInvoiceGenerationCommand(TestCase):
         for proforma in Proforma.objects.all():
             entries = proforma.proforma_entries.all()
             assert (
-                    entries.count() == 2
+                entries.count() == 2
             )  # Plan for current month, Metered features for last month
             assert proforma.currency == currency
 
@@ -345,7 +345,7 @@ class TestInvoiceGenerationCommand(TestCase):
         assert proforma.proforma_entries.all().count() == subscriptions_cnt * 2
 
         expected_total = subscriptions_cnt * plan.amount + subscriptions_cnt * (
-                mf_price * consumed_mfs
+            mf_price * consumed_mfs
         )
         assert proforma.total == expected_total
 
@@ -557,20 +557,20 @@ class TestInvoiceGenerationCommand(TestCase):
 
         doc = document_entries[0]
         assert (
-                doc.unit_price
-                == Decimal(14.0 / 28).quantize(Decimal("0.0000")) * plan.amount
+            doc.unit_price
+            == Decimal(14.0 / 28).quantize(Decimal("0.0000")) * plan.amount
         )
 
         doc = document_entries[1]
         assert (
-                doc.unit_price
-                == -Decimal(14.0 / 28).quantize(Decimal("0.0000")) * plan.amount
+            doc.unit_price
+            == -Decimal(14.0 / 28).quantize(Decimal("0.0000")) * plan.amount
         )
 
         doc = document_entries[2]
         assert (
-                doc.unit_price
-                == Decimal(11.0 / 28).quantize(Decimal("0.0000")) * plan.amount
+            doc.unit_price
+            == Decimal(11.0 / 28).quantize(Decimal("0.0000")) * plan.amount
         )
 
         doc = document_entries[3]
@@ -881,7 +881,7 @@ class TestInvoiceGenerationCommand(TestCase):
         )
         extra_during_trial = consumed_during_trial - included_during_trial
         prorated_plan_value = (
-                Decimal(26 / 31.0).quantize(Decimal("0.0000")) * plan.amount
+            Decimal(26 / 31.0).quantize(Decimal("0.0000")) * plan.amount
         )
         assert proforma.total == extra_during_trial * mf_price + prorated_plan_value
 
@@ -988,8 +988,8 @@ class TestInvoiceGenerationCommand(TestCase):
                 assert entry.end_date == subscription.trial_end
 
         assert (
-                proforma.total
-                == Decimal(28 / 30.0).quantize(Decimal("0.0000")) * plan.amount
+            proforma.total
+            == Decimal(28 / 30.0).quantize(Decimal("0.0000")) * plan.amount
         )
 
     def test_2nd_sub_billing_after_trial_with_all_consumed_units_overflow(self):
@@ -1094,7 +1094,7 @@ class TestInvoiceGenerationCommand(TestCase):
         assert second_entry.end_date == dt.date(2015, 6, 30)
 
         prorated_plan_value = (
-                Decimal(28 / 30.0).quantize(Decimal("0.0000")) * plan.amount
+            Decimal(28 / 30.0).quantize(Decimal("0.0000")) * plan.amount
         )
         extra_mfs_during_trial = consumed_during_second_trial_part * mf_price
         assert proforma.total == prorated_plan_value + extra_mfs_during_trial
@@ -1195,7 +1195,7 @@ class TestInvoiceGenerationCommand(TestCase):
             ]
         )
         prorated_plan_value = (
-                Decimal(28 / 30.0).quantize(Decimal("0.0000")) * plan.amount
+            Decimal(28 / 30.0).quantize(Decimal("0.0000")) * plan.amount
         )
         extra_mfs_during_trial = 10 * mf_price
         assert proforma.total == prorated_plan_value + extra_mfs_during_trial
@@ -1387,7 +1387,7 @@ class TestInvoiceGenerationCommand(TestCase):
 
         mocked_should_be_billed = MagicMock(return_value=True)
         with patch.multiple(
-                "silver.models.Subscription", should_be_billed=mocked_should_be_billed
+            "silver.models.Subscription", should_be_billed=mocked_should_be_billed
         ):
             call_command("generate_docs", billing_date=billing_date, stdout=self.output)
 
@@ -1443,10 +1443,10 @@ class TestInvoiceGenerationCommand(TestCase):
         mocked_is_billed_first_time = PropertyMock(return_value=False)
         mocked_get_consumed_units_during_trial = MagicMock(return_value=(0, 0))
         with patch.multiple(
-                "silver.models.Subscription",
-                last_billing_date=mocked_last_billing_date,
-                is_billed_first_time=mocked_is_billed_first_time,
-                _get_extra_consumed_units_during_trial=mocked_get_consumed_units_during_trial,
+            "silver.models.Subscription",
+            last_billing_date=mocked_last_billing_date,
+            is_billed_first_time=mocked_is_billed_first_time,
+            _get_extra_consumed_units_during_trial=mocked_get_consumed_units_during_trial,
         ):
             call_command("generate_docs", billing_date=billing_date, stdout=self.output)
 
@@ -1503,7 +1503,7 @@ class TestInvoiceGenerationCommand(TestCase):
         # month
         prorated_days = (end_of_month - start_date).days + 1
         prorated_plan_value = (
-                Decimal(prorated_days / 31.0).quantize(Decimal("0.0000")) * plan.amount
+            Decimal(prorated_days / 31.0).quantize(Decimal("0.0000")) * plan.amount
         )
         assert Proforma.objects.all()[0].total == prorated_plan_value
 
@@ -1634,8 +1634,8 @@ class TestInvoiceGenerationCommand(TestCase):
 
         doc = document_entries[4]  # Plan after trial end
         assert (
-                doc.unit_price
-                == Decimal(20.0 / 28).quantize(Decimal("0.0000")) * plan.amount
+            doc.unit_price
+            == Decimal(20.0 / 28).quantize(Decimal("0.0000")) * plan.amount
         )
 
         doc = document_entries[5]  # Consumed mf after trial
@@ -1762,14 +1762,14 @@ class TestInvoiceGenerationCommand(TestCase):
 
         doc = document_entries[0]  # Plan trial (+)
         assert (
-                doc.unit_price
-                == Decimal(7.0 / 28).quantize(Decimal("0.0000")) * plan.amount
+            doc.unit_price
+            == Decimal(7.0 / 28).quantize(Decimal("0.0000")) * plan.amount
         )
 
         doc = document_entries[1]  # Plan trial (-)
         assert (
-                doc.unit_price
-                == Decimal(-7.0 / 28).quantize(Decimal("0.0000")) * plan.amount
+            doc.unit_price
+            == Decimal(-7.0 / 28).quantize(Decimal("0.0000")) * plan.amount
         )
 
         doc = document_entries[2]  # Consumed mf (+)
@@ -1782,8 +1782,8 @@ class TestInvoiceGenerationCommand(TestCase):
 
         doc = document_entries[4]  # Plan after trial end
         assert (
-                doc.unit_price
-                == Decimal(21.0 / 28).quantize(Decimal("0.0000")) * plan.amount
+            doc.unit_price
+            == Decimal(21.0 / 28).quantize(Decimal("0.0000")) * plan.amount
         )
 
         doc = document_entries[5]  # Consumed mf after trial
@@ -1851,14 +1851,14 @@ class TestInvoiceGenerationCommand(TestCase):
 
         doc = document_entries[0]  # Plan trial (+)
         assert (
-                doc.unit_price
-                == Decimal(7.0 / 28).quantize(Decimal("0.0000")) * plan.amount
+            doc.unit_price
+            == Decimal(7.0 / 28).quantize(Decimal("0.0000")) * plan.amount
         )
 
         doc = document_entries[1]  # Plan trial (-)
         assert (
-                doc.unit_price
-                == Decimal(-7.0 / 28).quantize(Decimal("0.0000")) * plan.amount
+            doc.unit_price
+            == Decimal(-7.0 / 28).quantize(Decimal("0.0000")) * plan.amount
         )
 
         doc = document_entries[2]  # Consumed mf (+)
@@ -1875,8 +1875,8 @@ class TestInvoiceGenerationCommand(TestCase):
 
         doc = document_entries[5]  # Plan after trial end
         assert (
-                doc.unit_price
-                == Decimal(21.0 / 28).quantize(Decimal("0.0000")) * plan.amount
+            doc.unit_price
+            == Decimal(21.0 / 28).quantize(Decimal("0.0000")) * plan.amount
         )
 
         doc = document_entries[6]  # Consumed mf after trial
@@ -2051,12 +2051,12 @@ class TestInvoiceGenerationCommand(TestCase):
         proforma = Proforma.objects.all()[1]
 
         billed_plan_amount = (
-                Decimal(20 / 28.0).quantize(Decimal("0.0000")) * plan.amount
+            Decimal(20 / 28.0).quantize(Decimal("0.0000")) * plan.amount
         )
         assert proforma.total == billed_plan_amount
 
         assert (
-                proforma.proforma_entries.count() == 4
+            proforma.proforma_entries.count() == 4
         )  # plan trial (+-), plan (+) and mfs (0)
         for entry in proforma.proforma_entries.all():
             if entry.product_code == plan.product_code:
@@ -2132,7 +2132,7 @@ class TestInvoiceGenerationCommand(TestCase):
         proforma = Proforma.objects.all()[0]
         assert proforma.total == Decimal("0.00")
         assert (
-                proforma.proforma_entries.count() == 4
+            proforma.proforma_entries.count() == 4
         )  # plan trial (+-) split by months (*2)
         for entry in proforma.proforma_entries.all():
             if entry.start_date == subscription.start_date:
@@ -2163,7 +2163,7 @@ class TestInvoiceGenerationCommand(TestCase):
 
         plan_amount = Decimal(20 / 28.0).quantize(Decimal("0.0000")) * plan.amount
         assert (
-                proforma.proforma_entries.count() == 3
+            proforma.proforma_entries.count() == 3
         )  # mfs during trial (+-) and remaining plan
 
         for entry in proforma.proforma_entries.all():

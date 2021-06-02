@@ -137,7 +137,7 @@ class SubscriptionActivate(APIView):
                         return Response(
                             {
                                 "detail": "Invalid start_date date format. Please "
-                                          "use the ISO 8601 date format."
+                                "use the ISO 8601 date format."
                             },
                             status=status.HTTP_400_BAD_REQUEST,
                         )
@@ -150,7 +150,7 @@ class SubscriptionActivate(APIView):
                         return Response(
                             {
                                 "detail": "Invalid trial_end date format. Please "
-                                          "use the ISO 8601 date format."
+                                "use the ISO 8601 date format."
                             },
                             status=status.HTTP_400_BAD_REQUEST,
                         )
@@ -310,7 +310,7 @@ class MeteredFeatureUnitsLogDetail(APIView):
             return Response(
                 {
                     "detail": "Invalid date format. Please "
-                              "use the ISO 8601 date format."
+                    "use the ISO 8601 date format."
                 },
                 status=status.HTTP_400_BAD_REQUEST,
             )
