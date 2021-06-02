@@ -102,11 +102,13 @@ class PaymentMethod(models.Model):
 
         super(PaymentMethod, self).delete(using=using)
 
-    def encrypt_data(self, data):
+    @staticmethod
+    def encrypt_data(data):
         key = settings.PAYMENT_METHOD_SECRET
         return Fernet(key).encrypt(bytes(data))
 
-    def decrypt_data(self, crypted_data):
+    @staticmethod
+    def decrypt_data(crypted_data):
         key = settings.PAYMENT_METHOD_SECRET
 
         try:

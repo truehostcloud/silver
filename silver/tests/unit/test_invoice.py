@@ -31,7 +31,8 @@ from silver.fixtures.factories import (
 
 
 class TestInvoice(TestCase):
-    def test_pay_invoice_related_proforma_state_change_to_paid(self):
+    @staticmethod
+    def test_pay_invoice_related_proforma_state_change_to_paid():
         proforma = ProformaFactory.create()
         proforma.issue()
         proforma.create_invoice()
@@ -43,7 +44,8 @@ class TestInvoice(TestCase):
         assert proforma.related_document.state == Invoice.STATES.PAID
         assert proforma.state == Proforma.STATES.PAID
 
-    def test_clone_invoice_into_draft(self):
+    @staticmethod
+    def test_clone_invoice_into_draft():
         invoice = InvoiceFactory.create()
         invoice.issue()
         invoice.pay()
@@ -84,7 +86,8 @@ class TestInvoice(TestCase):
                     assert getattr(clone_entry, entry) == getattr(original_entry, entry)
         assert invoice.state == Invoice.STATES.PAID
 
-    def test_cancel_issued_invoice_with_related_proforma(self):
+    @staticmethod
+    def test_cancel_issued_invoice_with_related_proforma():
         proforma = ProformaFactory.create()
         proforma.issue()
 
@@ -97,7 +100,8 @@ class TestInvoice(TestCase):
             proforma.related_document.state == proforma.state == Invoice.STATES.CANCELED
         )
 
-    def _get_decimal_places(self, number):
+    @staticmethod
+    def _get_decimal_places(number):
         return max(0, -number.as_tuple().exponent)
 
     def test_invoice_total_decimal_points(self):
@@ -130,7 +134,8 @@ class TestInvoice(TestCase):
 
         self.assertEqual(invoice.total, invoice.total_before_tax + invoice.tax_value)
 
-    def test_draft_invoice_series_number(self):
+    @staticmethod
+    def test_draft_invoice_series_number():
         invoice = InvoiceFactory.create()
         invoice.number = None
 
@@ -140,12 +145,14 @@ class TestInvoice(TestCase):
 
         assert invoice.series_number == "draft-id:%d" % invoice.pk
 
-    def test_issues_invoice_series_number(self):
+    @staticmethod
+    def test_issues_invoice_series_number():
         invoice = InvoiceFactory.create(state=Invoice.STATES.ISSUED)
 
         assert invoice.series_number == "%s-%s" % (invoice.series, invoice.number)
 
-    def test_invoice_due_today_queryset(self):
+    @staticmethod
+    def test_invoice_due_today_queryset():
         invoices = InvoiceFactory.create_batch(5)
 
         invoices[0].due_date = date.today()
@@ -170,7 +177,8 @@ class TestInvoice(TestCase):
         assert queryset.count() == 1
         assert invoices[1] in queryset
 
-    def test_invoice_due_this_month_queryset(self):
+    @staticmethod
+    def test_invoice_due_this_month_queryset():
         invoices = InvoiceFactory.create_batch(4)
 
         invoices[0].due_date = date.today().replace(day=20)
@@ -191,7 +199,8 @@ class TestInvoice(TestCase):
         for invoice in invoices[:2]:
             assert invoice in queryset
 
-    def test_invoice_overdue_queryset(self):
+    @staticmethod
+    def test_invoice_overdue_queryset():
         invoices = InvoiceFactory.create_batch(3)
 
         invoices[0].due_date = date.today() - timedelta(days=1)
@@ -210,7 +219,8 @@ class TestInvoice(TestCase):
         for invoice in invoices[:2]:
             assert invoice in queryset
 
-    def test_invoice_overdue_since_last_month_queryset(self):
+    @staticmethod
+    def test_invoice_overdue_since_last_month_queryset():
         invoices = InvoiceFactory.create_batch(3)
 
         invoices[0].due_date = date.today().replace(day=1)
@@ -238,7 +248,8 @@ class TestInvoice(TestCase):
 
         self.assertEqual(invoice.transaction_currency, "EUR")
 
-    def test_invoice_create_storno_from_canceled_state(self):
+    @staticmethod
+    def test_invoice_create_storno_from_canceled_state():
         invoice = InvoiceFactory.create(invoice_entries=[DocumentEntryFactory.create()])
         invoice.issue()
         invoice.cancel()
@@ -249,7 +260,8 @@ class TestInvoice(TestCase):
         assert invoice.customer == storno.customer
         assert invoice.provider == storno.provider
 
-    def test_invoice_create_storno_from_paid_state(self):
+    @staticmethod
+    def test_invoice_create_storno_from_paid_state():
         invoice = InvoiceFactory.create(invoice_entries=[DocumentEntryFactory.create()])
         invoice.issue()
         invoice.pay()
@@ -268,7 +280,8 @@ class TestInvoice(TestCase):
         invoice.issue()
         self.assertRaises(ValueError, invoice.create_storno)
 
-    def test_invoice_storno_issue(self):
+    @staticmethod
+    def test_invoice_storno_issue():
         invoice = InvoiceFactory.create()
         invoice.issue()
         invoice.pay()

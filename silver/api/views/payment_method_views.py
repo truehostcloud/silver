@@ -131,7 +131,8 @@ class PaymentMethodAction(APIView):
         )
         return Response(payment_method_serialized.data, status=status.HTTP_200_OK)
 
-    def get_object(self, **kwargs):
+    @staticmethod
+    def get_object(**kwargs):
         payment_method_id = kwargs.get("payment_method_id")
         customer_pk = kwargs.get("customer_pk")
 

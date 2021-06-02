@@ -231,8 +231,8 @@ class Subscription(models.Model):
     def provider(self):
         return self.plan.provider
 
+    @staticmethod
     def _get_aligned_start_date_after_date(
-        self,
         reference_date,
         interval_type,
         bymonth=None,
@@ -789,8 +789,9 @@ class Subscription(models.Model):
 
         return Decimal("0.00")
 
+    @staticmethod
     def _get_consumed_units_from_total_included_in_trial(
-        self, metered_feature, consumed_units
+        metered_feature, consumed_units
     ):
         """
         :returns: (consumed_units, free_units)
@@ -1069,7 +1070,8 @@ class Subscription(models.Model):
 
         return mfs_total
 
-    def _get_proration_status_and_percent(self, start_date, end_date):
+    @staticmethod
+    def _get_proration_status_and_percent(start_date, end_date):
         """
         Returns the proration percent (how much of the interval will be billed)
         and the status (if the subscription is prorated or not).

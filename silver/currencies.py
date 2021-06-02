@@ -37,7 +37,8 @@ class RateNotFound(Exception):
 
 
 class DummyConverter(object):
-    def convert(self, amount, from_currency, to_currency, date):
+    @staticmethod
+    def convert(amount, from_currency, to_currency, date):
         if from_currency != to_currency:
             raise RateNotFound(from_currency, to_currency, date)
         return amount

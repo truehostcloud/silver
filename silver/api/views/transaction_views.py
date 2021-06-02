@@ -112,7 +112,8 @@ class TransactionAction(APIView):
         )
         return Response(transaction_serialized.data, status=status.HTTP_200_OK)
 
-    def get_object(self, **kwargs):
+    @staticmethod
+    def get_object(**kwargs):
         transaction_uuid = kwargs.get("transaction_uuid")
         customer_pk = kwargs.get("customer_pk")
 

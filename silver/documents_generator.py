@@ -94,7 +94,8 @@ class DocumentsGenerator(object):
                     customer, billing_date, force_generate
                 )
 
-    def _log_subscription_billing(self, document, subscription):
+    @staticmethod
+    def _log_subscription_billing(document, subscription):
         logger.debug(
             "Billing subscription: %s",
             {
@@ -107,8 +108,9 @@ class DocumentsGenerator(object):
             },
         )
 
+    @staticmethod
     def get_subscriptions_prepared_for_billing(
-        self, customer, billing_date, force_generate
+        customer, billing_date, force_generate
     ):
         # Select all the active or canceled subscriptions
         subs_to_bill = []
@@ -215,8 +217,8 @@ class DocumentsGenerator(object):
         if provider.default_document_state == Provider.DEFAULT_DOC_STATE.ISSUED:
             document.issue()
 
+    @staticmethod
     def add_subscription_cycles_to_document(
-        self,
         billing_date,
         metered_features_billed_up_to,
         plan_billed_up_to,
@@ -329,7 +331,8 @@ class DocumentsGenerator(object):
             plan_billed_up_to=plan_now_billed_up_to,
         )
 
-    def _create_document(self, subscription, billing_date):
+    @staticmethod
+    def _create_document(subscription, billing_date):
         provider = subscription.provider
         customer = subscription.customer
 

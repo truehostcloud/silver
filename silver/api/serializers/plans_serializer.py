@@ -49,7 +49,8 @@ class PlanSerializer(serializers.HyperlinkedModelSerializer):
             "provider",
         )
 
-    def validate_metered_features(self, value):
+    @staticmethod
+    def validate_metered_features(value):
         metered_features = []
         for mf_data in value:
             metered_features.append(MeteredFeature(**mf_data))

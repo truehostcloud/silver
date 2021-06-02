@@ -171,7 +171,8 @@ class SubscriptionActivate(APIView):
 class SubscriptionCancel(APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
-    def post(self, request, *args, **kwargs):
+    @staticmethod
+    def post(request, *args, **kwargs):
         sub = get_object_or_404(Subscription, pk=kwargs.get("subscription_pk", None))
         when = request.data.get("when", None)
         if sub.state != Subscription.STATES.ACTIVE:
@@ -204,7 +205,8 @@ class SubscriptionCancel(APIView):
 class SubscriptionReactivate(APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
-    def post(self, request, *args, **kwargs):
+    @staticmethod
+    def post(request, *args, **kwargs):
         sub = get_object_or_404(Subscription, pk=kwargs.get("subscription_pk", None))
         if sub.state != Subscription.STATES.CANCELED:
             msg = "Cannot reactivate subscription from %s state." % sub.state
@@ -227,7 +229,8 @@ class MeteredFeatureUnitsLogDetail(APIView):
     permission_classes = (permissions.IsAuthenticated,)
     paginate_by = None
 
-    def get(self, request, format=None, **kwargs):
+    @staticmethod
+    def get(request, format=None, **kwargs):
         subscription_pk = kwargs.get("subscription_pk", None)
         mf_product_code = kwargs.get("mf_product_code", None)
 

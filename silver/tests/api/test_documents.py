@@ -47,7 +47,8 @@ class TestDocumentEndpoints(APITestCase):
         admin_user = AdminUserFactory.create()
         self.client.force_authenticate(user=admin_user)
 
-    def _get_expected_data(self, document, transactions=None):
+    @staticmethod
+    def _get_expected_data(document, transactions=None):
         kind = force_str(document.kind.lower())
         transactions = [
             {
@@ -123,7 +124,8 @@ class TestDocumentEndpoints(APITestCase):
             u"total_in_transaction_currency": document.total_in_transaction_currency,
         }
 
-    def _jwt_token(self, *args, **kwargs):
+    @staticmethod
+    def _jwt_token(*args, **kwargs):
         return "token"
 
     def test_documents_list_case_1(self):

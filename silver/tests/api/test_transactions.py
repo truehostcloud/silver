@@ -730,7 +730,8 @@ class TestTransactionEndpoint(APITestCase):
         )
         self.assertEqual(response.data, {"errors": expected_error})
 
-    def _transaction_data(self, transaction):
+    @staticmethod
+    def _transaction_data(transaction):
         transaction.refresh_from_db()
 
         payment_method = transaction.payment_method

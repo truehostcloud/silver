@@ -163,7 +163,8 @@ class BillingDocumentFilter(FilterSet):
     sales_tax_name = MultipleCharFilter(field_name="sales_tax_name")
     is_overdue = BooleanFilter(field_name="overdue", method="filter_is_overdue")
 
-    def filter_is_overdue(self, queryset, _, value):
+    @staticmethod
+    def filter_is_overdue(queryset, _, value):
         if value:
             return queryset.overdue()
         return queryset.not_overdue()

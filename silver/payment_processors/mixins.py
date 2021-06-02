@@ -93,7 +93,8 @@ class BaseActionableProcessor(object):
 
         raise NotImplementedError
 
-    def fetch_transaction_status(self, transaction):
+    @staticmethod
+    def fetch_transaction_status(transaction):
         """
         Implementation is optional.
 

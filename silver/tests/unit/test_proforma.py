@@ -30,7 +30,8 @@ from silver.fixtures.factories import (
 
 
 class TestProforma(TestCase):
-    def test_pay_proforma_related_invoice_state_change_to_paid(self):
+    @staticmethod
+    def test_pay_proforma_related_invoice_state_change_to_paid():
         proforma = ProformaFactory.create()
         proforma.issue()
         proforma.create_invoice()
@@ -40,7 +41,8 @@ class TestProforma(TestCase):
         assert proforma.related_document.state == Invoice.STATES.PAID
         assert proforma.state == Invoice.STATES.PAID
 
-    def test_clone_proforma_into_draft(self):
+    @staticmethod
+    def test_clone_proforma_into_draft():
         proforma = ProformaFactory.create()
         proforma.issue()
         proforma.pay()
@@ -82,7 +84,8 @@ class TestProforma(TestCase):
 
         assert proforma.state == Proforma.STATES.PAID
 
-    def test_cancel_issued_proforma_with_related_invoice(self):
+    @staticmethod
+    def test_cancel_issued_proforma_with_related_invoice():
         proforma = ProformaFactory.create()
         proforma.issue()
 
@@ -97,7 +100,8 @@ class TestProforma(TestCase):
             == Proforma.STATES.CANCELED
         )
 
-    def _get_decimal_places(self, number):
+    @staticmethod
+    def _get_decimal_places(number):
         return max(0, -number.as_tuple().exponent)
 
     def test_proforma_total_decimal_points(self):
@@ -122,7 +126,8 @@ class TestProforma(TestCase):
 
         assert self._get_decimal_places(proforma.tax_value) == 2
 
-    def test_proforma_total_with_tax_integrity(self):
+    @staticmethod
+    def test_proforma_total_with_tax_integrity():
         proforma_entries = DocumentEntryFactory.create_batch(5)
         proforma = ProformaFactory.create(proforma_entries=proforma_entries)
 
@@ -130,7 +135,8 @@ class TestProforma(TestCase):
 
         assert proforma.total == proforma.total_before_tax + proforma.tax_value
 
-    def test_draft_proforma_series_number(self):
+    @staticmethod
+    def test_draft_proforma_series_number():
         proforma = ProformaFactory.create()
         proforma.number = None
 
@@ -143,7 +149,8 @@ class TestProforma(TestCase):
 
         assert proforma.series_number == "draft-id:%d" % proforma.pk
 
-    def test_issues_proforma_series_number(self):
+    @staticmethod
+    def test_issues_proforma_series_number():
         proforma = ProformaFactory.create(state=Invoice.STATES.ISSUED)
 
         assert proforma.series_number == "%s-%s" % (proforma.series, proforma.number)
