@@ -421,24 +421,20 @@ class BillingDocumentBase(models.Model):
             if self.series == self.default_series:
                 return self._starting_number
             return default_starting_number
-        else:
-            # An invoice with this provider and series already exists
-            max_existing_number = documents.aggregate(Max("number"))["number__max"]
-            if max_existing_number:
-                if self._starting_number and self.series == self.default_series:
-                    return max(max_existing_number + 1, self._starting_number)
-                return max_existing_number + 1
-            else:
-                return default_starting_number
+        # An invoice with this provider and series already exists
+        max_existing_number = documents.aggregate(Max("number"))["number__max"]
+        if max_existing_number:
+            if self._starting_number and self.series == self.default_series:
+                return max(max_existing_number + 1, self._starting_number)
+            return max_existing_number + 1
+        return default_starting_number
 
     def series_number(self):
         if self.series:
             if self.number:
                 return "%s-%d" % (self.series, self.number)
             return "%s-draft-id:%d" % (self.series, self.pk)
-
-        else:
-            return "draft-id:%d" % self.pk
+        return "draft-id:%d" % self.pk
 
     series_number.short_description = "Number"
     series_number = property(series_number)
