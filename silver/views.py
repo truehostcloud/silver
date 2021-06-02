@@ -68,16 +68,15 @@ def complete_payment_view(request, transaction, expired=None):
             .url
         )
         return HttpResponseRedirect(redirect_url)
-    else:
-        return render(
-            request,
-            "transactions/complete_payment.html",
-            {
-                "transaction": transaction,
-                "document": transaction.document,
-                "fail_data": FAIL_CODES.get(transaction.fail_code),
-            },
-        )
+    return render(
+        request,
+        "transactions/complete_payment.html",
+        {
+            "transaction": transaction,
+            "document": transaction.document,
+            "fail_data": FAIL_CODES.get(transaction.fail_code),
+        },
+    )
 
 
 @csrf_exempt

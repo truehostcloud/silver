@@ -1320,8 +1320,7 @@ class InvoiceAdmin(BillingDocumentAdmin):
             return format_html(
                 '<a href="{url}" target="_blank">Download</a>'.format(url=url)
             )
-        else:
-            return None
+        return None
 
     get_invoice_pdf.short_description = "PDF"
     get_invoice_pdf.allow_tags = True
@@ -1385,8 +1384,7 @@ class ProformaAdmin(BillingDocumentAdmin):
             return format_html(
                 '<a href="{url}" target="_blank">Download</a>'.format(url=url)
             )
-        else:
-            return None
+        return None
 
     get_proforma_pdf.short_description = "PDF"
     get_proforma_pdf.allow_tags = True

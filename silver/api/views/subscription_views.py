@@ -124,51 +124,50 @@ class SubscriptionActivate(APIView):
         if sub.state != Subscription.STATES.INACTIVE:
             message = "Cannot activate subscription from %s state." % sub.state
             return Response({"error": message}, status=status.HTTP_400_BAD_REQUEST)
+        if request.POST.get("_content", None):
+            start_date = request.data.get("start_date", None)
+            trial_end = request.data.get("trial_end_date", None)
+            if start_date:
+                try:
+                    start_date = datetime.datetime.strptime(
+                        start_date, "%Y-%m-%d"
+                    ).date()
+                except TypeError:
+                    return Response(
+                        {
+                            "detail": "Invalid start_date date format. Please "
+                            "use the ISO 8601 date format."
+                        },
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+            if trial_end:
+                try:
+                    trial_end = datetime.datetime.strptime(
+                        trial_end, "%Y-%m-%d"
+                    ).date()
+                except TypeError:
+                    return Response(
+                        {
+                            "detail": "Invalid trial_end date format. Please "
+                            "use the ISO 8601 date format."
+                        },
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+            sub.activate(start_date=start_date, trial_end_date=trial_end)
+            sub.save()
         else:
-            if request.POST.get("_content", None):
-                start_date = request.data.get("start_date", None)
-                trial_end = request.data.get("trial_end_date", None)
-                if start_date:
-                    try:
-                        start_date = datetime.datetime.strptime(
-                            start_date, "%Y-%m-%d"
-                        ).date()
-                    except TypeError:
-                        return Response(
-                            {
-                                "detail": "Invalid start_date date format. Please "
-                                "use the ISO 8601 date format."
-                            },
-                            status=status.HTTP_400_BAD_REQUEST,
-                        )
-                if trial_end:
-                    try:
-                        trial_end = datetime.datetime.strptime(
-                            trial_end, "%Y-%m-%d"
-                        ).date()
-                    except TypeError:
-                        return Response(
-                            {
-                                "detail": "Invalid trial_end date format. Please "
-                                "use the ISO 8601 date format."
-                            },
-                            status=status.HTTP_400_BAD_REQUEST,
-                        )
-                sub.activate(start_date=start_date, trial_end_date=trial_end)
-                sub.save()
-            else:
-                sub.activate()
-                sub.save()
+            sub.activate()
+            sub.save()
 
-            logger.debug(
-                "Activated subscription: %s",
-                {
-                    "subscription": sub.id,
-                    "date": timezone.now().date().strftime("%Y-%m-%d"),
-                },
-            )
+        logger.debug(
+            "Activated subscription: %s",
+            {
+                "subscription": sub.id,
+                "date": timezone.now().date().strftime("%Y-%m-%d"),
+            },
+        )
 
-            return Response({"state": sub.state}, status=status.HTTP_200_OK)
+        return Response({"state": sub.state}, status=status.HTTP_200_OK)
 
 
 class SubscriptionCancel(APIView):
@@ -180,31 +179,28 @@ class SubscriptionCancel(APIView):
         if sub.state != Subscription.STATES.ACTIVE:
             message = "Cannot cancel subscription from %s state." % sub.state
             return Response({"error": message}, status=status.HTTP_400_BAD_REQUEST)
-        else:
-            if when in [
-                Subscription.CANCEL_OPTIONS.NOW,
-                Subscription.CANCEL_OPTIONS.END_OF_BILLING_CYCLE,
-            ]:
-                sub.cancel(when=when)
-                sub.save()
+        if when in [
+            Subscription.CANCEL_OPTIONS.NOW,
+            Subscription.CANCEL_OPTIONS.END_OF_BILLING_CYCLE,
+        ]:
+            sub.cancel(when=when)
+            sub.save()
 
-                logger.debug(
-                    "Canceled subscription: %s",
-                    {
-                        "subscription": sub.id,
-                        "date": timezone.now().date().strftime("%Y-%m-%d"),
-                        "when": when,
-                    },
-                )
+            logger.debug(
+                "Canceled subscription: %s",
+                {
+                    "subscription": sub.id,
+                    "date": timezone.now().date().strftime("%Y-%m-%d"),
+                    "when": when,
+                },
+            )
 
-                return Response({"state": sub.state}, status=status.HTTP_200_OK)
-            else:
-                if when is None:
-                    err = "You must provide the `when` argument"
-                    return Response({"error": err}, status=status.HTTP_400_BAD_REQUEST)
-                else:
-                    err = "You must provide a correct value for the `when` argument"
-                    return Response({"error": err}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"state": sub.state}, status=status.HTTP_200_OK)
+        if when is None:
+            err = "You must provide the `when` argument"
+            return Response({"error": err}, status=status.HTTP_400_BAD_REQUEST)
+        err = "You must provide a correct value for the `when` argument"
+        return Response({"error": err}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class SubscriptionReactivate(APIView):
@@ -215,19 +211,18 @@ class SubscriptionReactivate(APIView):
         if sub.state != Subscription.STATES.CANCELED:
             msg = "Cannot reactivate subscription from %s state." % sub.state
             return Response({"error": msg}, status=status.HTTP_400_BAD_REQUEST)
-        else:
-            sub.activate()
-            sub.save()
+        sub.activate()
+        sub.save()
 
-            logger.debug(
-                "Reactivated subscription: %s",
-                {
-                    "subscription": sub.id,
-                    "date": timezone.now().date().strftime("%Y-%m-%d"),
-                },
-            )
+        logger.debug(
+            "Reactivated subscription: %s",
+            {
+                "subscription": sub.id,
+                "date": timezone.now().date().strftime("%Y-%m-%d"),
+            },
+        )
 
-            return Response({"state": sub.state}, status=status.HTTP_200_OK)
+        return Response({"state": sub.state}, status=status.HTTP_200_OK)
 
 
 class MeteredFeatureUnitsLogDetail(APIView):

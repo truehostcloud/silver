@@ -51,8 +51,7 @@ class TransactionList(ListCreateAPIView):
             )
 
             return Transaction.objects.filter(payment_method=payment_method)
-        else:
-            return Transaction.objects.filter(payment_method__customer__pk=customer_pk)
+        return Transaction.objects.filter(payment_method__customer__pk=customer_pk)
 
     def perform_create(self, serializer):
         payment_method_id = self.kwargs.get("payment_method_id")
