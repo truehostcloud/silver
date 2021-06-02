@@ -100,19 +100,19 @@ class Transaction(AutoCleanModelMixin, models.Model):
     updated_at = AutoDateTimeField(default=timezone.now)
 
     fail_code = models.CharField(
-        choices=[(code, code) for code in FAIL_CODES.keys()],
+        choices=[(code, code) for code in FAIL_CODES],
         max_length=64,
         null=True,
         blank=True,
     )
     refund_code = models.CharField(
-        choices=[(code, code) for code in REFUND_CODES.keys()],
+        choices=[(code, code) for code in REFUND_CODES],
         max_length=32,
         null=True,
         blank=True,
     )
     cancel_code = models.CharField(
-        choices=[(code, code) for code in CANCEL_CODES.keys()],
+        choices=[(code, code) for code in CANCEL_CODES],
         max_length=32,
         null=True,
         blank=True,
