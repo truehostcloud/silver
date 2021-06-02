@@ -31,8 +31,8 @@ class Migration(migrations.Migration):
             name="trial_period_days",
             field=models.PositiveIntegerField(
                 help_text="Number of trial "
-                          "period days granted when "
-                          "subscribing a customer to this plan.",
+                "period days granted when "
+                "subscribing a customer to this plan.",
                 null=True,
                 verbose_name="Trial days",
             ),

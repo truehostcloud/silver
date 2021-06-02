@@ -213,9 +213,9 @@ class PlanAdmin(ModelAdmin):
     def get_queryset(self, request):
         return (
             super(PlanAdmin, self)
-                .get_queryset(request)
-                .prefetch_related("metered_features")
-                .select_related("provider")
+            .get_queryset(request)
+            .prefetch_related("metered_features")
+            .select_related("provider")
         )
 
 
@@ -294,8 +294,8 @@ class SubscriptionForm(forms.ModelForm):
     def lookups(self, request, model_admin):
         queryset = (
             model_admin.get_queryset(request)
-                .distinct()
-                .annotate(
+            .distinct()
+            .annotate(
                 _name_provider=Concat(
                     F("plan__name"),
                     Value(" ("),
@@ -304,7 +304,7 @@ class SubscriptionForm(forms.ModelForm):
                     output_field=fields.CharField(),
                 ),
             )
-                .values_list("id", "_name_provider")
+            .values_list("id", "_name_provider")
             .distinct()
         )
 
@@ -343,9 +343,9 @@ class SubscriptionAdmin(ModelAdmin):
     def get_queryset(self, request):
         return (
             super(SubscriptionAdmin, self)
-                .get_queryset(request)
-                .prefetch_related("billing_logs")
-                .select_related("plan")
+            .get_queryset(request)
+            .prefetch_related("billing_logs")
+            .select_related("plan")
         )
 
     def perform_action(self, request, action, queryset):
@@ -578,13 +578,13 @@ class ProviderAdmin(LiveModelAdmin):
 
         documents_months_years = (
             documents.order_by()
-                .annotate(
+            .annotate(
                 month=ExtractMonth("issue_date"),
                 year=ExtractYear("issue_date"),
             )
-                .filter(provider=provider)
-                .values_list("month", "year")
-                .distinct()
+            .filter(provider=provider)
+            .values_list("month", "year")
+            .distinct()
         )
 
         totals[klass_name_plural]["entries"] = OrderedDict()
@@ -594,8 +594,8 @@ class ProviderAdmin(LiveModelAdmin):
 
         documents_currencies = set(
             documents.filter(provider=provider)
-                .values_list("currency", flat=True)
-                .distinct()
+            .values_list("currency", flat=True)
+            .distinct()
         )
 
         unpaid_documents = documents.filter(state=BillingDocumentBase.STATES.DRAFT)
@@ -731,7 +731,7 @@ class BillingDocumentForm(forms.ModelForm):
         currency = cleaned_data["currency"]
 
         cleaned_data["transaction_currency"] = (
-                cleaned_data["transaction_currency"] or customer.currency or currency
+            cleaned_data["transaction_currency"] or customer.currency or currency
         )
 
         if self.instance:
@@ -750,9 +750,9 @@ class BillingDocumentForm(forms.ModelForm):
             # old number. This will prevent from having unused numbers.
             if self.initial_number and not obj.number:
                 if (
-                        obj.series
-                        and self.initial_series
-                        and obj.series == self.initial_series
+                    obj.series
+                    and self.initial_series
+                    and obj.series == self.initial_series
                 ):
                     obj.number = self.initial_number
 
@@ -837,7 +837,7 @@ class InvoiceFilter(SimpleListFilter):
 
         invoices_queryset = (
             Invoice.objects.filter(invoice_transactions__in=queryset.distinct())
-                .annotate(
+            .annotate(
                 _series_number=Concat(
                     F("series"),
                     Value("-"),
@@ -845,8 +845,8 @@ class InvoiceFilter(SimpleListFilter):
                     output_field=fields.CharField(),
                 )
             )
-                .values_list("id", "_series_number")
-                .distinct()
+            .values_list("id", "_series_number")
+            .distinct()
         )
 
         return list(invoices_queryset)
@@ -866,7 +866,7 @@ class ProformaFilter(SimpleListFilter):
 
         proformas_queryset = (
             Proforma.objects.filter(proforma_transactions__in=queryset.distinct())
-                .annotate(
+            .annotate(
                 _series_number=Concat(
                     F("series"),
                     Value("-"),
@@ -874,8 +874,8 @@ class ProformaFilter(SimpleListFilter):
                     output_field=fields.CharField(),
                 )
             )
-                .values_list("id", "_series_number")
-                .distinct()
+            .values_list("id", "_series_number")
+            .distinct()
         )
 
         return list(proformas_queryset)
@@ -929,9 +929,9 @@ class BillingDocumentAdmin(ModelAdmin):
         "provider__{field}".format(field=field) for field in common_fields + ["name"]
     ]
     search_fields = (
-            customer_search_fields
-            + provider_search_fields
-            + ["series", "number", "_total", "_total_in_transaction_currency"]
+        customer_search_fields
+        + provider_search_fields
+        + ["series", "number", "_total", "_total_in_transaction_currency"]
     )
 
     date_hierarchy = "issue_date"
@@ -966,8 +966,8 @@ class BillingDocumentAdmin(ModelAdmin):
     def get_queryset(self, request):
         return (
             super(BillingDocumentAdmin, self)
-                .get_queryset(request)
-                .select_related("related_document", "customer", "provider", "pdf")
+            .get_queryset(request)
+            .select_related("related_document", "customer", "provider", "pdf")
         )
 
     def get_search_results(self, request, queryset, search_term):
@@ -1050,7 +1050,7 @@ class BillingDocumentAdmin(ModelAdmin):
         return parsed_results
 
     def perform_action(
-            self, request, queryset, action, readable_action=None, readable_past_action=None
+        self, request, queryset, action, readable_action=None, readable_past_action=None
     ):
         method = getattr(self._model, action, None)
         if not method:
@@ -1447,7 +1447,7 @@ class TransactionForm(forms.ModelForm):
 
     def clean(self):
         if (self.cleaned_data["amount"] and not self.cleaned_data["currency"]) or (
-                self.cleaned_data["amount"] is None and self.cleaned_data["currency"]
+            self.cleaned_data["amount"] is None and self.cleaned_data["currency"]
         ):
             raise ValidationError(
                 "You must either specify both amount and currency fields or "
@@ -1493,8 +1493,8 @@ class TransactionAdmin(ModelAdmin):
     def get_queryset(self, request):
         return (
             super(TransactionAdmin, self)
-                .get_queryset(request)
-                .select_related("payment_method__customer", "invoice", "proforma")
+            .get_queryset(request)
+            .select_related("payment_method__customer", "invoice", "proforma")
         )
 
     def get_readonly_fields(self, request, instance=None):

@@ -41,7 +41,7 @@ class TestUpdateTransactionsStatusCommand(TestCase):
 
         mock_fetch_status = MagicMock()
         with patch.multiple(
-                TriggeredProcessor, fetch_transaction_status=mock_fetch_status
+            TriggeredProcessor, fetch_transaction_status=mock_fetch_status
         ):
             call_command("fetch_transactions_status")
 
@@ -63,7 +63,7 @@ class TestUpdateTransactionsStatusCommand(TestCase):
 
         mock_fetch_status = MagicMock()
         with patch.multiple(
-                TriggeredProcessor, fetch_transaction_status=mock_fetch_status
+            TriggeredProcessor, fetch_transaction_status=mock_fetch_status
         ):
             transactions_arg = [
                 str(transaction.pk) for transaction in filtered_transactions
@@ -92,7 +92,7 @@ class TestUpdateTransactionsStatusCommand(TestCase):
         mock_fetch_status.side_effect = Exception("This happened.")
 
         with patch.multiple(
-                TriggeredProcessor, fetch_transaction_status=mock_fetch_status
+            TriggeredProcessor, fetch_transaction_status=mock_fetch_status
         ):
             call_command("fetch_transactions_status")
             expected_call = call(

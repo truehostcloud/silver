@@ -59,7 +59,7 @@ class ProformaAdminTestCase(TestCase):
         mock_proforma.create_invoice = mock_action
 
         with patch.multiple(
-                "silver.admin", LogEntry=mock_log_entry, Proforma=mock_proforma
+            "silver.admin", LogEntry=mock_log_entry, Proforma=mock_proforma
         ):
             actions = ["issue", "pay", "cancel", "clone", "create_invoice"]
 
@@ -110,7 +110,7 @@ class ProformaAdminTestCase(TestCase):
         mock_proforma.create_invoice = mock_action
 
         with patch.multiple(
-                "silver.admin", LogEntry=mock_log_entry, Proforma=mock_proforma
+            "silver.admin", LogEntry=mock_log_entry, Proforma=mock_proforma
         ):
             actions = ["issue", "pay", "cancel", "clone", "create_invoice"]
 

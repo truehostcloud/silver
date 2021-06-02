@@ -21,7 +21,7 @@ def django_to_drf_validation_error(django_validation_error, default_errors_key=N
         if non_field_errors:
             errors[
                 default_errors_key or api_settings.NON_FIELD_ERRORS_KEY
-                ] = non_field_errors
+            ] = non_field_errors
 
     raise serializers.ValidationError(errors)
 

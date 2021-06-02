@@ -98,8 +98,8 @@ class BillingDocumentManager(models.Manager):
     def get_queryset(self):
         return (
             super(BillingDocumentManager, self)
-                .get_queryset()
-                .select_related("customer", "provider", "related_document")
+            .get_queryset()
+            .select_related("customer", "provider", "related_document")
         )
 
 
@@ -174,7 +174,7 @@ class BillingDocumentBase(models.Model):
         null=True,
         blank=True,
         help_text="Currency exchange rate from document currency to "
-                  "transaction_currency.",
+        "transaction_currency.",
     )
     transaction_xe_date = models.DateField(
         null=True, blank=True, help_text="Date of the transaction exchange rate."
@@ -631,8 +631,8 @@ class BillingDocumentBase(models.Model):
             [
                 transaction.amount
                 for transaction in self.transactions.filter(
-                state=Transaction.States.Settled
-            )
+                    state=Transaction.States.Settled
+                )
             ]
         )
 
@@ -645,8 +645,8 @@ class BillingDocumentBase(models.Model):
             [
                 transaction.amount
                 for transaction in self.transactions.filter(
-                state=Transaction.States.Pending
-            )
+                    state=Transaction.States.Pending
+                )
             ]
         )
 
@@ -659,12 +659,12 @@ class BillingDocumentBase(models.Model):
             [
                 transaction.amount
                 for transaction in self.transactions.filter(
-                state__in=[
-                    Transaction.States.Initial,
-                    Transaction.States.Pending,
-                    Transaction.States.Settled,
-                ]
-            )
+                    state__in=[
+                        Transaction.States.Initial,
+                        Transaction.States.Pending,
+                        Transaction.States.Settled,
+                    ]
+                )
             ]
         )
 
@@ -715,19 +715,19 @@ def post_document_save(sender, instance, created=False, **kwargs):
 
     # Create a transaction if the document was recently issued
     if (
-            document.state == BillingDocumentBase.STATES.ISSUED
-            and settings.SILVER_AUTOMATICALLY_CREATE_TRANSACTIONS
+        document.state == BillingDocumentBase.STATES.ISSUED
+        and settings.SILVER_AUTOMATICALLY_CREATE_TRANSACTIONS
     ):
         # But only if there is no pending transaction
         Transaction = apps.get_model("silver", "Transaction")
 
         # The related document might have the only reference to an existing transaction
         if not (document.related_document or document).transactions.filter(
-                state__in=[
-                    Transaction.States.Pending,
-                    Transaction.States.Initial,
-                    Transaction.States.Settled,
-                ]
+            state__in=[
+                Transaction.States.Pending,
+                Transaction.States.Initial,
+                Transaction.States.Settled,
+            ]
         ):
             create_transaction_for_document(document)
 
