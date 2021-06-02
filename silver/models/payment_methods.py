@@ -28,6 +28,7 @@ from django.db import models
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from django.utils import timezone
+from django.utils.encoding import python_2_unicode_compatible
 
 from silver import payment_processors
 from silver.models import Invoice, Proforma
@@ -39,6 +40,7 @@ class PaymentMethodInvalid(Exception):
     pass
 
 
+@python_2_unicode_compatible
 class PaymentMethod(models.Model):
     class PaymentProcessors:
         @classmethod
