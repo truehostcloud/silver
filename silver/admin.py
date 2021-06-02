@@ -291,11 +291,6 @@ class SubscriptionForm(forms.ModelForm):
             "customer": autocomplete.ModelSelect2(url="autocomplete-customer"),
         }
 
-
-class PlanFilter(SimpleListFilter):
-    title = _("plan")
-    parameter_name = "plan"
-
     def lookups(self, request, model_admin):
         queryset = (
             model_admin.get_queryset(request)
@@ -332,7 +327,7 @@ class SubscriptionAdmin(ModelAdmin):
         "state",
         metadata,
     ]
-    list_filter = [PlanFilter, "state", "plan__provider", "customer"]
+    list_filter = [PlanFilter, "state", "plan__provider", CustomerFilter]
     actions = ["activate", "cancel_now", "cancel_at_end_of_cycle", "end"]
     search_fields = [
         "customer__first_name",
@@ -912,7 +907,6 @@ class BillingDocumentAdmin(ModelAdmin):
         "provider__company",
         "state",
         CustomerFilter,
-        PlanFilter,
         DueDateFilter,
         "is_storno",
     )
