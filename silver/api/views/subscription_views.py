@@ -142,9 +142,7 @@ class SubscriptionActivate(APIView):
                     )
             if trial_end:
                 try:
-                    trial_end = datetime.datetime.strptime(
-                        trial_end, "%Y-%m-%d"
-                    ).date()
+                    trial_end = datetime.datetime.strptime(trial_end, "%Y-%m-%d").date()
                 except TypeError:
                     return Response(
                         {
