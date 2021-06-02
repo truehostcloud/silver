@@ -32,7 +32,7 @@ def test_generate_pdf():
     context = {"filename": filename}
 
     with patch(
-            "django.db.models.fields.files.FieldFile.save", autospec=True
+        "django.db.models.fields.files.FieldFile.save", autospec=True
     ) as mock_pdf_save:
         pdf.generate(template=template, context=context)
 

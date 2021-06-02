@@ -63,7 +63,7 @@ class Plan(models.Model):
         decimal_places=4,
         validators=[MinValueValidator(0.0)],
         help_text="The amount in the specified currency to be charged on the "
-                  "interval specified.",
+        "interval specified.",
     )
     currency = models.CharField(
         choices=currencies,
@@ -75,23 +75,23 @@ class Plan(models.Model):
         null=True,
         blank=True,
         help_text="Number of trial period days granted when subscribing a "
-                  "customer to this plan.",
+        "customer to this plan.",
         verbose_name="Trial days",
     )
     generate_documents_on_trial_end = models.BooleanField(
         null=True,
         help_text="If this is set to True, then billing documents will be generated when the "
-                  "subscription trial ends, instead of waiting for the end of the billing cycle.",
+        "subscription trial ends, instead of waiting for the end of the billing cycle.",
     )
     separate_cycles_during_trial = models.BooleanField(
         null=True,
         help_text="If this is set to True, then the trial period cycle will be split if it spans "
-                  "across multiple billing intervals.",
+        "across multiple billing intervals.",
     )
     prebill_plan = models.BooleanField(
         null=True,
         help_text="If this is set to True, then the plan base amount will be billed at the"
-                  "beginning of the billing cycle rather than after the end.",
+        "beginning of the billing cycle rather than after the end.",
     )
     metered_features = models.ManyToManyField(
         "MeteredFeature", blank=True, help_text="A list of the plan's metered features."
@@ -99,17 +99,17 @@ class Plan(models.Model):
     generate_after = models.PositiveIntegerField(
         default=0,
         help_text="Number of seconds to wait after current billing cycle ends "
-                  "before generating the invoice. This can be used to allow "
-                  "systems to finish updating feature counters.",
+        "before generating the invoice. This can be used to allow "
+        "systems to finish updating feature counters.",
     )
     cycle_billing_duration = models.DurationField(
         null=True,
         blank=True,
         help_text="This can be used to ensure that the billing date doesn't pass a certain date.\n"
-                  "For example if this field is set to 2 days, for a monthly subscription, the "
-                  "billing date will never surpass the 2nd day of the month. Billing documents can "
-                  "still be generated after that day during the billing cycle, but their billing "
-                  "date will appear to be the end of the cycle billing duration.",
+        "For example if this field is set to 2 days, for a monthly subscription, the "
+        "billing date will never surpass the 2nd day of the month. Billing documents can "
+        "still be generated after that day during the billing cycle, but their billing "
+        "date will appear to be the end of the cycle billing duration.",
     )
     enabled = models.BooleanField(
         default=True, help_text="Whether to accept subscriptions."
@@ -138,9 +138,9 @@ class Plan(models.Model):
         for mf in metered_features:
             if product_codes.get(mf.product_code.value, None):
                 err_msg = (
-                        "A plan cannot have two or more metered features "
-                        "with the same product code. (%s, %s)"
-                        % (mf.name, product_codes.get(mf.product_code.value))
+                    "A plan cannot have two or more metered features "
+                    "with the same product code. (%s, %s)"
+                    % (mf.name, product_codes.get(mf.product_code.value))
                 )
                 raise ValidationError(err_msg)
             product_codes[mf.product_code.value] = mf.name

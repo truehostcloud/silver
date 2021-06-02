@@ -141,7 +141,7 @@ invoice_definition = ResourceDefinition(
         "total": {
             "read_only": True,
             "output": lambda invoice: "%.2f"
-                                      % (sum([entry.total for entry in invoice.entries])),
+            % (sum([entry.total for entry in invoice.entries])),
         },
         "total_in_transaction_currency": {
             "read_only": True,
@@ -152,22 +152,22 @@ invoice_definition = ResourceDefinition(
                 lambda invoice, output: (
                     output is None
                     if not (
-                            invoice.transaction_currency
-                            and (
-                                    invoice.transaction_xe_rate
-                                    or invoice.transaction_currency == invoice.currency
-                            )
+                        invoice.transaction_currency
+                        and (
+                            invoice.transaction_xe_rate
+                            or invoice.transaction_currency == invoice.currency
+                        )
                     )
                     else output
-                         == "%.2f"
-                         % (
-                             sum(
-                                 [
-                                     entry.total_in_transaction_currency
-                                     for entry in invoice.entries
-                                 ]
-                             )
-                         )
+                    == "%.2f"
+                    % (
+                        sum(
+                            [
+                                entry.total_in_transaction_currency
+                                for entry in invoice.entries
+                            ]
+                        )
+                    )
                 )
             ],
         },
@@ -216,7 +216,7 @@ invoice_definition = ResourceDefinition(
                     else output is None
                     if invoice.state == "draft"
                     else output
-                         == date_to_str(
+                    == date_to_str(
                         invoice.issue_date + settings.SILVER_DEFAULT_DUE_DAYS
                     )
                 )

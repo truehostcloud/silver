@@ -53,7 +53,7 @@ class Customer(BaseBillingEntity):
         null=True,
         validators=[validate_reference],
         help_text="It's a reference to be passed between silver and clients. "
-                  "It usually points to an account ID.",
+        "It usually points to an account ID.",
     )
     sales_tax_number = models.CharField(max_length=64, blank=True, null=True)
     sales_tax_percent = models.DecimalField(
@@ -63,7 +63,7 @@ class Customer(BaseBillingEntity):
         blank=True,
         validators=[MinValueValidator(0.0)],
         help_text="Whenever to add sales tax. "
-                  "If null, it won't show up on the invoice.",
+        "If null, it won't show up on the invoice.",
     )
     sales_tax_name = models.CharField(
         max_length=64,
@@ -78,7 +78,7 @@ class Customer(BaseBillingEntity):
         null=True,
         blank=True,
         help_text="Used to enforce a certain currency when making transactions"
-                  "for the customer.",
+        "for the customer.",
     )
 
     def __init__(self, *args, **kwargs):
@@ -96,8 +96,8 @@ class Customer(BaseBillingEntity):
 
     def clean(self):
         if (
-                self.sales_tax_number
-                and is_vat_number_format_valid(self.sales_tax_number, self.country) is False
+            self.sales_tax_number
+            and is_vat_number_format_valid(self.sales_tax_number, self.country) is False
         ):
             raise ValidationError(
                 {"sales_tax_number": "The sales tax number is not valid."}

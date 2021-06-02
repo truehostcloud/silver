@@ -1,8 +1,10 @@
 import inspect
 
 
-datetime_to_str = lambda input_date: input_date.isoformat()[:-6] + 'Z'
-datetime_to_str_or_none = lambda input_date: datetime_to_str(input_date) if input_date else None
+datetime_to_str = lambda input_date: input_date.isoformat()[:-6] + "Z"
+datetime_to_str_or_none = (
+    lambda input_date: datetime_to_str(input_date) if input_date else None
+)
 date_to_str = lambda input_date: input_date.isoformat()
 decimal_string_or_none = lambda input_decimal: (
     None if input_decimal is None else "%.2f" % input_decimal
@@ -14,21 +16,23 @@ class ResourceDefinition(object):
         # TODO: parse field definitions
         self.field_definitions = field_definitions
         self.field_defaults = {
-            field: spec['default'] for field, spec in field_definitions.items()
-            if 'default' in spec
+            field: spec["default"]
+            for field, spec in field_definitions.items()
+            if "default" in spec
         }
         self.field_assertions = {
-            field: spec['assertions'] for field, spec in field_definitions.items()
-            if 'assertions' in spec
+            field: spec["assertions"]
+            for field, spec in field_definitions.items()
+            if "assertions" in spec
         }
         self.resource_name = resource_name
 
     def generate(self, resource):
         representation = {}
         for field, field_spec in self.field_definitions.items():
-            field_output = field_spec['output']
+            field_output = field_spec["output"]
 
-            if not field_spec.get('write_only', False):
+            if not field_spec.get("write_only", False):
                 representation[field] = field_output(resource)
 
         return representation
@@ -46,21 +50,22 @@ class ResourceDefinition(object):
     def check_request_input_types(self, request_data):
         for field, value in request_data.items():
             field_spec = self.field_definitions[field]
-            assert not field_spec.get('read_only'), (
-                "Got read-only field '{field}' in request data.".format(field=field)
-            )
+            assert not field_spec.get(
+                "read_only"
+            ), "Got read-only field '{field}' in request data.".format(field=field)
 
-            expected_input_types = field_spec['expected_input_types']
-            if not field_spec.get('required', True):
+            expected_input_types = field_spec["expected_input_types"]
+            if not field_spec.get("required", True):
                 if value is None:
                     continue
 
-            assert isinstance(value, expected_input_types), (
-                "Expected request value < {value} > for field '{field}' to be one of "
-                "{expected_input_types}. Actual type is {actual_type}.".format(
-                    field=field, value=value, expected_input_types=expected_input_types,
-                    actual_type=type(value)
-                )
+            assert isinstance(
+                value, expected_input_types
+            ), "Expected request value < {value} > for field '{field}' to be one of " "{expected_input_types}. Actual type is {actual_type}.".format(
+                field=field,
+                value=value,
+                expected_input_types=expected_input_types,
+                actual_type=type(value),
             )
 
     def check_request_input_output(self, resource, request_data, response_data):
@@ -68,11 +73,13 @@ class ResourceDefinition(object):
             field_definition = self.field_definitions[field]
             actual = response_data[field]
 
-            expected = field_definition['output'](resource)
+            expected = field_definition["output"](resource)
 
             assert actual == expected, (
                 "Expected field '{field}' response value to be < {expected} >, but got "
-                "< {actual} > instead.".format(field=field, actual=actual, expected=expected)
+                "< {actual} > instead.".format(
+                    field=field, actual=actual, expected=expected
+                )
             )
 
     def check_assertions(self, resource, request_data, response_data):
@@ -80,11 +87,11 @@ class ResourceDefinition(object):
             field_spec = self.field_definitions[field]
 
             assertion_kwargs = {self.resource_name: resource}
-            if not field_spec.get('read_only', False):
+            if not field_spec.get("read_only", False):
                 # fix this to test requiredness maybe
-                assertion_kwargs['input'] = request_data.get(field)
-            if not field_spec.get('write_only', False):
-                assertion_kwargs['output'] = response_data[field]
+                assertion_kwargs["input"] = request_data.get(field)
+            if not field_spec.get("write_only", False):
+                assertion_kwargs["output"] = response_data[field]
 
             for assertion in assertions:
                 assert assertion(**assertion_kwargs), (
@@ -92,10 +99,11 @@ class ResourceDefinition(object):
                     "input: {input}\n"
                     "{resource_name}: {resource}\n"
                     "output: {output}\n".format(
-                        field=field, source=inspect.getsource(assertion),
+                        field=field,
+                        source=inspect.getsource(assertion),
                         resource_name=self.resource_name,
-                        input=assertion_kwargs.get('input'),
+                        input=assertion_kwargs.get("input"),
                         resource=assertion_kwargs.get(self.resource_name),
-                        output=assertion_kwargs.get('output'),
+                        output=assertion_kwargs.get("output"),
                     )
                 )

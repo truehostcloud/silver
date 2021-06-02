@@ -496,7 +496,7 @@ class TestSubscriptionShouldBeBilled(TestCase):
 
         true_property = PropertyMock(return_value=True)
         with patch.multiple(
-                Subscription, _has_existing_customer_with_consolidated_billing=true_property
+            Subscription, _has_existing_customer_with_consolidated_billing=true_property
         ):
             assert subscription.should_be_billed(correct_billing_date) is True
             assert subscription.should_be_billed(incorrect_billing_date) is False
@@ -514,7 +514,7 @@ class TestSubscriptionShouldBeBilled(TestCase):
 
         true_property = PropertyMock(return_value=True)
         with patch.multiple(
-                Subscription, _has_existing_customer_with_consolidated_billing=true_property
+            Subscription, _has_existing_customer_with_consolidated_billing=true_property
         ):
             assert subscription.should_be_billed(billing_date_1) is True
             assert subscription.should_be_billed(billing_date_2) is True
@@ -531,8 +531,8 @@ class TestSubscriptionShouldBeBilled(TestCase):
 
         false_property = PropertyMock(return_value=False)
         with patch.multiple(
-                Subscription,
-                _has_existing_customer_with_consolidated_billing=false_property,
+            Subscription,
+            _has_existing_customer_with_consolidated_billing=false_property,
         ):
             assert subscription.should_be_billed(correct_billing_date) is True
 
@@ -640,10 +640,10 @@ class TestSubscriptionShouldBeBilled(TestCase):
         false_property = PropertyMock(return_value=False)
         mocked_bucket_end_date = MagicMock(return_value=datetime.date(2015, 8, 26))
         with patch.multiple(
-                Subscription,
-                is_billed_first_time=true_property,
-                _has_existing_customer_with_consolidated_billing=false_property,
-                bucket_end_date=mocked_bucket_end_date,
+            Subscription,
+            is_billed_first_time=true_property,
+            _has_existing_customer_with_consolidated_billing=false_property,
+            bucket_end_date=mocked_bucket_end_date,
         ):
             assert subscription.should_be_billed(correct_billing_date_1) is True
             assert subscription.should_be_billed(correct_billing_date_2) is True
@@ -665,10 +665,10 @@ class TestSubscriptionShouldBeBilled(TestCase):
         true_property = PropertyMock(return_value=True)
         mocked_bucket_end_date = MagicMock(return_value=datetime.date(2015, 8, 31))
         with patch.multiple(
-                Subscription,
-                is_billed_first_time=true_property,
-                _has_existing_customer_with_consolidated_billing=true_property,
-                bucket_end_date=mocked_bucket_end_date,
+            Subscription,
+            is_billed_first_time=true_property,
+            _has_existing_customer_with_consolidated_billing=true_property,
+            bucket_end_date=mocked_bucket_end_date,
         ):
             assert subscription.should_be_billed(correct_billing_date_1) is True
             assert subscription.should_be_billed(correct_billing_date_2) is True
@@ -722,12 +722,12 @@ class TestSubscriptionShouldBeBilled(TestCase):
         mocked_last_billing_date = PropertyMock(return_value=datetime.date(2015, 9, 2))
         mocked_bucket_end_date = MagicMock(return_value=datetime.date(2015, 9, 12))
         with patch.multiple(
-                Subscription,
-                is_billed_first_time=false_property,
-                on_trial=mocked_on_trial,
-                last_billing_date=mocked_last_billing_date,
-                _has_existing_customer_with_consolidated_billing=false_property,
-                bucket_end_date=mocked_bucket_end_date,
+            Subscription,
+            is_billed_first_time=false_property,
+            on_trial=mocked_on_trial,
+            last_billing_date=mocked_last_billing_date,
+            _has_existing_customer_with_consolidated_billing=false_property,
+            bucket_end_date=mocked_bucket_end_date,
         ):
             assert subscription.should_be_billed(correct_billing_date) is True
             assert subscription.should_be_billed(incorrect_billing_date_1) is False
@@ -781,12 +781,12 @@ class TestSubscriptionShouldBeBilled(TestCase):
         incorrect_billing_date = correct_billing_date_1 - datetime.timedelta(days=1)
 
         assert (
-                billing_log.metered_features_billed_up_to
-                < incorrect_billing_date
-                <= subscription.cancel_date
-                < correct_billing_date_1
-                < billing_log.plan_billed_up_to
-                < correct_billing_date_2
+            billing_log.metered_features_billed_up_to
+            < incorrect_billing_date
+            <= subscription.cancel_date
+            < correct_billing_date_1
+            < billing_log.plan_billed_up_to
+            < correct_billing_date_2
         )
         assert subscription.should_be_billed(correct_billing_date_1)
         assert subscription.should_be_billed(correct_billing_date_2)
@@ -820,12 +820,12 @@ class TestSubscriptionShouldBeBilled(TestCase):
         incorrect_billing_date_2 = correct_billing_date - datetime.timedelta(days=1)
 
         assert (
-                billing_log.metered_features_billed_up_to
-                < subscription.cancel_date
-                < incorrect_billing_date_1
-                < incorrect_billing_date_2
-                <= billing_log.plan_billed_up_to
-                < correct_billing_date
+            billing_log.metered_features_billed_up_to
+            < subscription.cancel_date
+            < incorrect_billing_date_1
+            < incorrect_billing_date_2
+            <= billing_log.plan_billed_up_to
+            < correct_billing_date
         )
 
         assert subscription.should_be_billed(correct_billing_date)

@@ -58,8 +58,7 @@ transaction_definition = ResourceDefinition(
             "output": lambda transaction: transaction.state,
             "assertions": [
                 lambda input, transaction, output: output
-                                                   in ["initial", "pending", "settled", "failed", "canceled",
-                                                       "refunded"]
+                in ["initial", "pending", "settled", "failed", "canceled", "refunded"]
             ],
         },
         "invoice": {
@@ -116,11 +115,11 @@ transaction_definition = ResourceDefinition(
             "output": lambda transaction: (
                 None
                 if (
-                        transaction.state != transaction.States.Initial
-                        or (
-                                transaction.valid_until
-                                and transaction.valid_until < timezone.now()
-                        )
+                    transaction.state != transaction.States.Initial
+                    or (
+                        transaction.valid_until
+                        and transaction.valid_until < timezone.now()
+                    )
                 )
                 else spec_transaction_pay_url(transaction)
             ),

@@ -57,27 +57,27 @@ class ProviderSerializer(serializers.HyperlinkedModelSerializer):
         flow = data.get("flow", None)
         if flow == Provider.FLOWS.PROFORMA:
             if not data.get("proforma_starting_number", None) and not data.get(
-                    "proforma_series", None
+                "proforma_series", None
             ):
                 errors = {
                     "proforma_series": "This field is required as the "
-                                       "chosen flow is proforma.",
+                    "chosen flow is proforma.",
                     "proforma_starting_number": "This field is required "
-                                                "as the chosen flow is "
-                                                "proforma.",
+                    "as the chosen flow is "
+                    "proforma.",
                 }
                 raise serializers.ValidationError(errors)
             elif not data.get("proforma_series"):
                 errors = {
                     "proforma_series": "This field is required as the "
-                                       "chosen flow is proforma."
+                    "chosen flow is proforma."
                 }
                 raise serializers.ValidationError(errors)
             elif not data.get("proforma_starting_number", None):
                 errors = {
                     "proforma_starting_number": "This field is required "
-                                                "as the chosen flow is "
-                                                "proforma."
+                    "as the chosen flow is "
+                    "proforma."
                 }
                 raise serializers.ValidationError(errors)
 

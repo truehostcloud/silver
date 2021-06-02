@@ -42,7 +42,7 @@ class BaseBillingEntity(LiveModel):
         blank=True,
         null=True,
         help_text="Extra information to display on the invoice "
-                  "(markdown formatted).",
+        "(markdown formatted).",
     )
     meta = JSONField(blank=True, null=True, default=dict, encoder=DjangoJSONEncoder)
 
@@ -62,12 +62,12 @@ class BaseBillingEntity(LiveModel):
             [
                 _f
                 for _f in [
-                self.address_1,
-                self.city,
-                self.state,
-                self.zip_code,
-                self.country,
-            ]
+                    self.address_1,
+                    self.city,
+                    self.state,
+                    self.zip_code,
+                    self.country,
+                ]
                 if _f
             ]
         )

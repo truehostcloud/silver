@@ -135,7 +135,7 @@ class PaymentMethod(models.Model):
             if transaction.state == Transaction.States.Pending:
                 payment_processor = self.get_payment_processor()
                 if hasattr(
-                        payment_processor, "void_transaction"
+                    payment_processor, "void_transaction"
                 ) and not payment_processor.void_transaction(transaction):
                     errors.append(
                         "Transaction {} couldn't be voided".format(transaction.uuid)
@@ -202,10 +202,10 @@ def create_transactions_for_issued_documents(payment_method):
     transactions = []
 
     for document in chain(
-            Proforma.objects.filter(
-                related_document=None, customer=customer, state=Proforma.STATES.ISSUED
-            ),
-            Invoice.objects.filter(state=Invoice.STATES.ISSUED, customer=customer),
+        Proforma.objects.filter(
+            related_document=None, customer=customer, state=Proforma.STATES.ISSUED
+        ),
+        Invoice.objects.filter(state=Invoice.STATES.ISSUED, customer=customer),
     ):
         try:
             transactions.append(
@@ -246,12 +246,12 @@ def post_payment_method_save(sender, instance, **kwargs):
     previous_instance = getattr(payment_method, ".previous_instance", None)
 
     if not (
-            settings.SILVER_AUTOMATICALLY_CREATE_TRANSACTIONS
-            or not payment_method.verified
-            or (
-                    not payment_method.get_payment_processor().type
-                        == payment_processors.Types.Triggered
-            )
+        settings.SILVER_AUTOMATICALLY_CREATE_TRANSACTIONS
+        or not payment_method.verified
+        or (
+            not payment_method.get_payment_processor().type
+            == payment_processors.Types.Triggered
+        )
     ):
         return
 

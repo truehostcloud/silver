@@ -15,8 +15,8 @@ def populate_billing_log_invoice_from_proforma(apps, schema_editor):
     BillingLog.objects.using(db_alias).filter(invoice=None).update(
         invoice_id=Subquery(
             Proforma.objects.using(db_alias)
-                .filter(id=OuterRef("proforma_id"))
-                .values("related_document_id")[:1]
+            .filter(id=OuterRef("proforma_id"))
+            .values("related_document_id")[:1]
         )
     )
 

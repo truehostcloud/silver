@@ -70,8 +70,8 @@ class Proforma(BillingDocumentBase):
             elif not self.provider.proforma_series:
                 err_msg = {
                     "series": "You must either specify the series or "
-                              "set a default proforma_series for the "
-                              "provider."
+                    "set a default proforma_series for the "
+                    "provider."
                 }
                 raise ValidationError(err_msg)
 

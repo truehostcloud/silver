@@ -49,7 +49,7 @@ from silver.tests.utils import build_absolute_test_url
 
 
 def test_post_invoice_without_invoice_entries(
-        authenticated_api_client, customer, provider
+    authenticated_api_client, customer, provider
 ):
     SubscriptionFactory.create()
 
@@ -179,11 +179,11 @@ def test_get_invoice(authenticated_api_client, settings, issued_invoice):
             )
             for state in Transaction.States.as_list()
             if state
-               not in [
-                   Transaction.States.Canceled,
-                   Transaction.States.Refunded,
-                   Transaction.States.Failed,
-               ]
+            not in [
+                Transaction.States.Canceled,
+                Transaction.States.Refunded,
+                Transaction.States.Failed,
+            ]
         ]
 
     url = reverse("invoice-detail", kwargs={"pk": invoice.pk})
