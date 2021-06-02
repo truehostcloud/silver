@@ -802,9 +802,9 @@ class Subscription(models.Model):
                 extra_consumed = consumed_units - included_units_during_trial
                 return extra_consumed, included_units_during_trial
             return 0, consumed_units
-        elif metered_feature.included_units_during_trial == Decimal("0.0000"):
+        if metered_feature.included_units_during_trial == Decimal("0.0000"):
             return consumed_units, 0
-        elif metered_feature.included_units_during_trial is None:
+        if metered_feature.included_units_during_trial is None:
             return 0, consumed_units
 
     def _get_extra_consumed_units_during_trial(self, metered_feature, consumed_units):
