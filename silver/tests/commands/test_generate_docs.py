@@ -156,7 +156,7 @@ class TestInvoiceGenerationCommand(TestCase):
         assert all(entry.prorated for entry in proforma.proforma_entries.all())
         assert all(
             entry.total != Decimal("0.0000")
-                for entry in proforma.proforma_entries.all()
+            for entry in proforma.proforma_entries.all()
         )
         prorated_plan_value = (
             Decimal(18 / 30.0).quantize(Decimal("0.0000")) * plan.amount
@@ -795,7 +795,7 @@ class TestInvoiceGenerationCommand(TestCase):
         assert all(entry.prorated for entry in proforma.proforma_entries.all())
         assert all(
             entry.total != Decimal("0.0000")
-                for entry in proforma.proforma_entries.all()
+            for entry in proforma.proforma_entries.all()
         )
         assert proforma.total == Decimal("0.0000")
 
@@ -813,7 +813,7 @@ class TestInvoiceGenerationCommand(TestCase):
         assert all(entry.prorated for entry in proforma.proforma_entries.all())
         assert all(
             entry.total != Decimal("0.0000")
-                for entry in proforma.proforma_entries.all()
+            for entry in proforma.proforma_entries.all()
         )
         assert proforma.total != Decimal("0.0000")
 
@@ -869,7 +869,7 @@ class TestInvoiceGenerationCommand(TestCase):
         assert all(entry.prorated for entry in proforma.proforma_entries.all())
         assert all(
             entry.total != Decimal("0.0000")
-                for entry in proforma.proforma_entries.all()
+            for entry in proforma.proforma_entries.all()
         )
         extra_during_trial = consumed_during_trial - included_during_trial
         prorated_plan_value = (
@@ -949,7 +949,7 @@ class TestInvoiceGenerationCommand(TestCase):
         assert all(entry.prorated for entry in proforma.proforma_entries.all())
         assert all(
             entry.total != Decimal("0.0000")
-                for entry in proforma.proforma_entries.all()
+            for entry in proforma.proforma_entries.all()
         )
         call_command(
             "generate_docs", billing_date=curr_billing_date, stdout=self.output
@@ -1059,7 +1059,7 @@ class TestInvoiceGenerationCommand(TestCase):
         assert all(entry.prorated for entry in proforma.proforma_entries.all())
         assert all(
             entry.total != Decimal("0.0000")
-                for entry in proforma.proforma_entries.all()
+            for entry in proforma.proforma_entries.all()
         )
         call_command(
             "generate_docs", billing_date=curr_billing_date, stdout=self.output
@@ -1178,7 +1178,7 @@ class TestInvoiceGenerationCommand(TestCase):
         assert all(entry.prorated for entry in proforma.proforma_entries.all())
         assert all(
             entry.total != Decimal("0.0000")
-                for entry in proforma.proforma_entries.all()
+            for entry in proforma.proforma_entries.all()
         )
         prorated_plan_value = (
             Decimal(28 / 30.0).quantize(Decimal("0.0000")) * plan.amount
@@ -1530,7 +1530,7 @@ class TestInvoiceGenerationCommand(TestCase):
         assert all(entry.prorated for entry in proforma.proforma_entries.all())
         assert all(
             entry.total != Decimal("0.0000")
-                for entry in proforma.proforma_entries.all()
+            for entry in proforma.proforma_entries.all()
         )
         consumed_mfs_value = consumed_mfs * metered_feature.price_per_unit
         assert proforma.total == consumed_mfs_value
