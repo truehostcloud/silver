@@ -178,7 +178,8 @@ class PlanAdmin(ModelAdmin):
     list_filter = ["provider"]
     form = PlanForm
 
-    def interval_display(self, obj):
+    @staticmethod
+    def interval_display(obj):
         return (
             "{:d} {}s".format(obj.interval_count, obj.interval)
             if obj.interval_count != 1
@@ -187,7 +188,8 @@ class PlanAdmin(ModelAdmin):
 
     interval_display.short_description = "Interval"
 
-    def description(self, obj):
+    @staticmethod
+    def description(obj):
         d = "Subscription: <code>{:.2f} {}</code><br>".format(obj.amount, obj.currency)
         fmt = "{name}: <code>{price:.2f} {currency}</code>"
         for f in obj.metered_features.all():
@@ -203,7 +205,8 @@ class PlanAdmin(ModelAdmin):
 
     description.allow_tags = True
 
-    def get_provider(self, obj):
+    @staticmethod
+    def get_provider(obj):
         return format_html(obj.provider.admin_change_url)
 
     get_provider.allow_tags = True
@@ -265,13 +268,15 @@ class BillingLogInLine(TabularInline):
     def has_delete_permission(self, request, obj=None):
         return False
 
-    def invoice_link(self, obj):
+    @staticmethod
+    def invoice_link(obj):
         return format_html(obj.invoice.admin_change_url) if obj.invoice else "None"
 
     invoice_link.short_description = "Invoice"
     invoice_link.allow_tags = True
 
-    def proforma_link(self, obj):
+    @staticmethod
+    def proforma_link(obj):
         return format_html(obj.proforma.admin_change_url) if obj.proforma else "None"
 
     proforma_link.short_description = "Proforma"
@@ -291,7 +296,8 @@ class SubscriptionForm(forms.ModelForm):
             "customer": autocomplete.ModelSelect2(url="autocomplete-customer"),
         }
 
-    def lookups(self, request, model_admin):
+    @staticmethod
+    def lookups(request, model_admin):
         queryset = (
             model_admin.get_queryset(request)
             .distinct()
@@ -419,7 +425,8 @@ class SubscriptionAdmin(ModelAdmin):
 
     end.short_description = "End the selected Subscription(s) "
 
-    def get_plan_name(self, subscription):
+    @staticmethod
+    def get_plan_name(subscription):
         return subscription.plan.name
 
     get_plan_name.short_description = "Plan"
@@ -558,17 +565,20 @@ class ProviderAdmin(LiveModelAdmin):
     actions = ["generate_monthly_totals"]
     exclude = ["live"]
 
-    def invoice_series_list_display(self, obj):
+    @staticmethod
+    def invoice_series_list_display(obj):
         return "{}-{}".format(obj.invoice_series, obj.invoice_starting_number)
 
     invoice_series_list_display.short_description = "Invoice series starting number"
 
-    def proforma_series_list_display(self, obj):
+    @staticmethod
+    def proforma_series_list_display(obj):
         return "{}-{}".format(obj.proforma_series, obj.proforma_starting_number)
 
     proforma_series_list_display.short_description = "Proforma series starting number"
 
-    def _compute_monthly_totals(self, model_klass, provider, documents):
+    @staticmethod
+    def _compute_monthly_totals(model_klass, provider, documents):
         klass_name_plural = model_klass.__name__ + "s"
 
         totals = {}
@@ -996,7 +1006,8 @@ class BillingDocumentAdmin(ModelAdmin):
     def _model_name(self):
         raise NotImplementedError
 
-    def _call_method_on_queryset(self, request, method, queryset, action):
+    @staticmethod
+    def _call_method_on_queryset(request, method, queryset, action):
         results = {}
         for document in queryset:
             results[document] = {}
@@ -1028,7 +1039,8 @@ class BillingDocumentAdmin(ModelAdmin):
 
         return results
 
-    def _parse_results_into_messages(self, results):
+    @staticmethod
+    def _parse_results_into_messages(results):
         parsed_results = []
         for document, result in results.items():
             message, info = "", ""
@@ -1137,12 +1149,14 @@ class BillingDocumentAdmin(ModelAdmin):
                 del actions["delete_selected"]
         return actions
 
-    def total(self, obj):
+    @staticmethod
+    def total(obj):
         return "{:.2f} {currency}".format(obj.total, currency=obj.currency)
 
     total.admin_order_field = "_total"
 
-    def transactions(self, obj):
+    @staticmethod
+    def transactions(obj):
         if obj.transaction_xe_rate:
             url_base = "admin:silver_transaction_changelist"
 
@@ -1162,7 +1176,8 @@ class BillingDocumentAdmin(ModelAdmin):
     transactions.allow_tags = True
     transactions.admin_order_field = "_total_in_transaction_currency"
 
-    def _download_pdf(self, url, base_path):
+    @staticmethod
+    def _download_pdf(url, base_path):
         local_file_path = os.path.join(base_path, "billing-temp-document.pdf")
         response = requests.get(url)
         response.encoding = "utf-8"
@@ -1226,7 +1241,8 @@ class BillingDocumentAdmin(ModelAdmin):
 
     download_selected_documents.short_description = "Download selected documents"
 
-    def get_related_document(self, obj):
+    @staticmethod
+    def get_related_document(obj):
         return (
             format_html(obj.related_document.admin_change_url)
             if obj.related_document
@@ -1236,14 +1252,16 @@ class BillingDocumentAdmin(ModelAdmin):
     get_related_document.short_description = "Related doc"
     get_related_document.allow_tags = True
 
-    def get_customer(self, obj):
+    @staticmethod
+    def get_customer(obj):
         return format_html(obj.customer.admin_change_url)
 
     get_customer.allow_tags = True
     get_customer.short_description = "customer"
     get_customer.admin_order_field = "customer"
 
-    def get_provider(self, obj):
+    @staticmethod
+    def get_provider(obj):
         return format_html(obj.provider.admin_change_url)
 
     get_provider.allow_tags = True
@@ -1314,7 +1332,8 @@ class InvoiceAdmin(BillingDocumentAdmin):
         "Mark the selected invoice(s) for PDF generation"
     )
 
-    def get_invoice_pdf(self, invoice):
+    @staticmethod
+    def get_invoice_pdf(invoice):
         if invoice.pdf:
             url = reverse("invoice-pdf", kwargs={"invoice_id": invoice.id})
             return format_html(
@@ -1378,7 +1397,8 @@ class ProformaAdmin(BillingDocumentAdmin):
         "Mark the selected proforma(s) for PDF generation"
     )
 
-    def get_proforma_pdf(self, proforma):
+    @staticmethod
+    def get_proforma_pdf(proforma):
         if proforma.pdf:
             url = reverse("proforma-pdf", kwargs={"proforma_id": proforma.id})
             return format_html(
@@ -1500,7 +1520,8 @@ class TransactionAdmin(ModelAdmin):
             return self.form.Meta.readonly_fields + self.form.Meta.create_only_fields
         return self.form.Meta.readonly_fields
 
-    def get_pay_url(self, obj):
+    @staticmethod
+    def get_pay_url(obj):
         return format_html(
             '<a href="%s">%s</a>' % (get_payment_url(obj, None), obj.payment_processor)
         )
@@ -1508,20 +1529,23 @@ class TransactionAdmin(ModelAdmin):
     get_pay_url.allow_tags = True
     get_pay_url.short_description = "Pay URL"
 
-    def get_customer(self, obj):
+    @staticmethod
+    def get_customer(obj):
         return format_html(obj.customer.admin_change_url)
 
     get_customer.allow_tags = True
     get_customer.short_description = "Customer"
     get_customer.admin_order_field = "customer"
 
-    def get_is_recurring(self, obj):
+    @staticmethod
+    def get_is_recurring(obj):
         return obj.payment_method.verified
 
     get_is_recurring.boolean = True
     get_is_recurring.short_description = "Recurring"
 
-    def get_payment_method(self, obj):
+    @staticmethod
+    def get_payment_method(obj):
         link = reverse(
             "admin:silver_paymentmethod_change", args=[obj.payment_method.pk]
         )
@@ -1654,13 +1678,15 @@ class TransactionAdmin(ModelAdmin):
 
     fail.short_description = "Fail the selected transactions"
 
-    def related_invoice(self, obj):
+    @staticmethod
+    def related_invoice(obj):
         return format_html(obj.invoice.admin_change_url) if obj.invoice else None
 
     related_invoice.allow_tags = True
     related_invoice.short_description = "Invoice"
 
-    def related_proforma(self, obj):
+    @staticmethod
+    def related_proforma(obj):
         return format_html(obj.proforma.admin_change_url) if obj.proforma else None
 
     related_proforma.allow_tags = True

@@ -258,7 +258,8 @@ class TestDocumentsTransactions(TestCase):
 
         self.assertEqual(proforma.related_document, invoice)
 
-    def test_transaction_settle_with_already_paid_invoice(self):
+    @staticmethod
+    def test_transaction_settle_with_already_paid_invoice():
         transaction = TransactionFactory.create(
             state=Transaction.States.Pending,
         )

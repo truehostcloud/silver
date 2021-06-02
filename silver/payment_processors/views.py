@@ -48,5 +48,6 @@ class GenericTransactionView(View):
     def get(self, request):
         return HttpResponse(self.render_template())
 
-    def post(self, request):
+    @staticmethod
+    def post(request):
         raise MethodNotAllowed

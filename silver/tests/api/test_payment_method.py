@@ -48,7 +48,8 @@ class TestPaymentMethodEndpoints(APIGetAssert):
         self.customer = CustomerFactory.create()
         super(TestPaymentMethodEndpoints, self).setUp()
 
-    def create_payment_method(self, *args, **kwargs):
+    @staticmethod
+    def create_payment_method(*args, **kwargs):
         payment_method = PaymentMethodFactory.create(*args, **kwargs)
         payment_method.added_at.replace(microsecond=0)
 

@@ -34,7 +34,8 @@ class TestProviderEndpoints(APITestCase):
         admin_user = AdminUserFactory.create()
         self.client.force_authenticate(user=admin_user)
 
-    def _filter_providers(self, *args, **kwargs):
+    @staticmethod
+    def _filter_providers(*args, **kwargs):
         return Provider.objects.filter(*args, **kwargs)
 
     def test_post_valid_provider(self):

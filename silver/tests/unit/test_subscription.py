@@ -30,7 +30,8 @@ from silver.fixtures.factories import (
 
 
 class TestSubscription(TestCase):
-    def test_subscription_mf_units_log_intervals_1(self):
+    @staticmethod
+    def test_subscription_mf_units_log_intervals_1():
         # Every month, 16 days of trial
 
         subscription = SubscriptionFactory.create()
@@ -89,7 +90,8 @@ class TestSubscription(TestCase):
             reference_date=datetime.date(year=2015, month=4, day=22)
         )
 
-    def test_subscription_mf_units_log_intervals_2(self):
+    @staticmethod
+    def test_subscription_mf_units_log_intervals_2():
         # Every 2 months, 5 months of trial (2015-05-30)
 
         subscription = SubscriptionFactory.create()
@@ -160,7 +162,8 @@ class TestSubscription(TestCase):
             reference_date=datetime.date(year=2015, month=6, day=1)
         )
 
-    def test_subscription_mf_units_log_intervals_3(self):
+    @staticmethod
+    def test_subscription_mf_units_log_intervals_3():
         # Every 2 weeks, 8 days of trial
 
         subscription = SubscriptionFactory.create()
@@ -221,7 +224,8 @@ class TestSubscription(TestCase):
             reference_date=datetime.date(year=2015, month=6, day=28)
         )
 
-    def test_subscription_mf_units_log_intervals_4(self):
+    @staticmethod
+    def test_subscription_mf_units_log_intervals_4():
         # Every year, 3 months (90 days) of trial
 
         subscription = SubscriptionFactory.create()
@@ -271,7 +275,8 @@ class TestSubscription(TestCase):
             reference_date=datetime.date(year=2016, month=12, day=31)
         )
 
-    def test_subscription_billing_cycle_intervals_1(self):
+    @staticmethod
+    def test_subscription_billing_cycle_intervals_1():
         """
         Every month, 16 days of trial
         separate_cycles_during_trial = True
@@ -316,7 +321,8 @@ class TestSubscription(TestCase):
         end_date = datetime.date(year=2015, month=4, day=30)
         assert end_date == subscription.cycle_end_date(reference_date)
 
-    def test_subscription_billing_cycle_intervals_2(self):
+    @staticmethod
+    def test_subscription_billing_cycle_intervals_2():
         """
         Every 2 months, 150 days of trial (2015-05-30)
         separate_cycles_during_trial = True
@@ -383,7 +389,8 @@ class TestSubscription(TestCase):
         end_date = datetime.date(year=2015, month=8, day=31)
         assert end_date == subscription.cycle_end_date(reference_date)
 
-    def test_subscription_billing_cycle_intervals_3(self):
+    @staticmethod
+    def test_subscription_billing_cycle_intervals_3():
         """
         Every 2 weeks, 8 days of trial
         separate_cycles_during_trial = True
@@ -436,7 +443,8 @@ class TestSubscription(TestCase):
         end_date = datetime.date(year=2015, month=6, day=28)
         assert end_date == subscription.cycle_end_date(reference_date)
 
-    def test_subscription_billing_cycle_intervals_4(self):
+    @staticmethod
+    def test_subscription_billing_cycle_intervals_4():
         """
         Every year, 90 days of trial
         separate_cycles_during_trial = True
@@ -483,7 +491,8 @@ class TestSubscriptionShouldBeBilled(TestCase):
         * cb = consolidated billing
     """
 
-    def test_sub_canceled_at_end_of_bc_w_consolidated_billing(self):
+    @staticmethod
+    def test_sub_canceled_at_end_of_bc_w_consolidated_billing():
         plan = PlanFactory.create(generate_after=120)
         subscription = SubscriptionFactory.create(
             plan=plan,
@@ -501,7 +510,8 @@ class TestSubscriptionShouldBeBilled(TestCase):
             assert subscription.should_be_billed(correct_billing_date) is True
             assert subscription.should_be_billed(incorrect_billing_date) is False
 
-    def test_sub_canceled_now_w_consolidated_billing(self):
+    @staticmethod
+    def test_sub_canceled_now_w_consolidated_billing():
         plan = PlanFactory.create(generate_after=120)
         subscription = SubscriptionFactory.create(
             plan=plan,
@@ -519,7 +529,8 @@ class TestSubscriptionShouldBeBilled(TestCase):
             assert subscription.should_be_billed(billing_date_1) is True
             assert subscription.should_be_billed(billing_date_2) is True
 
-    def test_canceled_sub_wa_consolidated_billing(self):
+    @staticmethod
+    def test_canceled_sub_wa_consolidated_billing():
         plan = PlanFactory.create(generate_after=120)
         subscription = SubscriptionFactory.create(
             plan=plan,
@@ -536,7 +547,8 @@ class TestSubscriptionShouldBeBilled(TestCase):
         ):
             assert subscription.should_be_billed(correct_billing_date) is True
 
-    def test_canceled_sub_w_date_before_cancel_date(self):
+    @staticmethod
+    def test_canceled_sub_w_date_before_cancel_date():
         plan = PlanFactory.create(generate_after=120)
         subscription = SubscriptionFactory.create(
             plan=plan,
@@ -548,7 +560,8 @@ class TestSubscriptionShouldBeBilled(TestCase):
 
         assert subscription.should_be_billed(incorrect_billing_date) is False
 
-    def test_new_active_sub_no_trial_w_consolidated_billing(self):
+    @staticmethod
+    def test_new_active_sub_no_trial_w_consolidated_billing():
         plan = PlanFactory.create(generate_after=120)
         subscription = SubscriptionFactory.create(
             plan=plan,
@@ -569,7 +582,8 @@ class TestSubscriptionShouldBeBilled(TestCase):
             assert subscription.should_be_billed(correct_billing_date) is True
             assert subscription.should_be_billed(incorrect_billing_date) is False
 
-    def test_new_active_sub_no_trial_wa_consolidated_billing(self):
+    @staticmethod
+    def test_new_active_sub_no_trial_wa_consolidated_billing():
         plan = PlanFactory.create(generate_after=120)
         subscription = SubscriptionFactory.create(
             plan=plan,
@@ -589,7 +603,8 @@ class TestSubscriptionShouldBeBilled(TestCase):
             assert subscription.should_be_billed(correct_billing_date_1) is True
             assert subscription.should_be_billed(correct_billing_date_2) is True
 
-    def test_new_active_sub_with_smaller_billing_date_than_start_date(self):
+    @staticmethod
+    def test_new_active_sub_with_smaller_billing_date_than_start_date():
         plan = PlanFactory.create(generate_after=120)
         subscription = SubscriptionFactory.create(
             plan=plan,
@@ -600,7 +615,8 @@ class TestSubscriptionShouldBeBilled(TestCase):
 
         assert subscription.should_be_billed(billing_date) is False
 
-    def test_new_active_sub_trial_end_same_month_as_start_date_w_cb(self):
+    @staticmethod
+    def test_new_active_sub_trial_end_same_month_as_start_date_w_cb():
         plan = PlanFactory.create(generate_after=100)
         subscription = SubscriptionFactory.create(
             plan=plan,
@@ -624,7 +640,8 @@ class TestSubscriptionShouldBeBilled(TestCase):
             assert subscription.should_be_billed(incorrect_billing_date_1) is False
             assert subscription.should_be_billed(incorrect_billing_date_2) is False
 
-    def test_new_active_sub_trial_end_same_month_as_start_date_wa_cb(self):
+    @staticmethod
+    def test_new_active_sub_trial_end_same_month_as_start_date_wa_cb():
         plan = PlanFactory.create(generate_after=100)
         subscription = SubscriptionFactory.create(
             plan=plan,
@@ -649,7 +666,8 @@ class TestSubscriptionShouldBeBilled(TestCase):
             assert subscription.should_be_billed(correct_billing_date_2) is True
             assert subscription.should_be_billed(incorrect_billing_date) is False
 
-    def test_new_active_sub_trial_end_different_month_from_start_date_w_cb(self):
+    @staticmethod
+    def test_new_active_sub_trial_end_different_month_from_start_date_w_cb():
         plan = PlanFactory.create(generate_after=100)
         subscription = SubscriptionFactory.create(
             plan=plan,
@@ -675,7 +693,8 @@ class TestSubscriptionShouldBeBilled(TestCase):
             assert subscription.should_be_billed(incorrect_billing_date_1) is False
             assert subscription.should_be_billed(incorrect_billing_date_2) is False
 
-    def test_already_billed_sub_w_cb_on_trial_last_billing_date(self):
+    @staticmethod
+    def test_already_billed_sub_w_cb_on_trial_last_billing_date():
         plan = PlanFactory.create(generate_after=100)
         subscription = SubscriptionFactory.create(
             plan=plan,
@@ -704,7 +723,8 @@ class TestSubscriptionShouldBeBilled(TestCase):
             assert subscription.should_be_billed(correct_billing_date_3) is True
             assert subscription.should_be_billed(incorrect_billing_date) is False
 
-    def test_already_billed_sub_wa_cb_on_trial_last_billing_date(self):
+    @staticmethod
+    def test_already_billed_sub_wa_cb_on_trial_last_billing_date():
         plan = PlanFactory.create(
             generate_after=100, interval=Plan.INTERVALS.MONTH, interval_count=1
         )
@@ -732,7 +752,8 @@ class TestSubscriptionShouldBeBilled(TestCase):
             assert subscription.should_be_billed(correct_billing_date) is True
             assert subscription.should_be_billed(incorrect_billing_date_1) is False
 
-    def test_already_billed_sub_wa_cb(self):
+    @staticmethod
+    def test_already_billed_sub_wa_cb():
         plan = PlanFactory.create(
             generate_after=100, interval=Plan.INTERVALS.MONTH, interval_count=1
         )
@@ -758,7 +779,8 @@ class TestSubscriptionShouldBeBilled(TestCase):
         assert subscription.should_be_billed(incorrect_billing_date_2) is False
         assert subscription.should_be_billed(incorrect_billing_date_3) is False
 
-    def test_canceled_sub_with_billed_plan_but_not_metered_features_1(self):
+    @staticmethod
+    def test_canceled_sub_with_billed_plan_but_not_metered_features_1():
         plan = PlanFactory.create(
             generate_after=100, interval=Plan.INTERVALS.MONTH, interval_count=1
         )
@@ -792,7 +814,8 @@ class TestSubscriptionShouldBeBilled(TestCase):
         assert subscription.should_be_billed(correct_billing_date_2)
         assert not subscription.should_be_billed(incorrect_billing_date)
 
-    def test_canceled_sub_with_billed_plan_but_not_metered_features_2(self):
+    @staticmethod
+    def test_canceled_sub_with_billed_plan_but_not_metered_features_2():
         # Like previous test, but this time there's cycle_billing_duration added to the mix
         plan = PlanFactory.create(
             generate_after=100,
@@ -833,7 +856,8 @@ class TestSubscriptionShouldBeBilled(TestCase):
         assert not subscription.should_be_billed(incorrect_billing_date_2)
 
     @freeze_time("2015-01-01")
-    def test_updateable_buckets_active_subscription(self):
+    @staticmethod
+    def test_updateable_buckets_active_subscription():
         plan = PlanFactory.create(
             generate_after=24 * 60, interval=Plan.INTERVALS.MONTH, interval_count=1
         )
@@ -850,7 +874,8 @@ class TestSubscriptionShouldBeBilled(TestCase):
         ]
 
     @freeze_time("2015-01-01")
-    def test_updateable_buckets_2_months_active_subscription(self):
+    @staticmethod
+    def test_updateable_buckets_2_months_active_subscription():
         plan = PlanFactory.create(
             generate_after=24 * 60, interval=Plan.INTERVALS.MONTH, interval_count=1
         )
@@ -871,7 +896,8 @@ class TestSubscriptionShouldBeBilled(TestCase):
         ]
 
     @freeze_time("2015-01-01")
-    def test_updateable_buckets_2_months_canceled_subscription_at_end_of_month(self):
+    @staticmethod
+    def test_updateable_buckets_2_months_canceled_subscription_at_end_of_month():
         plan = PlanFactory.create(
             generate_after=24 * 60, interval=Plan.INTERVALS.MONTH, interval_count=1
         )
@@ -889,7 +915,8 @@ class TestSubscriptionShouldBeBilled(TestCase):
         ]
 
     @freeze_time("2015-01-01")
-    def test_updateable_buckets_2_months_canceled_subscription_last_month(self):
+    @staticmethod
+    def test_updateable_buckets_2_months_canceled_subscription_last_month():
         plan = PlanFactory.create(
             generate_after=24 * 60, interval=Plan.INTERVALS.MONTH, interval_count=1
         )
