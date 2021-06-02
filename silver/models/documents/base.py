@@ -420,16 +420,14 @@ class BillingDocumentBase(models.Model):
             # An invoice/proforma with this provider and series does not exist
             if self.series == self.default_series:
                 return self._starting_number
-            else:
-                return default_starting_number
+            return default_starting_number
         else:
             # An invoice with this provider and series already exists
             max_existing_number = documents.aggregate(Max("number"))["number__max"]
             if max_existing_number:
                 if self._starting_number and self.series == self.default_series:
                     return max(max_existing_number + 1, self._starting_number)
-                else:
-                    return max_existing_number + 1
+                return max_existing_number + 1
             else:
                 return default_starting_number
 
@@ -437,8 +435,7 @@ class BillingDocumentBase(models.Model):
         if self.series:
             if self.number:
                 return "%s-%d" % (self.series, self.number)
-            else:
-                return "%s-draft-id:%d" % (self.series, self.pk)
+            return "%s-draft-id:%d" % (self.series, self.pk)
 
         else:
             return "draft-id:%d" % self.pk

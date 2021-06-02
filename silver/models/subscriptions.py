@@ -316,19 +316,16 @@ class Subscription(models.Model):
 
         if ignore_trial or not self.trial_end:
             return start_date_ignoring_trial
-        else:  # Trial period is considered
-            if self.trial_end < reference_date:  # Trial period ended
-                # The day after the trial ended can be a start date (once, right after trial ended)
-                date_after_trial_end = self.trial_end + ONE_DAY
+        if self.trial_end < reference_date:  # Trial period ended
+            # The day after the trial ended can be a start date (once, right after trial ended)
+            date_after_trial_end = self.trial_end + ONE_DAY
 
-                return max(date_after_trial_end, start_date_ignoring_trial)
-            else:  # Trial is still ongoing
-                if granulate or self.separate_cycles_during_trial:
-                    # The trial period is split into cycles according to the rules defined above
-                    return start_date_ignoring_trial
-                else:
-                    # Otherwise, the start date of the trial period is the subscription start date
-                    return self.start_date
+            return max(date_after_trial_end, start_date_ignoring_trial)
+        if granulate or self.separate_cycles_during_trial:
+            # The trial period is split into cycles according to the rules defined above
+            return start_date_ignoring_trial
+        # Otherwise, the start date of the trial period is the subscription start date
+        return self.start_date
 
     def _cycle_end_date(self, reference_date=None, ignore_trial=None, granulate=None):
         ignore_trial_default = False
@@ -379,7 +376,7 @@ class Subscription(models.Model):
                 return min(
                     maximum_cycle_end_date, (self.ended_at or datetime.max.date())
                 )
-            elif reference_cycle_start_date < real_cycle_start_date:
+            if reference_cycle_start_date < real_cycle_start_date:
                 # This should never happen in normal conditions, but it may stop infinite looping
                 return None
 
@@ -804,8 +801,7 @@ class Subscription(models.Model):
             if consumed_units > included_units_during_trial:
                 extra_consumed = consumed_units - included_units_during_trial
                 return extra_consumed, included_units_during_trial
-            else:
-                return 0, consumed_units
+            return 0, consumed_units
         elif metered_feature.included_units_during_trial == Decimal("0.0000"):
             return consumed_units, 0
         elif metered_feature.included_units_during_trial is None:
@@ -824,43 +820,41 @@ class Subscription(models.Model):
             return self._get_consumed_units_from_total_included_in_trial(
                 metered_feature, consumed_units
             )
+        # It's still on trial but has been billed before
+        # The following part tries to handle the case when the trial
+        # spans over 2 months and the subscription has been already billed
+        # once => this month it is still on trial but it only
+        # has remaining = consumed_last_cycle - included_during_trial
+        last_log_entry = self.billing_logs.all()[0]
+        if last_log_entry.invoice:
+            qs = last_log_entry.invoice.invoice_entries.filter(
+                product_code=metered_feature.product_code
+            )
+        elif last_log_entry.proforma:
+            qs = last_log_entry.proforma.proforma_entries.filter(
+                product_code=metered_feature.product_code
+            )
         else:
-            # It's still on trial but has been billed before
-            # The following part tries to handle the case when the trial
-            # spans over 2 months and the subscription has been already billed
-            # once => this month it is still on trial but it only
-            # has remaining = consumed_last_cycle - included_during_trial
-            last_log_entry = self.billing_logs.all()[0]
-            if last_log_entry.invoice:
-                qs = last_log_entry.invoice.invoice_entries.filter(
-                    product_code=metered_feature.product_code
-                )
-            elif last_log_entry.proforma:
-                qs = last_log_entry.proforma.proforma_entries.filter(
-                    product_code=metered_feature.product_code
-                )
-            else:
-                qs = DocumentEntry.objects.none()
+            qs = DocumentEntry.objects.none()
 
-            if not qs.exists():
-                return self._get_consumed_units_from_total_included_in_trial(
-                    metered_feature, consumed_units
-                )
+        if not qs.exists():
+            return self._get_consumed_units_from_total_included_in_trial(
+                metered_feature, consumed_units
+            )
 
-            consumed = [qs_item.quantity for qs_item in qs if qs_item.unit_price >= 0]
-            consumed_in_last_billing_cycle = sum(consumed)
+        consumed = [qs_item.quantity for qs_item in qs if qs_item.unit_price >= 0]
+        consumed_in_last_billing_cycle = sum(consumed)
 
-            if metered_feature.included_units_during_trial:
-                included_during_trial = metered_feature.included_units_during_trial
-                if consumed_in_last_billing_cycle > included_during_trial:
-                    return consumed_units, 0
-                else:
-                    remaining = included_during_trial - consumed_in_last_billing_cycle
-                    if consumed_units > remaining:
-                        return consumed_units - remaining, remaining
-                    elif consumed_units <= remaining:
-                        return 0, consumed_units
-            return 0, consumed_units
+        if metered_feature.included_units_during_trial:
+            included_during_trial = metered_feature.included_units_during_trial
+            if consumed_in_last_billing_cycle > included_during_trial:
+                return consumed_units, 0
+            remaining = included_during_trial - consumed_in_last_billing_cycle
+            if consumed_units > remaining:
+                return consumed_units - remaining, remaining
+            if consumed_units <= remaining:
+                return 0, consumed_units
+        return 0, consumed_units
 
     def _add_mfs_for_trial(self, start_date, end_date, invoice=None, proforma=None):
         prorated, percent = self._get_proration_status_and_percent(start_date, end_date)
@@ -1092,13 +1086,12 @@ class Subscription(models.Model):
 
         if start_date == first_day_of_month and end_date == last_day_of_month:
             return False, Decimal("1.0000")
-        else:
-            days_in_full_interval = (last_day_of_month - first_day_of_month).days + 1
-            days_in_interval = (end_date - start_date).days + 1
-            percent = 1.0 * days_in_interval / days_in_full_interval
-            percent = Decimal(percent).quantize(Decimal("0.0000"))
+        days_in_full_interval = (last_day_of_month - first_day_of_month).days + 1
+        days_in_interval = (end_date - start_date).days + 1
+        percent = 1.0 * days_in_interval / days_in_full_interval
+        percent = Decimal(percent).quantize(Decimal("0.0000"))
 
-            return True, percent
+        return True, percent
 
     def _entry_unit(self, context):
         unit_template_path = field_template_path(
