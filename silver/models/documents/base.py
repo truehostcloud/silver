@@ -493,7 +493,7 @@ class BillingDocumentBase(models.Model):
                 entry.invoice = self
             if document_type_name.lower() == "proforma":
                 entry.proforma = self
-            yield (entry)
+            yield entry
 
     def get_template_context(self, state=None):
         customer = Customer(**self.archived_customer)
