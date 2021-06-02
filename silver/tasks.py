@@ -29,12 +29,14 @@ from silver.payment_processors.mixins import PaymentProcessorTypes
 from silver.vendors.redis_server import redis
 
 
-PDF_GENERATION_TIME_LIMIT = getattr(settings, 'PDF_GENERATION_TIME_LIMIT',
-                                    60)  # default 60s
+PDF_GENERATION_TIME_LIMIT = getattr(
+    settings, "PDF_GENERATION_TIME_LIMIT", 60
+)  # default 60s
 
 
-@shared_task(base=QueueOnce, once={'graceful': True},
-             time_limit=PDF_GENERATION_TIME_LIMIT)
+@shared_task(
+    base=QueueOnce, once={"graceful": True}, time_limit=PDF_GENERATION_TIME_LIMIT
+)
 def generate_pdf(document_id, document_type):
     document = BillingDocumentBase.objects.get(id=document_id, kind=document_type)
 
@@ -43,20 +45,26 @@ def generate_pdf(document_id, document_type):
 
 @shared_task(ignore_result=True)
 def generate_pdfs():
-    dirty_documents = chain(Invoice.objects.filter(pdf__dirty__gt=0),
-                            Proforma.objects.filter(pdf__dirty__gt=0))
+    dirty_documents = chain(
+        Invoice.objects.filter(pdf__dirty__gt=0),
+        Proforma.objects.filter(pdf__dirty__gt=0),
+    )
 
     # Generate PDFs in parallel
-    group(generate_pdf.s(document.id, document.kind)
-          for document in dirty_documents)()
+    group(generate_pdf.s(document.id, document.kind) for document in dirty_documents)()
 
 
-DOCS_GENERATION_TIME_LIMIT = getattr(settings, 'DOCS_GENERATION_TIME_LIMIT',
-                                     60 * 60)  # default 60m
+DOCS_GENERATION_TIME_LIMIT = getattr(
+    settings, "DOCS_GENERATION_TIME_LIMIT", 60 * 60
+)  # default 60m
 
 
-@shared_task(base=QueueOnce, once={'graceful': True},
-             time_limit=DOCS_GENERATION_TIME_LIMIT, ignore_result=True)
+@shared_task(
+    base=QueueOnce,
+    once={"graceful": True},
+    time_limit=DOCS_GENERATION_TIME_LIMIT,
+    ignore_result=True,
+)
 def generate_billing_documents(billing_date=None):
     if not billing_date:
         billing_date = timezone.now().date()
@@ -64,12 +72,16 @@ def generate_billing_documents(billing_date=None):
     DocumentsGenerator().generate(billing_date=billing_date)
 
 
-FETCH_TRANSACTION_STATUS_TIME_LIMIT = getattr(settings, 'FETCH_TRANSACTION_STATUS_TIME_LIMIT',
-                                              60)  # default 60s
+FETCH_TRANSACTION_STATUS_TIME_LIMIT = getattr(
+    settings, "FETCH_TRANSACTION_STATUS_TIME_LIMIT", 60
+)  # default 60s
 
 
-@shared_task(base=QueueOnce, once={'graceful': True},
-             time_limit=FETCH_TRANSACTION_STATUS_TIME_LIMIT)
+@shared_task(
+    base=QueueOnce,
+    once={"graceful": True},
+    time_limit=FETCH_TRANSACTION_STATUS_TIME_LIMIT,
+)
 def fetch_transaction_status(transaction_id):
     transaction = Transaction.objects.filter(pk=transaction_id).first()
     if not transaction:
@@ -89,15 +101,20 @@ def fetch_transactions_status(transaction_ids=None):
     if transaction_ids:
         eligible_transactions = eligible_transactions.filter(pk__in=transaction_ids)
 
-    group(fetch_transaction_status.s(transaction.id) for transaction in eligible_transactions)()
+    group(
+        fetch_transaction_status.s(transaction.id)
+        for transaction in eligible_transactions
+    )()
 
 
-EXECUTE_TRANSACTION_TIME_LIMIT = getattr(settings, 'EXECUTE_TRANSACTION_TIME_LIMIT',
-                                         60)  # default 60s
+EXECUTE_TRANSACTION_TIME_LIMIT = getattr(
+    settings, "EXECUTE_TRANSACTION_TIME_LIMIT", 60
+)  # default 60s
 
 
-@shared_task(base=QueueOnce, once={'graceful': True},
-             time_limit=EXECUTE_TRANSACTION_TIME_LIMIT)
+@shared_task(
+    base=QueueOnce, once={"graceful": True}, time_limit=EXECUTE_TRANSACTION_TIME_LIMIT
+)
 def execute_transaction(transaction_id):
     transaction = Transaction.objects.filter(pk=transaction_id).first()
     if not transaction:
@@ -115,9 +132,13 @@ def execute_transaction(transaction_id):
 
 @shared_task(ignore_result=True)
 def execute_transactions(transaction_ids=None):
-    executable_transactions = Transaction.objects.filter(state=Transaction.States.Initial)
+    executable_transactions = Transaction.objects.filter(
+        state=Transaction.States.Initial
+    )
 
     if transaction_ids:
         executable_transactions = executable_transactions.filter(pk__in=transaction_ids)
 
-    group(execute_transaction.s(transaction.id) for transaction in executable_transactions)()
+    group(
+        execute_transaction.s(transaction.id) for transaction in executable_transactions
+    )()

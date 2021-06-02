@@ -22,7 +22,10 @@ from django.dispatch import receiver
 
 from silver.models.billing_entities import Provider
 from silver.models.documents.base import (
-    BillingDocumentBase, BillingDocumentManager, BillingDocumentQuerySet)
+    BillingDocumentBase,
+    BillingDocumentManager,
+    BillingDocumentQuerySet,
+)
 from silver.models.documents.entries import DocumentEntry
 from silver.models.documents.invoice import Invoice
 
@@ -30,8 +33,9 @@ from silver.models.documents.invoice import Invoice
 class ProformaManager(BillingDocumentManager):
     def get_queryset(self):
         queryset = super(BillingDocumentManager, self).get_queryset()
-        return queryset.filter(kind='proforma').prefetch_related('proforma_entries__product_code',
-                                                                 'proforma_entries__invoice')
+        return queryset.filter(kind="proforma").prefetch_related(
+            "proforma_entries__product_code", "proforma_entries__invoice"
+        )
 
 
 class Proforma(BillingDocumentBase):
@@ -59,25 +63,33 @@ class Proforma(BillingDocumentBase):
             raise ValidationError({"is_storno": "A proforma cannot be a storno."})
 
         if not self.series:
-            if not hasattr(self, 'provider'):
+            if not hasattr(self, "provider"):
                 # the clean method is called even if the clean_fields method
                 # raises exceptions, to we check if the provider was specified
                 pass
             elif not self.provider.proforma_series:
-                err_msg = {'series': 'You must either specify the series or '
-                                     'set a default proforma_series for the '
-                                     'provider.'}
+                err_msg = {
+                    "series": "You must either specify the series or "
+                              "set a default proforma_series for the "
+                              "provider."
+                }
                 raise ValidationError(err_msg)
 
-    @transition(field='state', source=BillingDocumentBase.STATES.DRAFT,
-                target=BillingDocumentBase.STATES.ISSUED)
+    @transition(
+        field="state",
+        source=BillingDocumentBase.STATES.DRAFT,
+        target=BillingDocumentBase.STATES.ISSUED,
+    )
     def issue(self, issue_date=None, due_date=None):
         self.archived_provider = self.provider.get_archivable_field_values()
 
         super(Proforma, self)._issue(issue_date, due_date)
 
-    @transition(field='state', source=BillingDocumentBase.STATES.ISSUED,
-                target=BillingDocumentBase.STATES.PAID)
+    @transition(
+        field="state",
+        source=BillingDocumentBase.STATES.ISSUED,
+        target=BillingDocumentBase.STATES.PAID,
+    )
     def pay(self, paid_date=None):
         super(Proforma, self)._pay(paid_date)
 
@@ -94,12 +106,15 @@ class Proforma(BillingDocumentBase):
 
     def create_invoice(self):
         if self.state != BillingDocumentBase.STATES.ISSUED:
-            raise ValueError("You can't create an invoice from a %s proforma, "
-                             "only from an issued one" % self.state)
+            raise ValueError(
+                "You can't create an invoice from a %s proforma, "
+                "only from an issued one" % self.state
+            )
 
         if self.related_document:
-            raise ValueError("This proforma already has an invoice { %s }"
-                             % self.related_document)
+            raise ValueError(
+                "This proforma already has an invoice { %s }" % self.related_document
+            )
 
         self.related_document = self._new_invoice()
         self.related_document.issue()
@@ -111,7 +126,7 @@ class Proforma(BillingDocumentBase):
     def _new_invoice(self):
         # Generate the new invoice based this proforma
         invoice_fields = self.fields_for_automatic_invoice_generation
-        invoice_fields.update({'related_document': self})
+        invoice_fields.update({"related_document": self})
         invoice = Invoice.objects.create(**invoice_fields)
 
         # For all the entries in the proforma => add the link to the new
@@ -128,15 +143,24 @@ class Proforma(BillingDocumentBase):
         try:
             return self.provider.proforma_series
         except Provider.DoesNotExist:
-            return ''
+            return ""
 
     @property
     def fields_for_automatic_invoice_generation(self):
-        fields = ['customer', 'provider', 'archived_customer',
-                  'archived_provider', 'paid_date', 'cancel_date',
-                  'sales_tax_percent', 'sales_tax_name', 'currency',
-                  'transaction_currency', 'transaction_xe_rate',
-                  'transaction_xe_date']
+        fields = [
+            "customer",
+            "provider",
+            "archived_customer",
+            "archived_provider",
+            "paid_date",
+            "cancel_date",
+            "sales_tax_percent",
+            "sales_tax_name",
+            "currency",
+            "transaction_currency",
+            "transaction_xe_rate",
+            "transaction_xe_date",
+        ]
         return {field: getattr(self, field, None) for field in fields}
 
     @property

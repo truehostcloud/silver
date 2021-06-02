@@ -23,7 +23,12 @@ from xhtml2pdf import pisa
 from django.conf import settings
 from django.db import transaction
 from django.db.models import (
-    Model, FileField, TextField, UUIDField, PositiveIntegerField, F
+    Model,
+    FileField,
+    TextField,
+    UUIDField,
+    PositiveIntegerField,
+    F,
 )
 from django.db.models.functions import Greatest
 from django.utils.module_loading import import_string
@@ -35,7 +40,7 @@ logger = logging.getLogger(__name__)
 
 
 def get_storage():
-    storage_settings = getattr(settings, 'SILVER_DOCUMENT_STORAGE', None)
+    storage_settings = getattr(settings, "SILVER_DOCUMENT_STORAGE", None)
     if not storage_settings:
         return
 
@@ -49,8 +54,13 @@ def get_upload_path(instance, filename):
 
 class PDF(Model):
     uuid = UUIDField(default=uuid.uuid4, unique=True)
-    pdf_file = FileField(null=True, blank=True, editable=False,
-                         storage=get_storage(), upload_to=get_upload_path)
+    pdf_file = FileField(
+        null=True,
+        blank=True,
+        editable=False,
+        storage=get_storage(),
+        upload_to=get_upload_path,
+    )
     dirty = PositiveIntegerField(default=0)
     upload_path = TextField(null=True, blank=True)
 
@@ -64,23 +74,20 @@ class PDF(Model):
         pisa_status = pisa.pisaDocument(
             src=BytesIO(html.encode("UTF-8")),
             dest=pdf_file_object,
-            encoding='UTF-8',
-            link_callback=fetch_resources
+            encoding="UTF-8",
+            link_callback=fetch_resources,
         )
 
         if pisa_status.err:
             logger.error(
-                'xhtml2pdf encountered exception during generation of pdf %s: %s',
-                context['filename'],
-                pisa_status.err
+                "xhtml2pdf encountered exception during generation of pdf %s: %s",
+                context["filename"],
+                pisa_status.err,
             )
             return
 
         if upload:
-            self.upload(
-                pdf_file_object=pdf_file_object,
-                filename=context['filename']
-            )
+            self.upload(pdf_file_object=pdf_file_object, filename=context["filename"])
 
         return pdf_file_object
 
@@ -96,10 +103,12 @@ class PDF(Model):
 
     def mark_as_dirty(self):
         with transaction.atomic():
-            PDF.objects.filter(id=self.id).update(dirty=Greatest(F('dirty') + 1, 1))
-            self.refresh_from_db(fields=['dirty'])
+            PDF.objects.filter(id=self.id).update(dirty=Greatest(F("dirty") + 1, 1))
+            self.refresh_from_db(fields=["dirty"])
 
     def mark_as_clean(self):
         with transaction.atomic():
-            PDF.objects.filter(id=self.id).update(dirty=Greatest(F('dirty') - self.dirty, 0))
-            self.refresh_from_db(fields=['dirty'])
+            PDF.objects.filter(id=self.id).update(
+                dirty=Greatest(F("dirty") - self.dirty, 0)
+            )
+            self.refresh_from_db(fields=["dirty"])

@@ -22,23 +22,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('silver', '0002_auto_20150416_1009'),
+        ("silver", "0002_auto_20150416_1009"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='customer',
-            name='meta',
+            model_name="customer",
+            name="meta",
             field=models.JSONField(null=True, blank=True),
         ),
         migrations.AddField(
-            model_name='provider',
-            name='meta',
+            model_name="provider",
+            name="meta",
             field=models.JSONField(null=True, blank=True),
         ),
         migrations.AddField(
-            model_name='subscription',
-            name='meta',
+            model_name="subscription",
+            name="meta",
             field=models.JSONField(null=True, blank=True),
         ),
     ]

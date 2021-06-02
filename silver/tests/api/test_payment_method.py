@@ -26,10 +26,17 @@ from rest_framework.reverse import reverse
 from silver.api.serializers.payment_methods_serializers import PaymentMethodSerializer
 from silver.api.views.payment_method_views import PaymentMethodList, PaymentMethodDetail
 from silver.models import PaymentMethod, Transaction
-from silver.fixtures.factories import (CustomerFactory, PaymentMethodFactory,
-                                       TransactionFactory)
-from silver.fixtures.test_fixtures import (PAYMENT_PROCESSORS, manual_processor,
-                                           triggered_processor, failing_void_processor)
+from silver.fixtures.factories import (
+    CustomerFactory,
+    PaymentMethodFactory,
+    TransactionFactory,
+)
+from silver.fixtures.test_fixtures import (
+    PAYMENT_PROCESSORS,
+    manual_processor,
+    triggered_processor,
+    failing_void_processor,
+)
 from silver.tests.api.utils.api_get_assert import APIGetAssert
 
 
@@ -51,9 +58,7 @@ class TestPaymentMethodEndpoints(APIGetAssert):
         PaymentMethodFactory.create(customer=CustomerFactory.create())
         payment_method = self.create_payment_method(customer=self.customer)
 
-        url = reverse('payment-method-list', kwargs={
-            'customer_pk': self.customer.pk
-        })
+        url = reverse("payment-method-list", kwargs={"customer_pk": self.customer.pk})
 
         self.assert_get_data(url, [payment_method])
 
@@ -61,194 +66,215 @@ class TestPaymentMethodEndpoints(APIGetAssert):
         PaymentMethodFactory.create(customer=CustomerFactory.create())
         payment_method = self.create_payment_method(customer=self.customer)
 
-        url = reverse('payment-method-detail', kwargs={
-            'customer_pk': self.customer.pk,
-            'payment_method_id': payment_method.pk
-        })
+        url = reverse(
+            "payment-method-detail",
+            kwargs={
+                "customer_pk": self.customer.pk,
+                "payment_method_id": payment_method.pk,
+            },
+        )
 
         self.assert_get_data(url, payment_method)
 
     def test_post_listing(self):
-        url = reverse('payment-method-list', kwargs={
-            'customer_pk': self.customer.pk
-        })
+        url = reverse("payment-method-list", kwargs={"customer_pk": self.customer.pk})
 
-        response = self.client.post(url, data={
-            'payment_processor_name': manual_processor
-        }, format='json')
+        response = self.client.post(
+            url, data={"payment_processor_name": manual_processor}, format="json"
+        )
 
         payment_method = PaymentMethod.objects.get(customer=self.customer)
-        self.assert_get_data(response.data['url'], payment_method)
+        self.assert_get_data(response.data["url"], payment_method)
 
     def test_put_detail_ignore_customer_change(self):
         other_customer = CustomerFactory.create()
         payment_method = self.create_payment_method(customer=self.customer)
 
-        url = reverse('payment-method-detail', kwargs={
-            'customer_pk': self.customer.pk,
-            'payment_method_id': payment_method.pk
-        })
-        response = self.client.get(url, format='json')
+        url = reverse(
+            "payment-method-detail",
+            kwargs={
+                "customer_pk": self.customer.pk,
+                "payment_method_id": payment_method.pk,
+            },
+        )
+        response = self.client.get(url, format="json")
 
         expected_data = deepcopy(response.data)
         data = response.data
-        data['customer'] = reverse('customer-detail',
-                                   request=response.wsgi_request,
-                                   kwargs={'customer_pk': other_customer.pk})
+        data["customer"] = reverse(
+            "customer-detail",
+            request=response.wsgi_request,
+            kwargs={"customer_pk": other_customer.pk},
+        )
 
-        response = self.client.put(url, data=data, format='json')
+        response = self.client.put(url, data=data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, expected_data)
 
     def test_put_detail_cannot_change_processor(self):
         payment_method = self.create_payment_method(customer=self.customer)
 
-        url = reverse('payment-method-detail', kwargs={
-            'customer_pk': self.customer.pk,
-            'payment_method_id': payment_method.pk
-        })
-        response = self.client.get(url, format='json')
+        url = reverse(
+            "payment-method-detail",
+            kwargs={
+                "customer_pk": self.customer.pk,
+                "payment_method_id": payment_method.pk,
+            },
+        )
+        response = self.client.get(url, format="json")
 
         data = response.data
-        data['payment_processor_name'] = triggered_processor
+        data["payment_processor_name"] = triggered_processor
 
-        response = self.client.put(url, data=data, format='json')
+        response = self.client.put(url, data=data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data, {
-            'payment_processor_name': [u'This field may not be modified.']
-        })
+        self.assertEqual(
+            response.data,
+            {"payment_processor_name": [u"This field may not be modified."]},
+        )
 
     def test_put_detail_reenable_payment_method(self):
         """
-            payment_method.canceled from True to False
+        payment_method.canceled from True to False
         """
 
-        payment_method = self.create_payment_method(customer=self.customer,
-                                                    canceled=True)
+        payment_method = self.create_payment_method(
+            customer=self.customer, canceled=True
+        )
 
-        url = reverse('payment-method-detail', kwargs={
-            'customer_pk': self.customer.pk,
-            'payment_method_id': payment_method.pk
-        })
+        url = reverse(
+            "payment-method-detail",
+            kwargs={
+                "customer_pk": self.customer.pk,
+                "payment_method_id": payment_method.pk,
+            },
+        )
 
-        response = self.client.get(url, format='json')
+        response = self.client.get(url, format="json")
         data = response.data
-        data['canceled'] = False
+        data["canceled"] = False
 
-        response = self.client.put(url, data=data, format='json')
+        response = self.client.put(url, data=data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data, {
-            'non_field_errors': [u'You cannot update a canceled payment method.']
-        })
+        self.assertEqual(
+            response.data,
+            {"non_field_errors": [u"You cannot update a canceled payment method."]},
+        )
 
     def test_put_detail_unverify_payment_method(self):
         """
-            payment_method.canceled from True to False
+        payment_method.canceled from True to False
         """
 
-        payment_method = self.create_payment_method(customer=self.customer,
-                                                    verified=True)
+        payment_method = self.create_payment_method(
+            customer=self.customer, verified=True
+        )
 
-        url = reverse('payment-method-detail', kwargs={
-            'customer_pk': self.customer.pk,
-            'payment_method_id': payment_method.pk
-        })
+        url = reverse(
+            "payment-method-detail",
+            kwargs={
+                "customer_pk": self.customer.pk,
+                "payment_method_id": payment_method.pk,
+            },
+        )
 
-        response = self.client.get(url, format='json')
+        response = self.client.get(url, format="json")
         data = response.data
-        data['verified'] = False
+        data["verified"] = False
 
-        response = self.client.put(url, data=data, format='json')
+        response = self.client.put(url, data=data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data, {
-            'verified': [u'You cannot unverify a payment method.']
-        })
+        self.assertEqual(
+            response.data, {"verified": [u"You cannot unverify a payment method."]}
+        )
 
     def test_put_detail(self):
-        payment_method = self.create_payment_method(customer=self.customer,
-                                                    canceled=False,
-                                                    verified=False)
+        payment_method = self.create_payment_method(
+            customer=self.customer, canceled=False, verified=False
+        )
 
-        url = reverse('payment-method-detail', kwargs={
-            'customer_pk': self.customer.pk,
-            'payment_method_id': payment_method.pk
-        })
+        url = reverse(
+            "payment-method-detail",
+            kwargs={
+                "customer_pk": self.customer.pk,
+                "payment_method_id": payment_method.pk,
+            },
+        )
 
-        response = self.client.get(url, format='json')
+        response = self.client.get(url, format="json")
         data = response.data
-        data['canceled'] = True
-        data['verified'] = True
+        data["canceled"] = True
+        data["verified"] = True
 
-        response = self.client.put(url, data=data, format='json')
+        response = self.client.put(url, data=data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, data)
 
     def test_get_listing_no_customer(self):
-        url = reverse('payment-method-list', kwargs={
-            'customer_pk': sys.maxsize
-        })
+        url = reverse("payment-method-list", kwargs={"customer_pk": sys.maxsize})
 
-        response = self.client.get(url, format='json')
+        response = self.client.get(url, format="json")
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-        self.assertEqual(response.data, {'detail': 'Not found.'})
+        self.assertEqual(response.data, {"detail": "Not found."})
 
     def test_get_detail_no_customer(self):
-        url = reverse('payment-method-detail', kwargs={
-            'customer_pk': sys.maxsize,
-            'payment_method_id': 0
-        })
+        url = reverse(
+            "payment-method-detail",
+            kwargs={"customer_pk": sys.maxsize, "payment_method_id": 0},
+        )
 
-        response = self.client.get(url, format='json')
+        response = self.client.get(url, format="json")
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-        self.assertEqual(response.data, {'detail': 'Not found.'})
+        self.assertEqual(response.data, {"detail": "Not found."})
 
     def test_get_detail_no_payment_method(self):
-        url = reverse('payment-method-detail', kwargs={
-            'customer_pk': self.customer.pk,
-            'payment_method_id': sys.maxsize
-        })
+        url = reverse(
+            "payment-method-detail",
+            kwargs={"customer_pk": self.customer.pk, "payment_method_id": sys.maxsize},
+        )
 
-        response = self.client.get(url, format='json')
+        response = self.client.get(url, format="json")
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-        self.assertEqual(response.data, {'detail': 'Not found.'})
+        self.assertEqual(response.data, {"detail": "Not found."})
 
     def test_post_listing_no_customer(self):
-        url = reverse('payment-method-list', kwargs={
-            'customer_pk': sys.maxsize
-        })
+        url = reverse("payment-method-list", kwargs={"customer_pk": sys.maxsize})
 
-        response = self.client.post(url, data={
-            'payment_processor_name': manual_processor,
-        }, format='json')
+        response = self.client.post(
+            url,
+            data={
+                "payment_processor_name": manual_processor,
+            },
+            format="json",
+        )
 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-        self.assertEqual(response.data, {'detail': 'Not found.'})
+        self.assertEqual(response.data, {"detail": "Not found."})
 
     def test_post_listing_incomplete_body_1(self):
-        url = reverse('payment-method-list', kwargs={
-            'customer_pk': 0
-        })
+        url = reverse("payment-method-list", kwargs={"customer_pk": 0})
 
-        response = self.client.post(url, data={}, format='json')
+        response = self.client.post(url, data={}, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data, {
-            'payment_processor_name': ['This field is required.']})
+        self.assertEqual(
+            response.data, {"payment_processor_name": ["This field is required."]}
+        )
 
     def test_permissions(self):
-        self.assertEqual(PaymentMethodList.permission_classes,
-                         (permissions.IsAuthenticated,))
-        self.assertEqual(PaymentMethodDetail.permission_classes,
-                         (permissions.IsAuthenticated,))
+        self.assertEqual(
+            PaymentMethodList.permission_classes, (permissions.IsAuthenticated,)
+        )
+        self.assertEqual(
+            PaymentMethodDetail.permission_classes, (permissions.IsAuthenticated,)
+        )
 
     def test_filter_processor(self):
         payment_method = self.create_payment_method(customer=self.customer)
 
-        url = reverse('payment-method-list', kwargs={
-            'customer_pk': self.customer.pk
-        })
+        url = reverse("payment-method-list", kwargs={"customer_pk": self.customer.pk})
 
-        url_manual_processor = url + '?processor=' + manual_processor
-        url_no_output = url + '?processor=random'
+        url_manual_processor = url + "?processor=" + manual_processor
+        url_no_output = url + "?processor=random"
 
         self.assert_get_data(url_manual_processor, [payment_method])
         self.assert_get_data(url_no_output, [])
@@ -256,12 +282,10 @@ class TestPaymentMethodEndpoints(APIGetAssert):
     def test_filter_canceled(self):
         payment_method = self.create_payment_method(customer=self.customer)
 
-        url = reverse('payment-method-list', kwargs={
-            'customer_pk': self.customer.pk
-        })
+        url = reverse("payment-method-list", kwargs={"customer_pk": self.customer.pk})
 
-        url_manual_processor = url + '?canceled=False'
-        url_no_output = url + '?canceled=True'
+        url_manual_processor = url + "?canceled=False"
+        url_no_output = url + "?canceled=True"
 
         self.assert_get_data(url_manual_processor, [payment_method])
         self.assert_get_data(url_no_output, [])
@@ -269,28 +293,31 @@ class TestPaymentMethodEndpoints(APIGetAssert):
     def test_filter_verified(self):
         payment_method = self.create_payment_method(customer=self.customer)
 
-        url = reverse('payment-method-list', kwargs={
-            'customer_pk': self.customer.pk
-        })
+        url = reverse("payment-method-list", kwargs={"customer_pk": self.customer.pk})
 
-        url_manual_processor = url + '?verified=False'
-        url_no_output = url + '?verified=True'
+        url_manual_processor = url + "?verified=False"
+        url_no_output = url + "?verified=True"
 
         self.assert_get_data(url_manual_processor, [payment_method])
         self.assert_get_data(url_no_output, [])
 
     def test_cancel_action(self):
-        payment_method = self.create_payment_method(customer=self.customer,
-                                                    payment_processor='triggered')
+        payment_method = self.create_payment_method(
+            customer=self.customer, payment_processor="triggered"
+        )
         transaction_initial = TransactionFactory.create(payment_method=payment_method)
-        transaction_pending = TransactionFactory.create(payment_method=payment_method,
-                                                        state='pending')
+        transaction_pending = TransactionFactory.create(
+            payment_method=payment_method, state="pending"
+        )
 
-        url = reverse('payment-method-action', kwargs={
-            'customer_pk': self.customer.pk,
-            'payment_method_id': payment_method.pk,
-            'requested_action': 'cancel',
-        })
+        url = reverse(
+            "payment-method-action",
+            kwargs={
+                "customer_pk": self.customer.pk,
+                "payment_method_id": payment_method.pk,
+                "requested_action": "cancel",
+            },
+        )
 
         response = self.client.post(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -310,17 +337,23 @@ class TestPaymentMethodEndpoints(APIGetAssert):
         )
 
         transaction_initial = TransactionFactory.create(payment_method=payment_method)
-        transaction_pending = TransactionFactory.create(payment_method=payment_method,
-                                                        state='pending')
+        transaction_pending = TransactionFactory.create(
+            payment_method=payment_method, state="pending"
+        )
 
-        url = reverse('payment-method-action', kwargs={
-            'customer_pk': self.customer.pk,
-            'payment_method_id': payment_method.pk,
-            'requested_action': 'cancel',
-        })
+        url = reverse(
+            "payment-method-action",
+            kwargs={
+                "customer_pk": self.customer.pk,
+                "payment_method_id": payment_method.pk,
+                "requested_action": "cancel",
+            },
+        )
 
         response = self.client.post(url)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-        expected_error = "Transaction {} couldn't be voided".format(transaction_pending.uuid)
-        self.assertEqual(response.data, {'errors': [expected_error]})
+        expected_error = "Transaction {} couldn't be voided".format(
+            transaction_pending.uuid
+        )
+        self.assertEqual(response.data, {"errors": [expected_error]})

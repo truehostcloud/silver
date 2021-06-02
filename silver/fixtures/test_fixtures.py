@@ -15,26 +15,22 @@
 from __future__ import absolute_import
 
 from silver.payment_processors import PaymentProcessorBase
-from silver.payment_processors.mixins import (TriggeredProcessorMixin,
-                                              ManualProcessorMixin)
+from silver.payment_processors.mixins import (
+    TriggeredProcessorMixin,
+    ManualProcessorMixin,
+)
 from silver.payment_processors.views import GenericTransactionView
 
-
-triggered_processor = 'triggered'
-manual_processor = 'manual'
-failing_void_processor = 'failing_void'
-
+triggered_processor = "triggered"
+manual_processor = "manual"
+failing_void_processor = "failing_void"
 
 PAYMENT_PROCESSORS = {
-    triggered_processor: {
-        'class': 'silver.fixtures.test_fixtures.TriggeredProcessor'
-    },
-    manual_processor: {
-        'class': 'silver.fixtures.test_fixtures.ManualProcessor'
-    },
+    triggered_processor: {"class": "silver.fixtures.test_fixtures.TriggeredProcessor"},
+    manual_processor: {"class": "silver.fixtures.test_fixtures.ManualProcessor"},
     failing_void_processor: {
-        'class': 'silver.fixtures.test_fixtures.FailingVoidTriggeredProcessor'
-    }
+        "class": "silver.fixtures.test_fixtures.FailingVoidTriggeredProcessor"
+    },
 }
 
 
@@ -61,7 +57,7 @@ class TriggeredProcessor(PaymentProcessorBase, TriggeredProcessorMixin):
 
     @property
     def allowed_currencies(self):
-        return ['RON', 'USD']
+        return ["RON", "USD"]
 
 
 class FailingVoidTriggeredProcessor(TriggeredProcessor):

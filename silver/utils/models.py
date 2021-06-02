@@ -48,9 +48,7 @@ class AutoCleanModelMixin(models.Model):
 
     @staticmethod
     def _states_diff(state, other_state):
-        return {key: value
-                for key, value in other_state.items()
-                if value != state[key]}
+        return {key: value for key, value in other_state.items() if value != state[key]}
 
     def get_dirty_fields(self):
         return self._states_diff(self.current_state, self.cleaned_state)
@@ -62,7 +60,7 @@ class AutoCleanModelMixin(models.Model):
 
     @property
     def is_cleaned(self):
-        if not getattr(self, '.cleaned', False):
+        if not getattr(self, ".cleaned", False):
             return False
 
         return not self.get_dirty_fields()
@@ -72,7 +70,7 @@ class AutoCleanModelMixin(models.Model):
         if value:
             self.cleaned_state = self.current_state.copy()
 
-        setattr(self, '.cleaned', value)
+        setattr(self, ".cleaned", value)
 
     def save(self, *args, **kwargs):
         if not self.is_cleaned:
@@ -81,10 +79,10 @@ class AutoCleanModelMixin(models.Model):
         super(AutoCleanModelMixin, self).save(*args, **kwargs)
 
         self.initial_state = self.current_state.copy()
-        if 'update_fields' not in kwargs:
+        if "update_fields" not in kwargs:
             self.saved_state = self.current_state.copy()
         else:
-            for field in kwargs['update_fields']:
+            for field in kwargs["update_fields"]:
                 self.saved_state[field] = self.current_state[field]
 
     def refresh_from_db(self, *args, **kwargs):

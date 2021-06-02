@@ -22,16 +22,19 @@ from django.db import models, migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('silver', '0006_auto_20150430_1457'),
+        ("silver", "0006_auto_20150430_1457"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='plan',
-            name='trial_period_days',
-            field=models.PositiveIntegerField(help_text='Number of trial '
-                                                        'period days granted when '
-                                                        'subscribing a customer to this plan.',
-                                              null=True, verbose_name='Trial days'),
+            model_name="plan",
+            name="trial_period_days",
+            field=models.PositiveIntegerField(
+                help_text="Number of trial "
+                          "period days granted when "
+                          "subscribing a customer to this plan.",
+                null=True,
+                verbose_name="Trial days",
+            ),
         ),
     ]

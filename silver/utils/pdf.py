@@ -30,11 +30,9 @@ def fetch_resources(uri, rel):
     `rel` gives a relative path, but it's not used here.
     """
     if settings.MEDIA_URL and uri.startswith(settings.MEDIA_URL):
-        path = os.path.join(settings.MEDIA_ROOT,
-                            uri.replace(settings.MEDIA_URL, ""))
+        path = os.path.join(settings.MEDIA_ROOT, uri.replace(settings.MEDIA_URL, ""))
     elif settings.STATIC_URL and uri.startswith(settings.STATIC_URL):
-        path = os.path.join(settings.STATIC_ROOT,
-                            uri.replace(settings.STATIC_URL, ""))
+        path = os.path.join(settings.STATIC_ROOT, uri.replace(settings.STATIC_URL, ""))
         if not os.path.exists(path):
             for d in settings.STATICFILES_DIRS:
                 path = os.path.join(d, uri.replace(settings.STATIC_URL, ""))
@@ -43,7 +41,9 @@ def fetch_resources(uri, rel):
     elif uri.startswith("http://") or uri.startswith("https://"):
         path = uri
     else:
-        raise UnsupportedMediaPathException('media urls must start with %s or %s' % (
-            settings.MEDIA_URL, settings.STATIC_URL))
+        raise UnsupportedMediaPathException(
+            "media urls must start with %s or %s"
+            % (settings.MEDIA_URL, settings.STATIC_URL)
+        )
 
     return path

@@ -8,46 +8,75 @@ import django_fsm
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('silver', '0054_auto_20210109_1153'),
+        ("silver", "0054_auto_20210109_1153"),
     ]
 
     operations = [
         migrations.DeleteModel(
-            name='Document',
+            name="Document",
         ),
         migrations.AlterField(
-            model_name='billingdocumentbase',
-            name='archived_customer',
-            field=models.JSONField(blank=True, default=dict, encoder=django.core.serializers.json.DjangoJSONEncoder, null=True),
+            model_name="billingdocumentbase",
+            name="archived_customer",
+            field=models.JSONField(
+                blank=True,
+                default=dict,
+                encoder=django.core.serializers.json.DjangoJSONEncoder,
+                null=True,
+            ),
         ),
         migrations.AlterField(
-            model_name='billingdocumentbase',
-            name='archived_provider',
-            field=models.JSONField(blank=True, default=dict, encoder=django.core.serializers.json.DjangoJSONEncoder, null=True),
+            model_name="billingdocumentbase",
+            name="archived_provider",
+            field=models.JSONField(
+                blank=True,
+                default=dict,
+                encoder=django.core.serializers.json.DjangoJSONEncoder,
+                null=True,
+            ),
         ),
         migrations.AlterField(
-            model_name='customer',
-            name='meta',
-            field=models.JSONField(blank=True, default=dict, encoder=django.core.serializers.json.DjangoJSONEncoder, null=True),
+            model_name="customer",
+            name="meta",
+            field=models.JSONField(
+                blank=True,
+                default=dict,
+                encoder=django.core.serializers.json.DjangoJSONEncoder,
+                null=True,
+            ),
         ),
         migrations.AlterField(
-            model_name='paymentmethod',
-            name='data',
-            field=models.JSONField(blank=True, default=dict, encoder=django.core.serializers.json.DjangoJSONEncoder, null=True),
+            model_name="paymentmethod",
+            name="data",
+            field=models.JSONField(
+                blank=True,
+                default=dict,
+                encoder=django.core.serializers.json.DjangoJSONEncoder,
+                null=True,
+            ),
         ),
         migrations.AlterField(
-            model_name='plan',
-            name='generate_documents_on_trial_end',
-            field=models.BooleanField(help_text='If this is set to True, then billing documents will be generated when the subscription trial ends, instead of waiting for the end of the billing cycle.', null=True),
+            model_name="plan",
+            name="generate_documents_on_trial_end",
+            field=models.BooleanField(
+                help_text="If this is set to True, then billing documents will be generated when the subscription trial ends, instead of waiting for the end of the billing cycle.",
+                null=True,
+            ),
         ),
         migrations.AlterField(
-            model_name='plan',
-            name='prebill_plan',
-            field=models.BooleanField(help_text='If this is set to True, then the plan base amount will be billed at thebeginning of the billing cycle rather than after the end.', null=True),
+            model_name="plan",
+            name="prebill_plan",
+            field=models.BooleanField(
+                help_text="If this is set to True, then the plan base amount will be billed at thebeginning of the billing cycle rather than after the end.",
+                null=True,
+            ),
         ),
         migrations.AlterField(
-            model_name='plan',
-            name='separate_cycles_during_trial',
-            field=models.BooleanField(help_text='If this is set to True, then the trial period cycle will be split if it spans across multiple billing intervals.', null=True),
+            model_name="plan",
+            name="separate_cycles_during_trial",
+            field=models.BooleanField(
+                help_text="If this is set to True, then the trial period cycle will be split if it spans across multiple billing intervals.",
+                null=True,
+            ),
         ),
     ]

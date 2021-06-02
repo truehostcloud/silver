@@ -8,13 +8,15 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('silver', '0038_auto_20170724_0708'),
+        ("silver", "0038_auto_20170724_0708"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='billinglog',
-            name='total',
-            field=models.DecimalField(blank=True, decimal_places=2, max_digits=12, null=True),
+            model_name="billinglog",
+            name="total",
+            field=models.DecimalField(
+                blank=True, decimal_places=2, max_digits=12, null=True
+            ),
         ),
     ]

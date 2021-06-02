@@ -41,52 +41,57 @@ from silver.utils.models import AutoDateTimeField, AutoCleanModelMixin
 logger = logging.getLogger(__name__)
 
 
-class Transaction(AutoCleanModelMixin,
-                  models.Model):
+class Transaction(AutoCleanModelMixin, models.Model):
     _provider = None
 
     amount = models.DecimalField(
-        decimal_places=2, max_digits=12,
-        validators=[MinValueValidator(Decimal('0.00'))]
+        decimal_places=2, max_digits=12, validators=[MinValueValidator(Decimal("0.00"))]
     )
     currency = models.CharField(
-        choices=currencies, max_length=4,
-        help_text='The currency used for billing.'
+        choices=currencies, max_length=4, help_text="The currency used for billing."
     )
 
     class Meta:
-        ordering = ['-id']
+        ordering = ["-id"]
 
     class States:
-        Initial = 'initial'
-        Pending = 'pending'
-        Settled = 'settled'
-        Failed = 'failed'
-        Canceled = 'canceled'
-        Refunded = 'refunded'
+        Initial = "initial"
+        Pending = "pending"
+        Settled = "settled"
+        Failed = "failed"
+        Canceled = "canceled"
+        Refunded = "refunded"
 
         @classmethod
         def as_list(cls):
-            return [getattr(cls, state) for state in vars(cls).keys() if
-                    state[0].isupper()]
+            return [
+                getattr(cls, state) for state in vars(cls).keys() if state[0].isupper()
+            ]
 
         @classmethod
         def as_choices(cls):
-            return (
-                (state, _(state.capitalize())) for state in cls.as_list()
-            )
+            return ((state, _(state.capitalize())) for state in cls.as_list())
 
     external_reference = models.CharField(max_length=256, null=True, blank=True)
     data = JSONField(default=dict, null=True, blank=True, encoder=DjangoJSONEncoder)
-    state = FSMField(max_length=8, choices=States.as_choices(),
-                     default=States.Initial)
+    state = FSMField(max_length=8, choices=States.as_choices(), default=States.Initial)
 
-    proforma = models.ForeignKey("BillingDocumentBase", null=True, blank=True,
-                                 on_delete=models.SET_NULL, related_name='proforma_transactions')
-    invoice = models.ForeignKey("BillingDocumentBase", null=True, blank=True,
-                                on_delete=models.SET_NULL, related_name='invoice_transactions')
+    proforma = models.ForeignKey(
+        "BillingDocumentBase",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="proforma_transactions",
+    )
+    invoice = models.ForeignKey(
+        "BillingDocumentBase",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="invoice_transactions",
+    )
 
-    payment_method = models.ForeignKey('PaymentMethod', on_delete=models.PROTECT)
+    payment_method = models.ForeignKey("PaymentMethod", on_delete=models.PROTECT)
     uuid = models.UUIDField(default=uuid.uuid4)
     valid_until = models.DateTimeField(null=True, blank=True)
     last_access = models.DateTimeField(null=True, blank=True)
@@ -95,28 +100,40 @@ class Transaction(AutoCleanModelMixin,
     updated_at = AutoDateTimeField(default=timezone.now)
 
     fail_code = models.CharField(
-        choices=[(code, code) for code in FAIL_CODES.keys()], max_length=64,
-        null=True, blank=True
+        choices=[(code, code) for code in FAIL_CODES.keys()],
+        max_length=64,
+        null=True,
+        blank=True,
     )
     refund_code = models.CharField(
-        choices=[(code, code) for code in REFUND_CODES.keys()], max_length=32,
-        null=True, blank=True
+        choices=[(code, code) for code in REFUND_CODES.keys()],
+        max_length=32,
+        null=True,
+        blank=True,
     )
     cancel_code = models.CharField(
-        choices=[(code, code) for code in CANCEL_CODES.keys()], max_length=32,
-
-        null=True, blank=True
+        choices=[(code, code) for code in CANCEL_CODES.keys()],
+        max_length=32,
+        null=True,
+        blank=True,
     )
 
     @property
     def final_fields(self):
-        fields = ['proforma', 'invoice', 'uuid', 'payment_method', 'amount',
-                  'currency', 'created_at']
+        fields = [
+            "proforma",
+            "invoice",
+            "uuid",
+            "payment_method",
+            "amount",
+            "currency",
+            "created_at",
+        ]
 
         return fields
 
     def __init__(self, *args, **kwargs):
-        self.form_class = kwargs.pop('form_class', None)
+        self.form_class = kwargs.pop("form_class", None)
 
         super(Transaction, self).__init__(*args, **kwargs)
 
@@ -124,25 +141,28 @@ class Transaction(AutoCleanModelMixin,
     def process(self):
         pass
 
-    @transition(field=state, source=[States.Initial, States.Pending],
-                target=States.Settled)
+    @transition(
+        field=state, source=[States.Initial, States.Pending], target=States.Settled
+    )
     def settle(self):
         pass
 
-    @transition(field=state, source=[States.Initial, States.Pending],
-                target=States.Canceled)
-    def cancel(self, cancel_code='default', cancel_reason='Unknown cancel reason'):
+    @transition(
+        field=state, source=[States.Initial, States.Pending], target=States.Canceled
+    )
+    def cancel(self, cancel_code="default", cancel_reason="Unknown cancel reason"):
         self.cancel_code = cancel_code
         logger.error(str(cancel_reason))
 
-    @transition(field=state, source=[States.Initial, States.Pending],
-                target=States.Failed)
-    def fail(self, fail_code='default', fail_reason='Unknown fail reason'):
+    @transition(
+        field=state, source=[States.Initial, States.Pending], target=States.Failed
+    )
+    def fail(self, fail_code="default", fail_reason="Unknown fail reason"):
         self.fail_code = fail_code
         logger.error(str(fail_reason))
 
     @transition(field=state, source=States.Settled, target=States.Refunded)
-    def refund(self, refund_code='default', refund_reason='Unknown refund reason'):
+    def refund(self, refund_code="default", refund_reason="Unknown refund reason"):
         self.refund_code = refund_code
         logger.error(str(refund_reason))
 
@@ -156,8 +176,9 @@ class Transaction(AutoCleanModelMixin,
             elif self.invoice:
                 Invoice.objects.select_for_update().filter(pk=self.invoice.pk)
 
-            Transaction.objects.select_for_update().filter(Q(proforma=self.proforma) |
-                                                           Q(invoice=self.invoice))
+            Transaction.objects.select_for_update().filter(
+                Q(proforma=self.proforma) | Q(invoice=self.invoice)
+            )
 
         super(Transaction, self).save(*args, **kwargs)
 
@@ -166,19 +187,19 @@ class Transaction(AutoCleanModelMixin,
         document = self.document
         if not document:
             raise ValidationError(
-                'The transaction must have at least one billing document '
-                '(invoice or proforma).'
+                "The transaction must have at least one billing document "
+                "(invoice or proforma)."
             )
 
         if document.state == document.STATES.DRAFT:
             raise ValidationError(
-                'The transaction must have a non-draft billing document '
-                '(invoice or proforma).'
+                "The transaction must have a non-draft billing document "
+                "(invoice or proforma)."
             )
 
         if self.invoice and self.proforma:
             if self.invoice.related_document != self.proforma:
-                raise ValidationError('Invoice and proforma are not related.')
+                raise ValidationError("Invoice and proforma are not related.")
         else:
             if self.invoice:
                 self.proforma = self.invoice.related_document
@@ -186,36 +207,45 @@ class Transaction(AutoCleanModelMixin,
                 self.invoice = self.proforma.related_document
 
         if document.customer != self.customer:
-            raise ValidationError(
-                'Customer doesn\'t match with the one in documents.'
-            )
+            raise ValidationError("Customer doesn't match with the one in documents.")
 
         # New transaction
         if not self.pk:
             if document.state != document.STATES.ISSUED:
                 raise ValidationError(
-                    'Transactions can only be created for issued documents.'
+                    "Transactions can only be created for issued documents."
                 )
 
             if self.currency:
                 if self.currency != self.document.transaction_currency:
-                    message = "Transaction currency is different from it's document's "\
-                              "transaction_currency."
+                    message = (
+                        "Transaction currency is different from it's document's "
+                        "transaction_currency."
+                    )
                     raise ValidationError(message)
             else:
                 self.currency = self.document.transaction_currency
 
-            if (self.payment_method.allowed_currencies and
-                    self.currency not in self.payment_method.allowed_currencies):
-                message = 'Currency {} is not allowed by the payment method. Allowed currencies ' \
-                          'are {}.'.format(
-                              self.currency, self.payment_method.allowed_currencies
-                          )
+            if (
+                    self.payment_method.allowed_currencies
+                    and self.currency not in self.payment_method.allowed_currencies
+            ):
+                message = (
+                    "Currency {} is not allowed by the payment method. Allowed currencies "
+                    "are {}.".format(
+                        self.currency, self.payment_method.allowed_currencies
+                    )
+                )
                 raise ValidationError(message)
             if self.amount:
-                if self.amount > self.document.amount_to_be_charged_in_transaction_currency:
-                    message = "Amount is greater than the amount that should be charged in order " \
-                              "to pay the billing document."
+                if (
+                        self.amount
+                        > self.document.amount_to_be_charged_in_transaction_currency
+                ):
+                    message = (
+                        "Amount is greater than the amount that should be charged in order "
+                        "to pay the billing document."
+                    )
                     raise ValidationError(message)
             else:
                 self.amount = self.document.amount_to_be_charged_in_transaction_currency
@@ -227,13 +257,13 @@ class Transaction(AutoCleanModelMixin,
                 current_value = self.current_state.get(field)
 
                 if old_value is not None and old_value != current_value:
-                    errors[field] = 'This field may not be modified.'
+                    errors[field] = "This field may not be modified."
             if errors:
                 raise ValidationError(errors)
 
     def full_clean(self, *args, **kwargs):
         # 'amount' and 'currency' are handled in our clean method
-        kwargs['exclude'] = kwargs.get('exclude', []) + ['currency', 'amount']
+        kwargs["exclude"] = kwargs.get("exclude", []) + ["currency", "amount"]
 
         super(Transaction, self).full_clean(*args, **kwargs)
 
@@ -262,9 +292,7 @@ class Transaction(AutoCleanModelMixin,
         elif isinstance(value, Proforma):
             self.proforma = value
         else:
-            raise ValueError(
-                'The provided document is not an invoice or a proforma.'
-            )
+            raise ValueError("The provided document is not an invoice or a proforma.")
 
     @property
     def provider(self):
@@ -280,9 +308,9 @@ class Transaction(AutoCleanModelMixin,
 
     def update_document_state(self):
         if (
-            self.state == Transaction.States.Settled and
-            not self.document.amount_to_be_charged_in_transaction_currency and
-            self.document.state != self.document.STATES.PAID
+                self.state == Transaction.States.Settled
+                and not self.document.amount_to_be_charged_in_transaction_currency
+                and self.document.state != self.document.STATES.PAID
         ):
             self.document.pay()
 
@@ -293,27 +321,31 @@ class Transaction(AutoCleanModelMixin,
 @receiver(post_transition)
 def post_transition_callback(sender, instance, name, source, target, **kwargs):
     if issubclass(sender, Transaction):
-        setattr(instance, '.recently_transitioned', target)
+        setattr(instance, ".recently_transitioned", target)
 
 
 @receiver(post_save, sender=Transaction)
 def post_transaction_save(sender, instance, **kwargs):
     transaction = instance
 
-    if hasattr(transaction, '.recently_transitioned'):
-        delattr(transaction, '.recently_transitioned')
+    if hasattr(transaction, ".recently_transitioned"):
+        delattr(transaction, ".recently_transitioned")
         transaction.update_document_state()
 
-    if hasattr(transaction, '.cleaned'):
-        delattr(transaction, '.cleaned')
+    if hasattr(transaction, ".cleaned"):
+        delattr(transaction, ".cleaned")
 
-    if not getattr(transaction, 'previous_instance', None):
+    if not getattr(transaction, "previous_instance", None):
         # we know this instance is freshly made as it doesn't have an old_value
-        logger.info('[Models][Transaction]: %s', {
-            'detail': 'A transaction was created.',
-            'transaction_id': transaction.id,
-            'customer_id': transaction.customer.id,
-            'invoice_id': transaction.invoice.id if transaction.invoice else None,
-            'proforma_id':
-                transaction.proforma.id if transaction.proforma else None
-        })
+        logger.info(
+            "[Models][Transaction]: %s",
+            {
+                "detail": "A transaction was created.",
+                "transaction_id": transaction.id,
+                "customer_id": transaction.customer.id,
+                "invoice_id": transaction.invoice.id if transaction.invoice else None,
+                "proforma_id": transaction.proforma.id
+                if transaction.proforma
+                else None,
+            },
+        )

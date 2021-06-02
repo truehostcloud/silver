@@ -22,7 +22,8 @@ from rest_framework_bulk import ListBulkCreateAPIView
 
 from silver.api.filters import CustomerFilter, ProviderFilter
 from silver.api.serializers.billing_entities_serializers import (
-    CustomerSerializer, ProviderSerializer
+    CustomerSerializer,
+    ProviderSerializer,
 )
 from silver.models import Customer, Provider
 
@@ -37,7 +38,7 @@ class CustomerList(generics.ListCreateAPIView):
 
 class CustomerDetail(generics.RetrieveUpdateDestroyAPIView):
     def get_object(self):
-        pk = self.kwargs.get('customer_pk', None)
+        pk = self.kwargs.get("customer_pk", None)
         try:
             return Customer.objects.get(pk=pk)
         except (TypeError, ValueError, Customer.DoesNotExist):

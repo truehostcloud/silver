@@ -27,22 +27,26 @@ def get_transaction_from_token(view):
     def decorator(request, token):
         try:
             expired = False
-            transaction_uuid = jwt.decode(token,
-                                          settings.PAYMENT_METHOD_SECRET,
-                                          algorithms=['HS256'])['transaction']
+            transaction_uuid = jwt.decode(
+                token, settings.PAYMENT_METHOD_SECRET, algorithms=["HS256"]
+            )["transaction"]
         except jwt.ExpiredSignatureError:
             expired = True
-            transaction_uuid = jwt.decode(token, settings.PAYMENT_METHOD_SECRET,
-                                          algorithms=['HS256'],
-                                          options={'verify_exp': False})['transaction']
+            transaction_uuid = jwt.decode(
+                token,
+                settings.PAYMENT_METHOD_SECRET,
+                algorithms=["HS256"],
+                options={"verify_exp": False},
+            )["transaction"]
 
         try:
             uuid = UUID(transaction_uuid, version=4)
         except ValueError:
             raise Http404
 
-        Transaction = apps.get_model('silver.Transaction')
+        Transaction = apps.get_model("silver.Transaction")
         return view(request, get_object_or_404(Transaction, uuid=uuid), expired)
+
     return decorator
 
 
@@ -53,4 +57,5 @@ def require_transaction_currency_and_xe_rate(f):
         if not (self.transaction_currency and self.transaction_xe_rate):
             return None
         return f(self, *args, **kwargs)
+
     return _check

@@ -22,8 +22,12 @@ from six.moves import zip
 from django.test import TestCase
 
 from silver.models import DocumentEntry, Proforma, Invoice
-from silver.fixtures.factories import (ProformaFactory, InvoiceFactory,
-                                       DocumentEntryFactory, CustomerFactory)
+from silver.fixtures.factories import (
+    ProformaFactory,
+    InvoiceFactory,
+    DocumentEntryFactory,
+    CustomerFactory,
+)
 
 
 class TestInvoice(TestCase):
@@ -53,8 +57,7 @@ class TestInvoice(TestCase):
         assert clone.paid_date is None
         assert clone.issue_date is None
         assert clone.related_document is None
-        assert (clone.series != invoice.series or
-                clone.number != invoice.number)
+        assert clone.series != invoice.series or clone.number != invoice.number
         assert clone.sales_tax_percent == invoice.sales_tax_percent
         assert clone.sales_tax_name == invoice.sales_tax_name
 
@@ -73,12 +76,12 @@ class TestInvoice(TestCase):
         assert invoice.invoice_entries.count() == 3
 
         entry_fields = [entry.name for entry in DocumentEntry._meta.get_fields()]
-        for clone_entry, original_entry in zip(clone.invoice_entries.all(),
-                                               invoice.invoice_entries.all()):
+        for clone_entry, original_entry in zip(
+                clone.invoice_entries.all(), invoice.invoice_entries.all()
+        ):
             for entry in entry_fields:
-                if entry not in ('id', 'proforma', 'invoice'):
-                    assert getattr(clone_entry, entry) == \
-                        getattr(original_entry, entry)
+                if entry not in ("id", "proforma", "invoice"):
+                    assert getattr(clone_entry, entry) == getattr(original_entry, entry)
         assert invoice.state == Invoice.STATES.PAID
 
     def test_cancel_issued_invoice_with_related_proforma(self):
@@ -90,7 +93,9 @@ class TestInvoice(TestCase):
 
         proforma.related_document.cancel()
 
-        assert proforma.related_document.state == proforma.state == Invoice.STATES.CANCELED
+        assert (
+                proforma.related_document.state == proforma.state == Invoice.STATES.CANCELED
+        )
 
     def _get_decimal_places(self, number):
         return max(0, -number.as_tuple().exponent)
@@ -105,7 +110,7 @@ class TestInvoice(TestCase):
         invoice_entries = DocumentEntryFactory.create_batch(3)
         invoice = InvoiceFactory.create(invoice_entries=invoice_entries)
 
-        invoice.sales_tax_percent = Decimal('20.00')
+        invoice.sales_tax_percent = Decimal("20.00")
 
         assert self._get_decimal_places(invoice.total_before_tax) == 2
 
@@ -113,7 +118,7 @@ class TestInvoice(TestCase):
         invoice_entries = DocumentEntryFactory.create_batch(3)
         invoice = InvoiceFactory.create(invoice_entries=invoice_entries)
 
-        invoice.sales_tax_percent = Decimal('20.00')
+        invoice.sales_tax_percent = Decimal("20.00")
 
         assert self._get_decimal_places(invoice.tax_value) == 2
 
@@ -121,7 +126,7 @@ class TestInvoice(TestCase):
         invoice_entries = DocumentEntryFactory.create_batch(5)
         invoice = InvoiceFactory.create(invoice_entries=invoice_entries)
 
-        invoice.sales_tax_percent = Decimal('20.00')
+        invoice.sales_tax_percent = Decimal("20.00")
 
         self.assertEqual(invoice.total, invoice.total_before_tax + invoice.tax_value)
 
@@ -129,18 +134,16 @@ class TestInvoice(TestCase):
         invoice = InvoiceFactory.create()
         invoice.number = None
 
-        assert invoice.series_number == '%s-draft-id:%d' % (invoice.series,
-                                                            invoice.pk)
+        assert invoice.series_number == "%s-draft-id:%d" % (invoice.series, invoice.pk)
 
         invoice.series = None
 
-        assert invoice.series_number == 'draft-id:%d' % invoice.pk
+        assert invoice.series_number == "draft-id:%d" % invoice.pk
 
     def test_issues_invoice_series_number(self):
         invoice = InvoiceFactory.create(state=Invoice.STATES.ISSUED)
 
-        assert invoice.series_number == '%s-%s' % (invoice.series,
-                                                   invoice.number)
+        assert invoice.series_number == "%s-%s" % (invoice.series, invoice.number)
 
     def test_invoice_due_today_queryset(self):
         invoices = InvoiceFactory.create_batch(5)
@@ -222,19 +225,18 @@ class TestInvoice(TestCase):
         assert invoices[1] in queryset
 
     def test_customer_currency_used_for_transaction_currency(self):
-        customer = CustomerFactory.create(currency='EUR')
-        invoice = InvoiceFactory.create(customer=customer,
-                                        transaction_currency=None)
+        customer = CustomerFactory.create(currency="EUR")
+        invoice = InvoiceFactory.create(customer=customer, transaction_currency=None)
 
-        self.assertEqual(invoice.transaction_currency, 'EUR')
+        self.assertEqual(invoice.transaction_currency, "EUR")
 
     def test_invoice_currency_used_for_transaction_currency(self):
         customer = CustomerFactory.create(currency=None)
-        invoice = InvoiceFactory.create(customer=customer,
-                                        currency='EUR',
-                                        transaction_currency=None)
+        invoice = InvoiceFactory.create(
+            customer=customer, currency="EUR", transaction_currency=None
+        )
 
-        self.assertEqual(invoice.transaction_currency, 'EUR')
+        self.assertEqual(invoice.transaction_currency, "EUR")
 
     def test_invoice_create_storno_from_canceled_state(self):
         invoice = InvoiceFactory.create(invoice_entries=[DocumentEntryFactory.create()])

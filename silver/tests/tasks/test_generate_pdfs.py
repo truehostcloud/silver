@@ -49,16 +49,20 @@ def test_generate_pdfs_task(monkeypatch):
     issued_proforma_already_generated.pdf.dirty = False
     issued_proforma_already_generated.pdf.save()
 
-    documents_to_generate = [issued_invoice, canceled_invoice, paid_invoice,
-                             issued_proforma]
+    documents_to_generate = [
+        issued_invoice,
+        canceled_invoice,
+        paid_invoice,
+        issued_proforma,
+    ]
 
     for document in documents_to_generate:
         assert document.pdf.dirty
 
     lock_mock = MagicMock()
-    monkeypatch.setattr('silver.tasks.redis.lock', lock_mock)
+    monkeypatch.setattr("silver.tasks.redis.lock", lock_mock)
 
-    with patch('silver.tasks.group') as group_mock:
+    with patch("silver.tasks.group") as group_mock:
         generate_pdfs()
 
         assert group_mock.call_count
@@ -75,8 +79,9 @@ def test_generate_pdf_task(settings, tmpdir, monkeypatch):
 
     pisa_document_mock = MagicMock(return_value=MagicMock(err=False))
 
-    monkeypatch.setattr('silver.models.documents.pdf.pisa.pisaDocument',
-                        pisa_document_mock)
+    monkeypatch.setattr(
+        "silver.models.documents.pdf.pisa.pisaDocument", pisa_document_mock
+    )
 
     generate_pdf(invoice.id, invoice.kind)
 

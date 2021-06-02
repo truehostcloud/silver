@@ -29,17 +29,19 @@ logger = logging.getLogger(__name__)
 
 
 def string_to_list(list_as_string):
-    return list(map(int, list_as_string.strip('[] ').split(',')))
+    return list(map(int, list_as_string.strip("[] ").split(",")))
 
 
 class Command(BaseCommand):
-    help = 'Runs execute_transaction on eligible transactions.'
+    help = "Runs execute_transaction on eligible transactions."
 
     def add_arguments(self, parser):
         parser.add_argument(
-            '--transactions',
-            help='A list of transaction pks to be executed.',
-            action='store', dest='transactions', type=string_to_list
+            "--transactions",
+            help="A list of transaction pks to be executed.",
+            action="store",
+            dest="transactions",
+            type=string_to_list,
         )
 
     def handle(self, *args, **options):
@@ -47,19 +49,25 @@ class Command(BaseCommand):
             state=Transaction.States.Initial,
         )
 
-        if options['transactions']:
+        if options["transactions"]:
             executable_transactions = executable_transactions.filter(
-                pk__in=options['transactions']
+                pk__in=options["transactions"]
             )
 
         for transaction in executable_transactions:
             try:
-                if not transaction.payment_method.verified or transaction.payment_method.canceled:
+                if (
+                        not transaction.payment_method.verified
+                        or transaction.payment_method.canceled
+                ):
                     continue
                 payment_processor = transaction.payment_method.get_payment_processor()
                 if payment_processor.type != PaymentProcessorTypes.Triggered:
                     continue
                 payment_processor.process_transaction(transaction)
             except Exception:
-                logger.error('Encountered exception while executing transaction '
-                             'with id=%s.', transaction.id, exc_info=True)
+                logger.error(
+                    "Encountered exception while executing transaction " "with id=%s.",
+                    transaction.id,
+                    exc_info=True,
+                )

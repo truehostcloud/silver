@@ -27,11 +27,13 @@ from silver.models import PDF
 def test_generate_pdf():
     pdf = PDF.objects.create(dirty=1)
 
-    filename = 'filename'
-    template = get_template('billing_documents/invoice_pdf.html')
-    context = {'filename': filename}
+    filename = "filename"
+    template = get_template("billing_documents/invoice_pdf.html")
+    context = {"filename": filename}
 
-    with patch('django.db.models.fields.files.FieldFile.save', autospec=True) as mock_pdf_save:
+    with patch(
+            "django.db.models.fields.files.FieldFile.save", autospec=True
+    ) as mock_pdf_save:
         pdf.generate(template=template, context=context)
 
     assert pdf.dirty == 0
@@ -54,8 +56,11 @@ def test_generate_pdf():
 def test_generate_pdf_without_upload():
     pdf = PDF.objects.create(dirty=1)
 
-    pdf.generate(template=get_template('billing_documents/invoice_pdf.html'),
-                 context={}, upload=False)
+    pdf.generate(
+        template=get_template("billing_documents/invoice_pdf.html"),
+        context={},
+        upload=False,
+    )
 
     assert pdf.dirty == 1
 

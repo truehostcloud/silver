@@ -25,7 +25,7 @@ from django.utils.text import slugify
 from silver.utils.international import countries
 
 
-PAYMENT_DUE_DAYS = getattr(settings, 'SILVER_DEFAULT_DUE_DAYS', 5)
+PAYMENT_DUE_DAYS = getattr(settings, "SILVER_DEFAULT_DUE_DAYS", 5)
 
 
 class BaseBillingEntity(LiveModel):
@@ -39,9 +39,10 @@ class BaseBillingEntity(LiveModel):
     state = models.CharField(max_length=128, blank=True, null=True)
     zip_code = models.CharField(max_length=32, blank=True, null=True)
     extra = models.TextField(
-        blank=True, null=True,
-        help_text='Extra information to display on the invoice '
-                  '(markdown formatted).'
+        blank=True,
+        null=True,
+        help_text="Extra information to display on the invoice "
+                  "(markdown formatted).",
     )
     meta = JSONField(blank=True, null=True, default=dict, encoder=DjangoJSONEncoder)
 
@@ -57,22 +58,41 @@ class BaseBillingEntity(LiveModel):
         return slugify(self.billing_name)
 
     def address(self):
-        return ", ".join([_f for _f in [
-            self.address_1, self.city, self.state, self.zip_code, self.country] if _f
-        ])
-    address.short_description = 'Address'
+        return ", ".join(
+            [
+                _f
+                for _f in [
+                self.address_1,
+                self.city,
+                self.state,
+                self.zip_code,
+                self.country,
+            ]
+                if _f
+            ]
+        )
+
+    address.short_description = "Address"
 
     def get_list_display_fields(self):
-        field_names = ['company', 'email', 'address_1', 'city', 'country',
-                       'zip_code']
-        return [getattr(self, field, '') for field in field_names]
+        field_names = ["company", "email", "address_1", "city", "country", "zip_code"]
+        return [getattr(self, field, "") for field in field_names]
 
     def get_archivable_field_values(self):
-        field_names = ['company', 'email', 'address_1', 'address_2',
-                       'city', 'country', 'city', 'state', 'zip_code', 'extra',
-                       'meta']
-        return {field: getattr(self, field, '') for field in field_names}
+        field_names = [
+            "company",
+            "email",
+            "address_1",
+            "address_2",
+            "city",
+            "country",
+            "city",
+            "state",
+            "zip_code",
+            "extra",
+            "meta",
+        ]
+        return {field: getattr(self, field, "") for field in field_names}
 
     def __str__(self):
-        return (u'%s (%s)' % (self.name, self.company) if self.company
-                else self.name)
+        return "%s (%s)" % (self.name, self.company) if self.company else self.name

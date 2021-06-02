@@ -30,27 +30,27 @@ from rest_framework.reverse import reverse
 
 def _get_jwt_token(transaction):
     valid_until = datetime.utcnow() + settings.SILVER_PAYMENT_TOKEN_EXPIRATION
-    data = {'transaction': force_str(transaction.uuid), 'exp': valid_until}
+    data = {"transaction": force_str(transaction.uuid), "exp": valid_until}
     return force_str(jwt.encode(data, settings.PAYMENT_METHOD_SECRET))
 
 
 def get_payment_url(transaction, request):
-    kwargs = {'token': _get_jwt_token(transaction)}
-    return reverse('payment', kwargs=kwargs, request=request)
+    kwargs = {"token": _get_jwt_token(transaction)}
+    return reverse("payment", kwargs=kwargs, request=request)
 
 
 def get_payment_complete_url(transaction, request=None):
     """
-        :param transaction: A Silver Transaction object.
-        :param request: A Django request object from the PaymentProcessor's transaction_view_class.
-                        Will be used to obtain the final return_url.
-        :return: The url where the customer should be redirected when the transaction operation is
-                 finished.
+    :param transaction: A Silver Transaction object.
+    :param request: A Django request object from the PaymentProcessor's transaction_view_class.
+                    Will be used to obtain the final return_url.
+    :return: The url where the customer should be redirected when the transaction operation is
+             finished.
     """
-    kwargs = {'token': _get_jwt_token(transaction)}
-    url = furl(reverse('payment-complete', kwargs=kwargs, request=request))
+    kwargs = {"token": _get_jwt_token(transaction)}
+    url = furl(reverse("payment-complete", kwargs=kwargs, request=request))
 
-    if request and 'return_url' in request.GET:
-        url = url.add({'return_url': request.GET['return_url']})
+    if request and "return_url" in request.GET:
+        url = url.add({"return_url": request.GET["return_url"]})
 
     return six.moves.urllib.parse.unquote(url.url)

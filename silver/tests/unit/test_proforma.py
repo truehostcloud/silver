@@ -23,7 +23,9 @@ from django.test import TestCase
 
 from silver.models import DocumentEntry, Invoice, Proforma
 from silver.fixtures.factories import (
-    ProformaFactory, DocumentEntryFactory, CustomerFactory
+    ProformaFactory,
+    DocumentEntryFactory,
+    CustomerFactory,
 )
 
 
@@ -52,8 +54,7 @@ class TestProforma(TestCase):
         assert clone.paid_date is None
         assert clone.issue_date is None
         assert clone.related_document is None
-        assert (clone.series != proforma.series or
-                clone.number != proforma.number)
+        assert clone.series != proforma.series or clone.number != proforma.number
         assert clone.sales_tax_percent == proforma.sales_tax_percent
         assert clone.sales_tax_name == proforma.sales_tax_name
 
@@ -72,12 +73,12 @@ class TestProforma(TestCase):
         assert proforma.proforma_entries.count() == 3
 
         entry_fields = [entry.name for entry in DocumentEntry._meta.get_fields()]
-        for clone_entry, original_entry in zip(clone.proforma_entries.all(),
-                                               proforma.proforma_entries.all()):
+        for clone_entry, original_entry in zip(
+                clone.proforma_entries.all(), proforma.proforma_entries.all()
+        ):
             for entry in entry_fields:
-                if entry not in ('id', 'proforma', 'invoice'):
-                    assert getattr(clone_entry, entry) == \
-                        getattr(original_entry, entry)
+                if entry not in ("id", "proforma", "invoice"):
+                    assert getattr(clone_entry, entry) == getattr(original_entry, entry)
 
         assert proforma.state == Proforma.STATES.PAID
 
@@ -90,7 +91,11 @@ class TestProforma(TestCase):
 
         proforma.cancel()
 
-        assert proforma.state == proforma.related_document.state == Proforma.STATES.CANCELED
+        assert (
+                proforma.state
+                == proforma.related_document.state
+                == Proforma.STATES.CANCELED
+        )
 
     def _get_decimal_places(self, number):
         return max(0, -number.as_tuple().exponent)
@@ -105,7 +110,7 @@ class TestProforma(TestCase):
         proforma_entries = DocumentEntryFactory.create_batch(3)
         proforma = ProformaFactory.create(proforma_entries=proforma_entries)
 
-        proforma.sales_tax_percent = Decimal('20.00')
+        proforma.sales_tax_percent = Decimal("20.00")
 
         assert self._get_decimal_places(proforma.total_before_tax) == 2
 
@@ -113,7 +118,7 @@ class TestProforma(TestCase):
         proforma_entries = DocumentEntryFactory.create_batch(3)
         proforma = ProformaFactory.create(proforma_entries=proforma_entries)
 
-        proforma.sales_tax_percent = Decimal('20.00')
+        proforma.sales_tax_percent = Decimal("20.00")
 
         assert self._get_decimal_places(proforma.tax_value) == 2
 
@@ -121,7 +126,7 @@ class TestProforma(TestCase):
         proforma_entries = DocumentEntryFactory.create_batch(5)
         proforma = ProformaFactory.create(proforma_entries=proforma_entries)
 
-        proforma.sales_tax_percent = Decimal('20.00')
+        proforma.sales_tax_percent = Decimal("20.00")
 
         assert proforma.total == proforma.total_before_tax + proforma.tax_value
 
@@ -129,33 +134,33 @@ class TestProforma(TestCase):
         proforma = ProformaFactory.create()
         proforma.number = None
 
-        assert proforma.series_number == '%s-draft-id:%d' % (proforma.series,
-                                                             proforma.pk)
+        assert proforma.series_number == "%s-draft-id:%d" % (
+            proforma.series,
+            proforma.pk,
+        )
 
         proforma.series = None
 
-        assert proforma.series_number == 'draft-id:%d' % proforma.pk
+        assert proforma.series_number == "draft-id:%d" % proforma.pk
 
     def test_issues_proforma_series_number(self):
         proforma = ProformaFactory.create(state=Invoice.STATES.ISSUED)
 
-        assert proforma.series_number == '%s-%s' % (proforma.series,
-                                                    proforma.number)
+        assert proforma.series_number == "%s-%s" % (proforma.series, proforma.number)
 
     def test_customer_currency_used_for_transaction_currency(self):
-        customer = CustomerFactory.create(currency='EUR')
-        proforma = ProformaFactory.create(customer=customer,
-                                          transaction_currency=None)
+        customer = CustomerFactory.create(currency="EUR")
+        proforma = ProformaFactory.create(customer=customer, transaction_currency=None)
 
-        self.assertEqual(proforma.transaction_currency, 'EUR')
+        self.assertEqual(proforma.transaction_currency, "EUR")
 
     def test_proforma_currency_used_for_transaction_currency(self):
         customer = CustomerFactory.create(currency=None)
-        proforma = ProformaFactory.create(customer=customer,
-                                          currency='EUR',
-                                          transaction_currency=None)
+        proforma = ProformaFactory.create(
+            customer=customer, currency="EUR", transaction_currency=None
+        )
 
-        self.assertEqual(proforma.transaction_currency, 'EUR')
+        self.assertEqual(proforma.transaction_currency, "EUR")
 
     def test_proforma_is_storno_not_allowed(self):
         proforma = ProformaFactory.create(is_storno=True)

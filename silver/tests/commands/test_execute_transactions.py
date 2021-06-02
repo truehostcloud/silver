@@ -20,26 +20,25 @@ from django.core.management import call_command
 from django.test import TestCase, override_settings
 
 from silver.fixtures.factories import TransactionFactory, PaymentMethodFactory
-from silver.fixtures.test_fixtures import (TriggeredProcessor, PAYMENT_PROCESSORS,
-                                           triggered_processor)
+from silver.fixtures.test_fixtures import (
+    TriggeredProcessor,
+    PAYMENT_PROCESSORS,
+    triggered_processor,
+)
 
 
 @override_settings(PAYMENT_PROCESSORS=PAYMENT_PROCESSORS)
 class TestExecuteTransactionsCommand(TestCase):
     def test_transaction_executing(self):
         payment_method = PaymentMethodFactory.create(
-            payment_processor=triggered_processor,
-            verified=True
+            payment_processor=triggered_processor, verified=True
         )
 
-        transactions = TransactionFactory.create_batch(
-            5, payment_method=payment_method
-        )
+        transactions = TransactionFactory.create_batch(5, payment_method=payment_method)
 
         mock_execute = MagicMock()
-        with patch.multiple(TriggeredProcessor,
-                            execute_transaction=mock_execute):
-            call_command('execute_transactions')
+        with patch.multiple(TriggeredProcessor, execute_transaction=mock_execute):
+            call_command("execute_transactions")
 
             for transaction in transactions:
                 self.assertIn(call(transaction), mock_execute.call_args_list)
@@ -48,65 +47,57 @@ class TestExecuteTransactionsCommand(TestCase):
 
     def test_transaction_filtering(self):
         payment_method = PaymentMethodFactory.create(
-            payment_processor=triggered_processor,
-            verified=True
+            payment_processor=triggered_processor, verified=True
         )
 
-        transactions = TransactionFactory.create_batch(
-            5, payment_method=payment_method
-        )
+        transactions = TransactionFactory.create_batch(5, payment_method=payment_method)
 
-        filtered_transactions = [
-            transactions[0], transactions[2], transactions[4]
-        ]
+        filtered_transactions = [transactions[0], transactions[2], transactions[4]]
 
         mock_execute = MagicMock()
-        with patch.multiple(TriggeredProcessor,
-                            execute_transaction=mock_execute):
+        with patch.multiple(TriggeredProcessor, execute_transaction=mock_execute):
             transactions_arg = [
                 str(transaction.pk) for transaction in filtered_transactions
             ]
-            call_command('execute_transactions',
-                         '--transactions=%s' % ','.join(transactions_arg))
+            call_command(
+                "execute_transactions", "--transactions=%s" % ",".join(transactions_arg)
+            )
 
             for transaction in filtered_transactions:
                 self.assertIn(call(transaction), mock_execute.call_args_list)
 
             self.assertEqual(mock_execute.call_count, len(filtered_transactions))
 
-    @patch('silver.management.commands.execute_transactions.logger.error')
+    @patch("silver.management.commands.execute_transactions.logger.error")
     def test_exception_logging(self, mock_logger):
         payment_method = PaymentMethodFactory.create(
-            payment_processor=triggered_processor,
-            verified=True
+            payment_processor=triggered_processor, verified=True
         )
 
         TransactionFactory.create(payment_method=payment_method)
 
         mock_execute = MagicMock()
-        mock_execute.side_effect = Exception('This happened.')
+        mock_execute.side_effect = Exception("This happened.")
 
-        with patch.multiple(TriggeredProcessor,
-                            execute_transaction=mock_execute):
-            call_command('execute_transactions')
+        with patch.multiple(TriggeredProcessor, execute_transaction=mock_execute):
+            call_command("execute_transactions")
             expected_call = call(
-                'Encountered exception while executing transaction with id=%s.',
-                1, exc_info=True
+                "Encountered exception while executing transaction with id=%s.",
+                1,
+                exc_info=True,
             )
 
             self.assertEqual(expected_call, mock_logger.call_args)
 
     def test_skip_transaction_with_unverified_payment_method(self):
         payment_method = PaymentMethodFactory.create(
-            payment_processor=triggered_processor,
-            verified=False
+            payment_processor=triggered_processor, verified=False
         )
 
         TransactionFactory.create(payment_method=payment_method)
 
         mock_execute = MagicMock()
-        with patch.multiple(TriggeredProcessor,
-                            execute_transaction=mock_execute):
-            call_command('execute_transactions')
+        with patch.multiple(TriggeredProcessor, execute_transaction=mock_execute):
+            call_command("execute_transactions")
 
             self.assertEqual(mock_execute.call_count, 0)

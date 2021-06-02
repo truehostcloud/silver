@@ -32,48 +32,55 @@ class TestPaymentProcessorsEndpoints(APITestCase):
         self.client.force_authenticate(user=admin_user)
 
     def test_payment_processors_list(self):
-        url = reverse('payment-processor-list')
-        response = self.client.get(url, format='json')
+        url = reverse("payment-processor-list")
+        response = self.client.get(url, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn(
             {
                 "name": "triggered",
                 "type": "triggered",
-                "allowed_currencies": ['RON', 'USD'],
-                "url": build_absolute_test_url(reverse('payment-processor-detail', ['triggered']))
+                "allowed_currencies": ["RON", "USD"],
+                "url": build_absolute_test_url(
+                    reverse("payment-processor-detail", ["triggered"])
+                ),
             },
-            response.data
+            response.data,
         )
         self.assertIn(
             {
                 "name": "manual",
                 "type": "manual",
                 "allowed_currencies": [],
-                "url": build_absolute_test_url(reverse('payment-processor-detail', ['manual']))
+                "url": build_absolute_test_url(
+                    reverse("payment-processor-detail", ["manual"])
+                ),
             },
-            response.data
+            response.data,
         )
 
     def test_payment_processors_detail(self):
-        url = reverse('payment-processor-detail', kwargs={
-            'processor_name': 'manual'
-        })
-        response = self.client.get(url, format='json')
+        url = reverse("payment-processor-detail", kwargs={"processor_name": "manual"})
+        response = self.client.get(url, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data, {
-            'name': u'manual',
-            'type': u'manual',
-            'allowed_currencies': [],
-            'url': build_absolute_test_url(reverse('payment-processor-detail', ['manual']))
-        })
+        self.assertEqual(
+            response.data,
+            {
+                "name": u"manual",
+                "type": u"manual",
+                "allowed_currencies": [],
+                "url": build_absolute_test_url(
+                    reverse("payment-processor-detail", ["manual"])
+                ),
+            },
+        )
 
     def test_payment_processors_detail_not_found(self):
-        url = reverse('payment-processor-detail', kwargs={
-            'processor_name': 'unexisting'
-        })
-        response = self.client.get(url, format='json')
+        url = reverse(
+            "payment-processor-detail", kwargs={"processor_name": "unexisting"}
+        )
+        response = self.client.get(url, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertEqual(response.data, {"detail": "Not found."})

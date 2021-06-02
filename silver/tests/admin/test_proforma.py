@@ -30,22 +30,26 @@ from silver.fixtures.factories import ProformaFactory
 
 class ProformaAdminTestCase(TestCase):
     def setUp(self):
-        self.user = User.objects.create_superuser('user', 'myemail@test.com', 'password')
+        self.user = User.objects.create_superuser(
+            "user", "myemail@test.com", "password"
+        )
 
         self.admin = Client()
 
-        self.admin.login(username='user', password='password')
+        self.admin.login(username="user", password="password")
 
     def test_actions_log_entries(self):
         proforma = ProformaFactory.create()
 
-        url = reverse('admin:silver_proforma_changelist')
+        url = reverse("admin:silver_proforma_changelist")
 
         mock_log_entry = MagicMock()
         mock_log_action = MagicMock()
         mock_log_entry.objects.log_action = mock_log_action
 
-        mock_action = Mock(return_value=Mock(series_number='aaa', admin_change_url="result_url"))
+        mock_action = Mock(
+            return_value=Mock(series_number="aaa", admin_change_url="result_url")
+        )
 
         mock_proforma = MagicMock()
         mock_proforma.issue = mock_action
@@ -54,23 +58,22 @@ class ProformaAdminTestCase(TestCase):
         mock_proforma.clone_into_draft = mock_action
         mock_proforma.create_invoice = mock_action
 
-        with patch.multiple('silver.admin',
-                            LogEntry=mock_log_entry,
-                            Proforma=mock_proforma):
-            actions = ['issue', 'pay', 'cancel', 'clone', 'create_invoice']
+        with patch.multiple(
+                "silver.admin", LogEntry=mock_log_entry, Proforma=mock_proforma
+        ):
+            actions = ["issue", "pay", "cancel", "clone", "create_invoice"]
 
             for action in actions:
-                self.admin.post(url, {
-                    'action': action,
-                    '_selected_action': [str(proforma.pk)]
-                })
+                self.admin.post(
+                    url, {"action": action, "_selected_action": [str(proforma.pk)]}
+                )
 
                 assert mock_action.call_count
 
                 mock_action.reset_mock()
 
-                if action == 'clone':
-                    action = 'clone_into_draft'
+                if action == "clone":
+                    action = "clone_into_draft"
 
                 mock_log_action.assert_called_with(
                     user_id=self.user.pk,
@@ -78,15 +81,15 @@ class ProformaAdminTestCase(TestCase):
                     object_id=proforma.pk,
                     object_repr=force_str(proforma),
                     action_flag=CHANGE,
-                    change_message='{action} action initiated by user.'.format(
-                        action=action.capitalize().replace('_', ' ')
-                    )
+                    change_message="{action} action initiated by user.".format(
+                        action=action.capitalize().replace("_", " ")
+                    ),
                 )
 
     def test_actions_failed_no_log_entries(self):
         proforma = ProformaFactory.create()
 
-        url = reverse('admin:silver_proforma_changelist')
+        url = reverse("admin:silver_proforma_changelist")
 
         mock_log_entry = MagicMock()
         mock_log_action = MagicMock()
@@ -106,15 +109,14 @@ class ProformaAdminTestCase(TestCase):
         mock_proforma.clone_into_draft = mock_action
         mock_proforma.create_invoice = mock_action
 
-        with patch.multiple('silver.admin',
-                            LogEntry=mock_log_entry,
-                            Proforma=mock_proforma):
-            actions = ['issue', 'pay', 'cancel', 'clone', 'create_invoice']
+        with patch.multiple(
+                "silver.admin", LogEntry=mock_log_entry, Proforma=mock_proforma
+        ):
+            actions = ["issue", "pay", "cancel", "clone", "create_invoice"]
 
             for action in actions:
-                self.admin.post(url, {
-                    'action': action,
-                    '_selected_action': [str(proforma.pk)]
-                })
+                self.admin.post(
+                    url, {"action": action, "_selected_action": [str(proforma.pk)]}
+                )
 
                 assert not mock_log_action.call_count

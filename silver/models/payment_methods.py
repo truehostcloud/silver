@@ -51,8 +51,9 @@ class PaymentMethod(models.Model):
         def as_list(cls):
             return [name for name in settings.PAYMENT_PROCESSORS.keys()]
 
-    payment_processor = models.CharField(choices=PaymentProcessors.as_choices(),
-                                         blank=False, null=False, max_length=256)
+    payment_processor = models.CharField(
+        choices=PaymentProcessors.as_choices(), blank=False, null=False, max_length=256
+    )
     customer = models.ForeignKey(Customer, models.CASCADE)
     added_at = models.DateTimeField(default=timezone.now)
     data = JSONField(blank=True, null=True, default=dict, encoder=DjangoJSONEncoder)
@@ -66,15 +67,15 @@ class PaymentMethod(models.Model):
     objects = InheritanceManager()
 
     class Meta:
-        ordering = ['-id']
+        ordering = ["-id"]
 
     @property
     def final_fields(self):
-        return ['payment_processor', 'customer', 'added_at']
+        return ["payment_processor", "customer", "added_at"]
 
     @property
     def irreversible_fields(self):
-        return ['verified', 'canceled']
+        return ["verified", "canceled"]
 
     def __init__(self, *args, **kwargs):
         super(PaymentMethod, self).__init__(*args, **kwargs)
@@ -117,8 +118,7 @@ class PaymentMethod(models.Model):
         if self.canceled:
             raise ValidationError("You can't cancel a canceled payment method.")
 
-        cancelable_states = [Transaction.States.Initial,
-                             Transaction.States.Pending]
+        cancelable_states = [Transaction.States.Initial, Transaction.States.Pending]
 
         transactions = self.transactions.filter(state__in=cancelable_states)
 
@@ -128,13 +128,18 @@ class PaymentMethod(models.Model):
                 try:
                     transaction.cancel()
                 except TransitionNotAllowed:
-                    errors.append("Transaction {} couldn't be canceled".format(transaction.uuid))
+                    errors.append(
+                        "Transaction {} couldn't be canceled".format(transaction.uuid)
+                    )
 
             if transaction.state == Transaction.States.Pending:
                 payment_processor = self.get_payment_processor()
-                if (hasattr(payment_processor, 'void_transaction') and
-                        not payment_processor.void_transaction(transaction)):
-                    errors.append("Transaction {} couldn't be voided".format(transaction.uuid))
+                if hasattr(
+                        payment_processor, "void_transaction"
+                ) and not payment_processor.void_transaction(transaction):
+                    errors.append(
+                        "Transaction {} couldn't be voided".format(transaction.uuid)
+                    )
 
             transaction.save()
 
@@ -155,28 +160,24 @@ class PaymentMethod(models.Model):
             current_value = getattr(self, field, None)
 
             if old_value != current_value:
-                raise ValidationError(
-                    "Field '%s' may not be changed." % field
-                )
+                raise ValidationError("Field '%s' may not be changed." % field)
 
         for field in self.irreversible_fields:
             old_value = getattr(previous_instance, field, None)
             current_value = getattr(self, field, None)
 
             if old_value and old_value != current_value:
-                raise ValidationError(
-                    "Field '%s' may not be changed anymore." % field
-                )
+                raise ValidationError("Field '%s' may not be changed anymore." % field)
 
     def full_clean(self, *args, **kwargs):
-        previous_instance = kwargs.pop('previous_instance', None)
+        previous_instance = kwargs.pop("previous_instance", None)
 
         super(PaymentMethod, self).full_clean(*args, **kwargs)
         self.clean_with_previous_instance(previous_instance)
 
         # this assumes that nobody calls clean and then modifies this object
         # without calling clean again
-        setattr(self, '.cleaned', True)
+        setattr(self, ".cleaned", True)
 
     @property
     def allowed_currencies(self):
@@ -187,9 +188,9 @@ class PaymentMethod(models.Model):
         return {}
 
     def __str__(self):
-        return u'{} - {} - {}'.format(self.customer,
-                                      self.get_payment_processor_display(),
-                                      self.pk)
+        return "{} - {} - {}".format(
+            self.customer, self.get_payment_processor_display(), self.pk
+        )
 
 
 def create_transactions_for_issued_documents(payment_method):
@@ -201,14 +202,17 @@ def create_transactions_for_issued_documents(payment_method):
     transactions = []
 
     for document in chain(
-        Proforma.objects.filter(related_document=None, customer=customer,
-                                state=Proforma.STATES.ISSUED),
-        Invoice.objects.filter(state=Invoice.STATES.ISSUED, customer=customer)
+            Proforma.objects.filter(
+                related_document=None, customer=customer, state=Proforma.STATES.ISSUED
+            ),
+            Invoice.objects.filter(state=Invoice.STATES.ISSUED, customer=customer),
     ):
         try:
-            transactions.append(Transaction.objects.create(
-                document=document, payment_method=payment_method
-            ))
+            transactions.append(
+                Transaction.objects.create(
+                    document=document, payment_method=payment_method
+                )
+            )
         except ValidationError:
             continue
 
@@ -223,9 +227,9 @@ def pre_payment_method_save(sender, instance=None, **kwargs):
     payment_method = instance
 
     previous_instance = get_object_or_None(PaymentMethod, pk=payment_method.pk)
-    setattr(payment_method, '.previous_instance', previous_instance)
+    setattr(payment_method, ".previous_instance", previous_instance)
 
-    if not getattr(payment_method, '.cleaned', False):
+    if not getattr(payment_method, ".cleaned", False):
         payment_method.full_clean(previous_instance=previous_instance)
 
 
@@ -236,15 +240,19 @@ def post_payment_method_save(sender, instance, **kwargs):
 
     payment_method = instance
 
-    if hasattr(payment_method, '.cleaned'):
-        delattr(payment_method, '.cleaned')
+    if hasattr(payment_method, ".cleaned"):
+        delattr(payment_method, ".cleaned")
 
-    previous_instance = getattr(payment_method, '.previous_instance', None)
+    previous_instance = getattr(payment_method, ".previous_instance", None)
 
-    if not (settings.SILVER_AUTOMATICALLY_CREATE_TRANSACTIONS or
-            not payment_method.verified or
-            (not payment_method.get_payment_processor().type ==
-                payment_processors.Types.Triggered)):
+    if not (
+            settings.SILVER_AUTOMATICALLY_CREATE_TRANSACTIONS
+            or not payment_method.verified
+            or (
+                    not payment_method.get_payment_processor().type
+                        == payment_processors.Types.Triggered
+            )
+    ):
         return
 
     if not previous_instance or not previous_instance.verified:

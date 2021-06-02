@@ -29,17 +29,19 @@ logger = logging.getLogger(__name__)
 
 
 def string_to_list(list_as_string):
-    return list(map(int, list_as_string.strip('[] ').split(',')))
+    return list(map(int, list_as_string.strip("[] ").split(",")))
 
 
 class Command(BaseCommand):
-    help = 'Runs update_status on eligible transactions.'
+    help = "Runs update_status on eligible transactions."
 
     def add_arguments(self, parser):
         parser.add_argument(
-            '--transactions',
-            help='A list of transaction pks to be updated.',
-            action='store', dest='transactions', type=string_to_list
+            "--transactions",
+            help="A list of transaction pks to be updated.",
+            action="store",
+            dest="transactions",
+            type=string_to_list,
         )
 
     def handle(self, *args, **options):
@@ -47,9 +49,9 @@ class Command(BaseCommand):
             state=Transaction.States.Pending,
         )
 
-        if options['transactions']:
+        if options["transactions"]:
             eligible_transactions = eligible_transactions.filter(
-                pk__in=options['transactions']
+                pk__in=options["transactions"]
             )
 
         for transaction in eligible_transactions:
@@ -59,5 +61,8 @@ class Command(BaseCommand):
                     continue
                 payment_processor.fetch_transaction_status(transaction)
             except Exception:
-                logger.error('Encountered exception while updating transaction '
-                             'with id=%s.', transaction.id, exc_info=True)
+                logger.error(
+                    "Encountered exception while updating transaction " "with id=%s.",
+                    transaction.id,
+                    exc_info=True,
+                )

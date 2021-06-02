@@ -24,8 +24,8 @@ from django.utils.text import slugify
 
 def get_instance(name):
     data = settings.PAYMENT_PROCESSORS[name]
-    klass = import_string(data['class'])
-    kwargs = data.get('setup_data', {})
+    klass = import_string(data["class"])
+    kwargs = data.get("setup_data", {})
     return klass(name, **kwargs)
 
 
@@ -48,17 +48,19 @@ class PaymentProcessorBase(object):
         self.name = name
 
     def get_view(self, transaction, request, **kwargs):
-        assert self.transaction_view_class, 'You must specify a `transaction_view_class` ' \
-                                            'attribute for the {} class.'.format(
-                                                self.__class__.__name__
-                                            )
+        assert self.transaction_view_class, (
+            "You must specify a `transaction_view_class` "
+            "attribute for the {} class.".format(self.__class__.__name__)
+        )
 
-        kwargs.update({
-            'form': self.get_form(transaction, request),
-            'template': self.get_template(transaction),
-            'transaction': transaction,
-            'request': request
-        })
+        kwargs.update(
+            {
+                "form": self.get_form(transaction, request),
+                "template": self.get_template(transaction),
+                "transaction": transaction,
+                "request": request,
+            }
+        )
         return self.transaction_view_class.as_view(**kwargs)
 
     def get_form(self, transaction, request):
@@ -66,7 +68,8 @@ class PaymentProcessorBase(object):
         if self.form_class:
             form = self.form_class(
                 payment_method=transaction.payment_method,
-                transaction=transaction, request=request
+                transaction=transaction,
+                request=request,
             )
         return form
 
@@ -74,31 +77,30 @@ class PaymentProcessorBase(object):
         provider = transaction.document.provider
         provider_slug = slugify(provider.company or provider.name)
 
-        template = select_template([
-            'forms/{}/{}_transaction_form.html'.format(
-                self.template_slug,
-                provider_slug
-            ),
-            'forms/{}/transaction_form.html'.format(
-                self.template_slug
-            ),
-            'forms/transaction_form.html'
-        ])
+        template = select_template(
+            [
+                "forms/{}/{}_transaction_form.html".format(
+                    self.template_slug, provider_slug
+                ),
+                "forms/{}/transaction_form.html".format(self.template_slug),
+                "forms/transaction_form.html",
+            ]
+        )
 
         return template
 
     def handle_transaction_response(self, transaction, request):
         """
-            :param transaction: A Silver Transaction object.
-            :param request: A Django request object. It should contain POST (or GET) data about the
-            transaction, which will be used update the Silver Transaction.
+        :param transaction: A Silver Transaction object.
+        :param request: A Django request object. It should contain POST (or GET) data about the
+        transaction, which will be used update the Silver Transaction.
 
-            This method should update the transaction info (external reference, state ...) after the
-            first HTTP response from the payment gateway.
+        This method should update the transaction info (external reference, state ...) after the
+        first HTTP response from the payment gateway.
 
-            It will automatically be called by the `complete_payment_view`.
+        It will automatically be called by the `complete_payment_view`.
 
-            If not needed, one can `pass` it or just `return`.
+        If not needed, one can `pass` it or just `return`.
         """
 
         raise NotImplementedError

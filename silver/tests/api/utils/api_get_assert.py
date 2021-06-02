@@ -29,11 +29,11 @@ class APIGetAssert(APITestCase):
 
     def assert_get_data(self, url, expected_data):
         many = isinstance(expected_data, list)
-        response = self.client.get(url, format='json')
+        response = self.client.get(url, format="json")
         request = response.wsgi_request
-        expected = self.serializer_class(expected_data,
-                                         context={'request': request},
-                                         many=many).data
+        expected = self.serializer_class(
+            expected_data, context={"request": request}, many=many
+        ).data
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, expected)

@@ -8,13 +8,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('silver', '0044_auto_20171115_1809'),
+        ("silver", "0044_auto_20171115_1809"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='customer',
-            name='phone',
+            model_name="customer",
+            name="phone",
             field=models.CharField(blank=True, max_length=32, null=True),
         ),
     ]

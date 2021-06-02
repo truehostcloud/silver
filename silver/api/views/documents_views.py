@@ -28,7 +28,10 @@ from rest_framework.views import APIView
 
 from silver.api.filters import InvoiceFilter, ProformaFilter, BillingDocumentFilter
 from silver.api.serializers.documents_serializers import (
-    InvoiceSerializer, DocumentEntrySerializer, ProformaSerializer, DocumentSerializer
+    InvoiceSerializer,
+    DocumentEntrySerializer,
+    ProformaSerializer,
+    DocumentSerializer,
 )
 from silver.models import Invoice, BillingDocumentBase, DocumentEntry, Proforma, PDF
 
@@ -36,9 +39,11 @@ from silver.models import Invoice, BillingDocumentBase, DocumentEntry, Proforma,
 class InvoiceListCreate(generics.ListCreateAPIView):
     permission_classes = (permissions.IsAuthenticated,)
     serializer_class = InvoiceSerializer
-    queryset = Invoice.objects.all()\
-        .select_related('related_document')\
-        .prefetch_related('invoice_transactions')
+    queryset = (
+        Invoice.objects.all()
+            .select_related("related_document")
+            .prefetch_related("invoice_transactions")
+    )
     filter_backends = (DjangoFilterBackend,)
     filterset_class = InvoiceFilter
 
@@ -57,7 +62,7 @@ class DocEntryCreate(generics.CreateAPIView):
         raise NotImplementedError
 
     def post(self, request, *args, **kwargs):
-        doc_pk = kwargs.get('document_pk')
+        doc_pk = kwargs.get("document_pk")
         Model = self.get_model()
         model_name = self.get_model_name()
 
@@ -68,13 +73,17 @@ class DocEntryCreate(generics.CreateAPIView):
             return Response({"detail": msg}, status=status.HTTP_404_NOT_FOUND)
 
         if document.state != BillingDocumentBase.STATES.DRAFT:
-            msg = "{model} entries can be added only when the {model_lower} is"\
-                  " in draft state.".format(model=model_name,
-                                            model_lower=model_name.lower())
+            msg = (
+                "{model} entries can be added only when the {model_lower} is"
+                " in draft state.".format(
+                    model=model_name, model_lower=model_name.lower()
+                )
+            )
             return Response({"detail": msg}, status=status.HTTP_403_FORBIDDEN)
 
-        serializer = DocumentEntrySerializer(data=request.data,
-                                             context={'request': request})
+        serializer = DocumentEntrySerializer(
+            data=request.data, context={"request": request}
+        )
 
         if serializer.is_valid(raise_exception=True):
             # This will be eiter {invoice: <invoice_object>} or
@@ -102,46 +111,52 @@ class InvoiceEntryCreate(DocEntryCreate):
 
 
 class DocEntryUpdateDestroy(APIView):
-
     def put(self, request, *args, **kwargs):
-        doc_pk = kwargs.get('document_pk')
-        entry_pk = kwargs.get('entry_pk')
+        doc_pk = kwargs.get("document_pk")
+        entry_pk = kwargs.get("entry_pk")
 
         Model = self.get_model()
         model_name = self.get_model_name()
 
         document = get_object_or_404(Model, pk=doc_pk)
         if document.state != BillingDocumentBase.STATES.DRAFT:
-            msg = "{model} entries can be added only when the {model_lower} is"\
-                  " in draft state.".format(model=model_name,
-                                            model_lower=model_name.lower())
+            msg = (
+                "{model} entries can be added only when the {model_lower} is"
+                " in draft state.".format(
+                    model=model_name, model_lower=model_name.lower()
+                )
+            )
             return Response({"detail": msg}, status=status.HTTP_403_FORBIDDEN)
 
-        searched_fields = {model_name.lower(): document, 'pk': entry_pk}
+        searched_fields = {model_name.lower(): document, "pk": entry_pk}
         entry = get_object_or_404(DocumentEntry, **searched_fields)
 
-        serializer = DocumentEntrySerializer(entry, data=request.data,
-                                             context={'request': request})
+        serializer = DocumentEntrySerializer(
+            entry, data=request.data, context={"request": request}
+        )
 
         if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response(serializer.data)
 
     def delete(self, request, *args, **kwargs):
-        doc_pk = kwargs.get('document_pk')
-        entry_pk = kwargs.get('entry_pk')
+        doc_pk = kwargs.get("document_pk")
+        entry_pk = kwargs.get("entry_pk")
 
         Model = self.get_model()
         model_name = self.get_model_name()
 
         document = get_object_or_404(Model, pk=doc_pk)
         if document.state != BillingDocumentBase.STATES.DRAFT:
-            msg = "{model} entries can be deleted only when the {model_lower} is"\
-                  " in draft state.".format(model=model_name,
-                                            model_lower=model_name.lower())
+            msg = (
+                "{model} entries can be deleted only when the {model_lower} is"
+                " in draft state.".format(
+                    model=model_name, model_lower=model_name.lower()
+                )
+            )
             return Response({"detail": msg}, status=status.HTTP_403_FORBIDDEN)
 
-        searched_fields = {model_name.lower(): document, 'pk': entry_pk}
+        searched_fields = {model_name.lower(): document, "pk": entry_pk}
         entry = get_object_or_404(DocumentEntry, **searched_fields)
         entry.delete()
 
@@ -160,12 +175,10 @@ class InvoiceEntryUpdateDestroy(DocEntryUpdateDestroy):
     queryset = DocumentEntry.objects.all()
 
     def put(self, request, *args, **kwargs):
-        return super(InvoiceEntryUpdateDestroy, self).put(request, *args,
-                                                          **kwargs)
+        return super(InvoiceEntryUpdateDestroy, self).put(request, *args, **kwargs)
 
     def delete(self, request, *args, **kwargs):
-        return super(InvoiceEntryUpdateDestroy, self).delete(request, *args,
-                                                             **kwargs)
+        return super(InvoiceEntryUpdateDestroy, self).delete(request, *args, **kwargs)
 
     def get_model(self):
         return Invoice
@@ -179,39 +192,36 @@ class InvoiceStateHandler(APIView):
     serializer_class = InvoiceSerializer
 
     def put(self, request, *args, **kwargs):
-        invoice_pk = kwargs.get('pk')
+        invoice_pk = kwargs.get("pk")
         try:
             invoice = Invoice.objects.get(pk=invoice_pk)
         except Invoice.DoesNotExist:
-            return Response({"detail": "Invoice not found"},
-                            status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"detail": "Invoice not found"}, status=status.HTTP_404_NOT_FOUND
+            )
 
-        state = request.data.get('state', None)
+        state = request.data.get("state", None)
         if state == Invoice.STATES.ISSUED:
             if invoice.state != Invoice.STATES.DRAFT:
                 msg = "An invoice can be issued only if it is in draft state."
-                return Response({"detail": msg},
-                                status=status.HTTP_403_FORBIDDEN)
+                return Response({"detail": msg}, status=status.HTTP_403_FORBIDDEN)
 
-            issue_date = request.data.get('issue_date', None)
-            due_date = request.data.get('due_date', None)
+            issue_date = request.data.get("issue_date", None)
+            due_date = request.data.get("due_date", None)
             invoice.issue(issue_date, due_date)
         elif state == Invoice.STATES.PAID:
             if invoice.state != Invoice.STATES.ISSUED:
                 msg = "An invoice can be paid only if it is in issued state."
-                return Response({"detail": msg},
-                                status=status.HTTP_403_FORBIDDEN)
+                return Response({"detail": msg}, status=status.HTTP_403_FORBIDDEN)
 
-            paid_date = request.data.get('paid_date', None)
+            paid_date = request.data.get("paid_date", None)
             invoice.pay(paid_date)
         elif state == Invoice.STATES.CANCELED:
             if invoice.state != Invoice.STATES.ISSUED:
-                msg = "An invoice can be canceled only if it is in issued " \
-                      "state."
-                return Response({"detail": msg},
-                                status=status.HTTP_403_FORBIDDEN)
+                msg = "An invoice can be canceled only if it is in issued " "state."
+                return Response({"detail": msg}, status=status.HTTP_403_FORBIDDEN)
 
-            cancel_date = request.data.get('cancel_date', None)
+            cancel_date = request.data.get("cancel_date", None)
             invoice.cancel(cancel_date)
         elif not state:
             msg = "You have to provide a value for the state field."
@@ -220,16 +230,18 @@ class InvoiceStateHandler(APIView):
             msg = "Illegal state value."
             return Response({"detail": msg}, status=status.HTTP_403_FORBIDDEN)
 
-        serializer = InvoiceSerializer(invoice, context={'request': request})
+        serializer = InvoiceSerializer(invoice, context={"request": request})
         return Response(serializer.data)
 
 
 class ProformaListCreate(generics.ListCreateAPIView):
     permission_classes = (permissions.IsAuthenticated,)
     serializer_class = ProformaSerializer
-    queryset = Proforma.objects.all()\
-        .select_related('related_document')\
-        .prefetch_related('proforma_transactions')
+    queryset = (
+        Proforma.objects.all()
+            .select_related("related_document")
+            .prefetch_related("proforma_transactions")
+    )
     filter_backends = (DjangoFilterBackend,)
     filterset_class = ProformaFilter
 
@@ -261,12 +273,10 @@ class ProformaEntryUpdateDestroy(DocEntryUpdateDestroy):
     queryset = DocumentEntry.objects.all()
 
     def put(self, request, *args, **kwargs):
-        return super(ProformaEntryUpdateDestroy, self).put(request, *args,
-                                                           **kwargs)
+        return super(ProformaEntryUpdateDestroy, self).put(request, *args, **kwargs)
 
     def delete(self, request, *args, **kwargs):
-        return super(ProformaEntryUpdateDestroy, self).delete(request, *args,
-                                                              **kwargs)
+        return super(ProformaEntryUpdateDestroy, self).delete(request, *args, **kwargs)
 
     def get_model(self):
         return Proforma
@@ -280,32 +290,36 @@ class ProformaInvoiceRetrieveCreate(APIView):
     serializer_class = InvoiceSerializer
 
     def post(self, request, *args, **kwargs):
-        proforma_pk = kwargs.get('pk')
+        proforma_pk = kwargs.get("pk")
 
         try:
             proforma = Proforma.objects.get(pk=proforma_pk)
         except Proforma.DoesNotExist:
-            return Response({"detail": "Proforma not found"},
-                            status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"detail": "Proforma not found"}, status=status.HTTP_404_NOT_FOUND
+            )
 
         if not proforma.related_document:
             proforma.create_invoice()
 
-        serializer = InvoiceSerializer(proforma.related_document,
-                                       context={'request': request})
+        serializer = InvoiceSerializer(
+            proforma.related_document, context={"request": request}
+        )
         return Response(serializer.data)
 
     def get(self, request, *args, **kwargs):
-        proforma_pk = kwargs.get('pk')
+        proforma_pk = kwargs.get("pk")
 
         try:
             proforma = Proforma.objects.get(pk=proforma_pk)
         except Proforma.DoesNotExist:
-            return Response({"detail": "Proforma not found"},
-                            status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"detail": "Proforma not found"}, status=status.HTTP_404_NOT_FOUND
+            )
 
-        serializer = InvoiceSerializer(proforma.related_document,
-                                       context={'request': request})
+        serializer = InvoiceSerializer(
+            proforma.related_document, context={"request": request}
+        )
         return Response(serializer.data)
 
 
@@ -314,39 +328,36 @@ class ProformaStateHandler(APIView):
     serializer_class = ProformaSerializer
 
     def put(self, request, *args, **kwargs):
-        proforma_pk = kwargs.get('pk')
+        proforma_pk = kwargs.get("pk")
         try:
             proforma = Proforma.objects.get(pk=proforma_pk)
         except Proforma.DoesNotExist:
-            return Response({"detail": "Proforma not found"},
-                            status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"detail": "Proforma not found"}, status=status.HTTP_404_NOT_FOUND
+            )
 
-        state = request.data.get('state', None)
+        state = request.data.get("state", None)
         if state == Proforma.STATES.ISSUED:
             if proforma.state != Proforma.STATES.DRAFT:
                 msg = "A proforma can be issued only if it is in draft state."
-                return Response({"detail": msg},
-                                status=status.HTTP_403_FORBIDDEN)
+                return Response({"detail": msg}, status=status.HTTP_403_FORBIDDEN)
 
-            issue_date = request.data.get('issue_date', None)
-            due_date = request.data.get('due_date', None)
+            issue_date = request.data.get("issue_date", None)
+            due_date = request.data.get("due_date", None)
             proforma.issue(issue_date, due_date)
         elif state == Proforma.STATES.PAID:
             if proforma.state != Proforma.STATES.ISSUED:
                 msg = "A proforma can be paid only if it is in issued state."
-                return Response({"detail": msg},
-                                status=status.HTTP_403_FORBIDDEN)
+                return Response({"detail": msg}, status=status.HTTP_403_FORBIDDEN)
 
-            paid_date = request.data.get('paid_date', None)
+            paid_date = request.data.get("paid_date", None)
             proforma.pay(paid_date)
         elif state == Proforma.STATES.CANCELED:
             if proforma.state != Proforma.STATES.ISSUED:
-                msg = "A proforma can be canceled only if it is in issued " \
-                      "state."
-                return Response({"detail": msg},
-                                status=status.HTTP_403_FORBIDDEN)
+                msg = "A proforma can be canceled only if it is in issued " "state."
+                return Response({"detail": msg}, status=status.HTTP_403_FORBIDDEN)
 
-            cancel_date = request.data.get('cancel_date', None)
+            cancel_date = request.data.get("cancel_date", None)
             proforma.cancel(cancel_date)
         elif not state:
             msg = "You have to provide a value for the state field."
@@ -355,7 +366,7 @@ class ProformaStateHandler(APIView):
             msg = "Illegal state value."
             return Response({"detail": msg}, status=status.HTTP_403_FORBIDDEN)
 
-        serializer = ProformaSerializer(proforma, context={'request': request})
+        serializer = ProformaSerializer(proforma, context={"request": request})
         return Response(serializer.data)
 
 
@@ -364,30 +375,30 @@ class DocumentList(ListAPIView):
     serializer_class = DocumentSerializer
     filterset_class = BillingDocumentFilter
     filter_backends = (filters.OrderingFilter, DjangoFilterBackend)
-    ordering_fields = ('due_date', )
-    ordering = ('-due_date', '-number')
+    ordering_fields = ("due_date",)
+    ordering = ("-due_date", "-number")
 
     def get_queryset(self):
-        django_version = django.get_version().split('.')
-        if django_version[0] == '1' and int(django_version[1]) < 11:
+        django_version = django.get_version().split(".")
+        if django_version[0] == "1" and int(django_version[1]) < 11:
             return BillingDocumentBase.objects.filter(
-                Q(kind='invoice') | Q(kind='proforma', related_document=None)
-            ).select_related('customer', 'provider', 'pdf')
+                Q(kind="invoice") | Q(kind="proforma", related_document=None)
+            ).select_related("customer", "provider", "pdf")
 
-        invoices = BillingDocumentBase.objects \
-            .filter(kind='invoice') \
-            .prefetch_related('invoice_transactions__payment_method')
-        proformas = BillingDocumentBase.objects \
-            .filter(kind='proforma', related_document=None) \
-            .prefetch_related('proforma_transactions__payment_method')
+        invoices = BillingDocumentBase.objects.filter(kind="invoice").prefetch_related(
+            "invoice_transactions__payment_method"
+        )
+        proformas = BillingDocumentBase.objects.filter(
+            kind="proforma", related_document=None
+        ).prefetch_related("proforma_transactions__payment_method")
 
-        return (invoices | proformas).select_related('customer', 'provider', 'pdf')
+        return (invoices | proformas).select_related("customer", "provider", "pdf")
 
 
 class PDFRetrieve(generics.RetrieveAPIView):
     permission_classes = (permissions.IsAdminUser,)
     queryset = PDF.objects.all()
-    lookup_url_kwarg = 'pdf_pk'
+    lookup_url_kwarg = "pdf_pk"
 
     def get(self, *args, **kwargs):
         pdf = self.get_object()

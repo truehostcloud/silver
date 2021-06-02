@@ -30,15 +30,16 @@ class GenericTransactionView(View):
 
     def get_context_data(self):
         return {
-            'payment_method': self.transaction.payment_method,
-            'transaction': self.transaction,
-            'document': self.transaction.document,
-            'customer': self.transaction.customer,
-            'provider': self.transaction.provider,
-            'entries': list(self.transaction.document._entries),
-            'form': self.form,
-            'payment_complete_url': get_payment_complete_url(self.transaction,
-                                                             self.request)
+            "payment_method": self.transaction.payment_method,
+            "transaction": self.transaction,
+            "document": self.transaction.document,
+            "customer": self.transaction.customer,
+            "provider": self.transaction.provider,
+            "entries": list(self.transaction.document._entries),
+            "form": self.form,
+            "payment_complete_url": get_payment_complete_url(
+                self.transaction, self.request
+            ),
         }
 
     def render_template(self):

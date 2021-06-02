@@ -47,45 +47,49 @@ import os
 from setuptools import setup, find_packages
 
 
-install_requires = list(filter(
-    bool, [line.split('#')[0].strip()
-           for line in open("requirements/common.txt").readlines()
-           if not any([line.startswith('https://'), line.startswith('http://')])]
-))
+install_requires = list(
+    filter(
+        bool,
+        [
+            line.split("#")[0].strip()
+            for line in open("requirements/common.txt").readlines()
+            if not any([line.startswith("https://"), line.startswith("http://")])
+        ],
+    )
+)
 
 
 def read(fname):
     try:
         return open(os.path.join(os.path.dirname(__file__), fname)).read()
     except IOError:
-        return ''
+        return ""
+
 
 setup(
     name="django-silver",
-    version='0.10.1',
-    description=read('DESCRIPTION'),
-    long_description=read('README.rst'),
-    license='Apache 2.0',
-    platforms=['OS Independent'],
-    keywords='django, app, reusable, billing, invoicing, api',
-    author='Presslabs',
-    author_email='ping@presslabs.com',
-    url='http://www.presslabs.com/silver/',
+    version="0.10.1",
+    description=read("DESCRIPTION"),
+    long_description=read("README.rst"),
+    license="Apache 2.0",
+    platforms=["OS Independent"],
+    keywords="django, app, reusable, billing, invoicing, api",
+    author="Presslabs",
+    author_email="ping@presslabs.com",
+    url="http://www.presslabs.com/silver/",
     packages=find_packages(),
-    extras_require={
-        'dev': 'Faker'
-    },
+    extras_require={"dev": "Faker"},
     include_package_data=True,
     install_requires=install_requires,
     classifiers=[
-        'Environment :: Web Environment',
-        'Framework :: Django :: 1.11',
-        'Framework :: Django :: 2.1',
-        'Framework :: Django :: 2.2',
-        'Development Status :: 5 - Production/Stable',
-        'License :: OSI Approved :: Apache Software License',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6'
-    ]
+        "Environment :: Web Environment",
+        "Framework :: Django :: 1.11",
+        "Framework :: Django :: 2.1",
+        "Framework :: Django :: 2.2",
+        "Development Status :: 5 - Production/Stable",
+        "License :: OSI Approved :: Apache Software License",
+        "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3.5",
+        "Programming Language :: Python :: 3.6",
+    ],
 )

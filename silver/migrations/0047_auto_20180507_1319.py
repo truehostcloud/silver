@@ -9,13 +9,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('silver', '0046_auto_20180214_1148'),
+        ("silver", "0046_auto_20180214_1148"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='subscription',
-            name='meta',
+            model_name="subscription",
+            name="meta",
             field=models.JSONField(blank=True, default={}, null=True),
         ),
     ]

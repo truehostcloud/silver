@@ -31,7 +31,7 @@ class PlanList(generics.ListCreateAPIView):
 
     permission_classes = (permissions.IsAuthenticated,)
     serializer_class = PlanSerializer
-    queryset = Plan.objects.all().prefetch_related('metered_features')
+    queryset = Plan.objects.all().prefetch_related("metered_features")
     filter_backends = (DjangoFilterBackend,)
     filterset_class = PlanFilter
 
@@ -42,25 +42,26 @@ class PlanDetail(generics.RetrieveDestroyAPIView):
     model = Plan
 
     def get_object(self):
-        pk = self.kwargs.get('pk', None)
+        pk = self.kwargs.get("pk", None)
         return get_object_or_404(Plan, pk=pk)
 
     def patch(self, request, *args, **kwargs):
-        plan = get_object_or_404(Plan.objects, pk=self.kwargs.get('pk', None))
-        name = request.data.get('name', None)
-        generate_after = request.data.get('generate_after', None)
+        plan = get_object_or_404(Plan.objects, pk=self.kwargs.get("pk", None))
+        name = request.data.get("name", None)
+        generate_after = request.data.get("generate_after", None)
         plan.name = name or plan.name
         plan.generate_after = generate_after or plan.generate_after
         plan.save()
-        return Response(PlanSerializer(plan, context={'request': request}).data,
-                        status=status.HTTP_200_OK)
+        return Response(
+            PlanSerializer(plan, context={"request": request}).data,
+            status=status.HTTP_200_OK,
+        )
 
     def delete(self, request, *args, **kwargs):
-        plan = get_object_or_404(Plan.objects, pk=self.kwargs.get('pk', None))
+        plan = get_object_or_404(Plan.objects, pk=self.kwargs.get("pk", None))
         plan.enabled = False
         plan.save()
-        return Response({"deleted": not plan.enabled},
-                        status=status.HTTP_200_OK)
+        return Response({"deleted": not plan.enabled}, status=status.HTTP_200_OK)
 
 
 class PlanMeteredFeatures(generics.ListAPIView):
@@ -69,5 +70,5 @@ class PlanMeteredFeatures(generics.ListAPIView):
     model = MeteredFeature
 
     def get_queryset(self):
-        plan = get_object_or_None(Plan, pk=self.kwargs['pk'])
+        plan = get_object_or_None(Plan, pk=self.kwargs["pk"])
         return plan.metered_features.all() if plan else None

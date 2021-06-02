@@ -22,7 +22,7 @@ from rest_framework.utils.urls import replace_query_param, remove_query_param
 
 class LinkHeaderPagination(PageNumberPagination):
     page_size = api_settings.PAGE_SIZE or 30
-    page_size_query_param = 'page_size'
+    page_size_query_param = "page_size"
     max_page_size = 100
 
     def get_last_link(self):
@@ -51,15 +51,19 @@ class LinkHeaderPagination(PageNumberPagination):
         elif previous_url is not None:
             link = '<{previous_url}>; rel="prev"'
         else:
-            link = ''
+            link = ""
 
         if link:
-            link += ', '
+            link += ", "
 
         link += '<{first_url}>; rel="first", <{last_url}> rel="last"'
 
-        link = link.format(next_url=next_url, previous_url=previous_url,
-                           first_url=first_url, last_url=last_url)
-        headers = {'Link': link} if link else {}
+        link = link.format(
+            next_url=next_url,
+            previous_url=previous_url,
+            first_url=first_url,
+            last_url=last_url,
+        )
+        headers = {"Link": link} if link else {}
 
         return Response(data, headers=headers)

@@ -8,36 +8,50 @@ import django.utils.timezone
 
 
 def fill_billing_log_created_at_field(apps, schema_editor):
-    BillingLog = apps.get_model('silver', 'BillingLog')
+    BillingLog = apps.get_model("silver", "BillingLog")
     db_alias = schema_editor.connection.alias
 
     for billing_log in BillingLog.objects.using(db_alias).all():
-        billing_log.created_at = datetime.combine(billing_log.billing_date, datetime.min.time())
+        billing_log.created_at = datetime.combine(
+            billing_log.billing_date, datetime.min.time()
+        )
         billing_log.save(using=db_alias)
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('silver', '0040_auto_20170925_0646'),
+        ("silver", "0040_auto_20170925_0646"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='billinglog',
-            name='created_at',
-            field=models.DateTimeField(auto_now_add=True, default=django.utils.timezone.now),
+            model_name="billinglog",
+            name="created_at",
+            field=models.DateTimeField(
+                auto_now_add=True, default=django.utils.timezone.now
+            ),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='plan',
-            name='cycle_billing_duration',
-            field=models.DurationField(blank=True, help_text=b"This can be used to ensure that the billing date doesn't pass a certain date.\nFor example if this field is set to 2 days, for a monthly subscription, the billing date will never surpass the 2nd day of the month. Billing documents can still be generated after that day during the billing cycle, but their billing date will appear to be the end of the cycle billing duration.", null=True),
+            model_name="plan",
+            name="cycle_billing_duration",
+            field=models.DurationField(
+                blank=True,
+                help_text=b"This can be used to ensure that the billing date doesn't pass a certain date.\nFor example if this field is set to 2 days, for a monthly subscription, the billing date will never surpass the 2nd day of the month. Billing documents can still be generated after that day during the billing cycle, but their billing date will appear to be the end of the cycle billing duration.",
+                null=True,
+            ),
         ),
         migrations.AddField(
-            model_name='provider',
-            name='cycle_billing_duration',
-            field=models.DurationField(blank=True, help_text=b"This can be used to ensure that the billing date doesn't pass a certain date.\nFor example if this field is set to 2 days, for a monthly subscription, the billing date will never surpass the 2nd day of the month. Billing documents can still be generated after that day during the billing cycle, but their billing date will appear to be the end of the cycle billing duration.", null=True),
+            model_name="provider",
+            name="cycle_billing_duration",
+            field=models.DurationField(
+                blank=True,
+                help_text=b"This can be used to ensure that the billing date doesn't pass a certain date.\nFor example if this field is set to 2 days, for a monthly subscription, the billing date will never surpass the 2nd day of the month. Billing documents can still be generated after that day during the billing cycle, but their billing date will appear to be the end of the cycle billing duration.",
+                null=True,
+            ),
         ),
-        migrations.RunPython(fill_billing_log_created_at_field, migrations.RunPython.noop)
+        migrations.RunPython(
+            fill_billing_log_created_at_field, migrations.RunPython.noop
+        ),
     ]

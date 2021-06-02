@@ -20,18 +20,24 @@ from django.core.exceptions import ValidationError
 from django.test import TestCase, override_settings
 
 from silver.models import Transaction, Invoice
-from silver.fixtures.factories import (InvoiceFactory, PaymentMethodFactory,
-                                       TransactionFactory, ProformaFactory, DocumentEntryFactory)
-from silver.fixtures.test_fixtures import (TriggeredProcessor, PAYMENT_PROCESSORS,
-                                           triggered_processor)
+from silver.fixtures.factories import (
+    InvoiceFactory,
+    PaymentMethodFactory,
+    TransactionFactory,
+    ProformaFactory,
+    DocumentEntryFactory,
+)
+from silver.fixtures.test_fixtures import (
+    TriggeredProcessor,
+    PAYMENT_PROCESSORS,
+    triggered_processor,
+)
 
 
 @override_settings(PAYMENT_PROCESSORS=PAYMENT_PROCESSORS)
 class TestDocumentsTransactions(TestCase):
     def test_pay_documents_on_transaction_settle(self):
-        transaction = TransactionFactory.create(
-            state=Transaction.States.Pending
-        )
+        transaction = TransactionFactory.create(state=Transaction.States.Pending)
         transaction.settle()
         transaction.save()
 
@@ -45,13 +51,14 @@ class TestDocumentsTransactions(TestCase):
 
     def test_transaction_creation_for_issued_documents(self):
         """
-            The happy case.
+        The happy case.
         """
         invoice = InvoiceFactory.create()
         customer = invoice.customer
 
         PaymentMethodFactory.create(
-            payment_processor=triggered_processor, customer=customer,
+            payment_processor=triggered_processor,
+            customer=customer,
             canceled=False,
             verified=True,
         )
@@ -65,14 +72,15 @@ class TestDocumentsTransactions(TestCase):
 
     def test_no_transaction_creation_for_issued_documents_case_1(self):
         """
-            The payment method is not recurring
+        The payment method is not recurring
         """
         invoice = InvoiceFactory.create()
         customer = invoice.customer
         PaymentMethodFactory.create(
-            payment_processor=triggered_processor, customer=customer,
+            payment_processor=triggered_processor,
+            customer=customer,
             canceled=False,
-            verified=False
+            verified=False,
         )
 
         mock_execute = MagicMock()
@@ -86,13 +94,12 @@ class TestDocumentsTransactions(TestCase):
 
     def test_no_transaction_creation_for_issued_documents_case2(self):
         """
-            The payment method is not usable
+        The payment method is not usable
         """
         invoice = InvoiceFactory.create()
         customer = invoice.customer
         PaymentMethodFactory.create(
-            payment_processor=triggered_processor, customer=customer,
-            canceled=False
+            payment_processor=triggered_processor, customer=customer, canceled=False
         )
 
         mock_execute = MagicMock()
@@ -106,7 +113,7 @@ class TestDocumentsTransactions(TestCase):
 
     def test_no_transaction_creation_for_issued_documents_case3(self):
         """
-            There are 1 pending and 1 settled transactions that together cover the document amount.
+        There are 1 pending and 1 settled transactions that together cover the document amount.
         """
         entry = DocumentEntryFactory(quantity=1, unit_price=100)
         invoice = InvoiceFactory.create(invoice_entries=[entry])
@@ -114,37 +121,45 @@ class TestDocumentsTransactions(TestCase):
 
         customer = invoice.customer
         payment_method = PaymentMethodFactory.create(
-            payment_processor=triggered_processor, customer=customer,
+            payment_processor=triggered_processor,
+            customer=customer,
             canceled=False,
             verified=False,
         )
 
-        TransactionFactory.create(invoice=invoice,
-                                  payment_method=payment_method,
-                                  amount=invoice.total_in_transaction_currency / 2,
-                                  state=Transaction.States.Settled)
+        TransactionFactory.create(
+            invoice=invoice,
+            payment_method=payment_method,
+            amount=invoice.total_in_transaction_currency / 2,
+            state=Transaction.States.Settled,
+        )
 
-        TransactionFactory.create(invoice=invoice,
-                                  payment_method=payment_method,
-                                  amount=invoice.total_in_transaction_currency / 2,
-                                  state=Transaction.States.Pending)
+        TransactionFactory.create(
+            invoice=invoice,
+            payment_method=payment_method,
+            amount=invoice.total_in_transaction_currency / 2,
+            state=Transaction.States.Pending,
+        )
 
         mock_execute = MagicMock()
         with patch.multiple(TriggeredProcessor, execute_transaction=mock_execute):
             expected_exception = ValidationError
-            expected_message = "Amount is greater than the amount that should be " \
-                               "charged in order to pay the billing document."
+            expected_message = (
+                "Amount is greater than the amount that should be "
+                "charged in order to pay the billing document."
+            )
             try:
-                TransactionFactory.create(invoice=invoice,
-                                          payment_method=payment_method,
-                                          amount=1)
+                TransactionFactory.create(
+                    invoice=invoice, payment_method=payment_method, amount=1
+                )
 
-                self.fail('{} not raised.'.format(str(expected_exception)))
+                self.fail("{} not raised.".format(str(expected_exception)))
             except expected_exception as e:
                 self.assertTrue(expected_message in str(e))
 
             transactions = Transaction.objects.filter(
-                payment_method=payment_method, invoice=invoice,
+                payment_method=payment_method,
+                invoice=invoice,
             )
             self.assertEqual(len(transactions), 2)
 
@@ -155,15 +170,15 @@ class TestDocumentsTransactions(TestCase):
 
         customer = proforma.customer
         PaymentMethodFactory.create(
-            payment_processor=triggered_processor, customer=customer,
+            payment_processor=triggered_processor,
+            customer=customer,
             canceled=False,
             verified=True,
         )
 
         proforma.issue()
 
-        self.assertEqual(len(Transaction.objects.filter(proforma=proforma)),
-                         1)
+        self.assertEqual(len(Transaction.objects.filter(proforma=proforma)), 1)
 
         invoice = proforma.create_invoice()
 
@@ -177,7 +192,8 @@ class TestDocumentsTransactions(TestCase):
 
         customer = proforma.customer
         PaymentMethodFactory.create(
-            payment_processor=triggered_processor, customer=customer,
+            payment_processor=triggered_processor,
+            customer=customer,
             canceled=False,
             verified=True,
         )
@@ -197,7 +213,8 @@ class TestDocumentsTransactions(TestCase):
 
         customer = proforma.customer
         PaymentMethodFactory.create(
-            payment_processor=triggered_processor, customer=customer,
+            payment_processor=triggered_processor,
+            customer=customer,
             canceled=False,
             verified=True,
         )
@@ -216,15 +233,13 @@ class TestDocumentsTransactions(TestCase):
         invoice = proforma.related_document
         self.assertEqual(invoice.state, invoice.STATES.PAID)
 
-        self.assertEqual(list(proforma.transactions),
-                         list(invoice.transactions))
+        self.assertEqual(list(proforma.transactions), list(invoice.transactions))
 
         self.assertEqual(len(proforma.transactions), 1)
 
     def test_transaction_invoice_on_transaction_settle(self):
         transaction = TransactionFactory.create(
-            state=Transaction.States.Pending,
-            invoice=None
+            state=Transaction.States.Pending, invoice=None
         )
 
         # here transaction.proforma is an old version of itself

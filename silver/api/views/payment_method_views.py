@@ -18,22 +18,29 @@ from django.http import Http404
 from django_filters.rest_framework import DjangoFilterBackend
 
 from rest_framework import permissions, status
-from rest_framework.generics import (ListAPIView, RetrieveAPIView, ListCreateAPIView,
-                                     get_object_or_404, RetrieveUpdateAPIView)
+from rest_framework.generics import (
+    ListAPIView,
+    RetrieveAPIView,
+    ListCreateAPIView,
+    get_object_or_404,
+    RetrieveUpdateAPIView,
+)
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from silver import payment_processors
 from silver.api.filters import PaymentMethodFilter
-from silver.api.serializers.payment_methods_serializers import (PaymentProcessorSerializer,
-                                                                PaymentMethodSerializer)
+from silver.api.serializers.payment_methods_serializers import (
+    PaymentProcessorSerializer,
+    PaymentMethodSerializer,
+)
 from silver.models import PaymentMethod, Customer
 
 
 class PaymentProcessorList(ListAPIView):
     permission_classes = (permissions.IsAuthenticated,)
     serializer_class = PaymentProcessorSerializer
-    ordering = ('-name', )
+    ordering = ("-name",)
 
     def get_queryset(self):
         return payment_processors.get_all_instances()
@@ -42,10 +49,10 @@ class PaymentProcessorList(ListAPIView):
 class PaymentProcessorDetail(RetrieveAPIView):
     permission_classes = (permissions.IsAuthenticated,)
     serializer_class = PaymentProcessorSerializer
-    ordering = ('-name', )
+    ordering = ("-name",)
 
     def get_object(self):
-        processor_name = self.kwargs.get('processor_name', '')
+        processor_name = self.kwargs.get("processor_name", "")
         try:
             return payment_processors.get_instance(processor_name)
         except (ImportError, KeyError):
@@ -63,9 +70,9 @@ class PaymentMethodList(ListCreateAPIView):
 
     def get_customer(self, request):
         context = self.get_parser_context(request)
-        kwargs = context['kwargs']
+        kwargs = context["kwargs"]
 
-        customer_pk = kwargs.get('customer_pk', None)
+        customer_pk = kwargs.get("customer_pk", None)
 
         return get_object_or_404(Customer, id=customer_pk)
 
@@ -86,28 +93,29 @@ class PaymentMethodDetail(RetrieveUpdateAPIView):
     serializer_class = PaymentMethodSerializer
 
     def get_object(self):
-        payment_method_id = self.kwargs.get('payment_method_id')
-        customer_pk = self.kwargs.get('customer_pk')
+        payment_method_id = self.kwargs.get("payment_method_id")
+        customer_pk = self.kwargs.get("customer_pk")
 
         return get_object_or_404(
             PaymentMethod.objects.all().select_subclasses(),
             id=payment_method_id,
-            customer__pk=customer_pk
+            customer__pk=customer_pk,
         )
 
 
 class PaymentMethodAction(APIView):
     permission_classes = (permissions.IsAuthenticated,)
-    allowed_actions = ('cancel', )
+    allowed_actions = ("cancel",)
 
     def post(self, request, *args, **kwargs):
         payment_method = self.get_object(**kwargs)
-        requested_action = kwargs.get('requested_action')
+        requested_action = kwargs.get("requested_action")
 
         if requested_action not in self.allowed_actions:
             error_message = "{} is not an allowed".format(requested_action)
-            return Response({"errors": error_message},
-                            status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"errors": error_message}, status=status.HTTP_400_BAD_REQUEST
+            )
 
         action_to_execute = getattr(payment_method, requested_action, None)
 
@@ -116,20 +124,19 @@ class PaymentMethodAction(APIView):
 
         errors = action_to_execute()
         if errors:
-            return Response({"errors": errors},
-                            status=status.HTTP_400_BAD_REQUEST)
+            return Response({"errors": errors}, status=status.HTTP_400_BAD_REQUEST)
 
-        payment_method_serialized = PaymentMethodSerializer(payment_method,
-                                                            context={'request': request})
-        return Response(payment_method_serialized.data,
-                        status=status.HTTP_200_OK)
+        payment_method_serialized = PaymentMethodSerializer(
+            payment_method, context={"request": request}
+        )
+        return Response(payment_method_serialized.data, status=status.HTTP_200_OK)
 
     def get_object(self, **kwargs):
-        payment_method_id = kwargs.get('payment_method_id')
-        customer_pk = kwargs.get('customer_pk')
+        payment_method_id = kwargs.get("payment_method_id")
+        customer_pk = kwargs.get("customer_pk")
 
         return get_object_or_404(
             PaymentMethod.objects.all().select_subclasses(),
             id=payment_method_id,
-            customer__pk=customer_pk
+            customer__pk=customer_pk,
         )

@@ -26,7 +26,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from silver.models import Transaction
-from silver.fixtures.factories import (AdminUserFactory, TransactionFactory)
+from silver.fixtures.factories import AdminUserFactory, TransactionFactory
 from silver.fixtures.test_fixtures import PAYMENT_PROCESSORS, not_implemented_view
 from silver.utils.payments import get_payment_url, get_payment_complete_url
 
@@ -40,89 +40,120 @@ class TestPaymentUrls(APITestCase):
     def test_pay_transaction_view_expired(self):
         transaction = TransactionFactory.create()
 
-        with patch('silver.utils.payments.datetime') as mocked_datetime:
-            mocked_datetime.utcnow.return_value = datetime.utcnow() - timedelta(days=365)
+        with patch("silver.utils.payments.datetime") as mocked_datetime:
+            mocked_datetime.utcnow.return_value = datetime.utcnow() - timedelta(
+                days=365
+            )
             url = get_payment_url(transaction, None)
 
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(force_str(response.content),
-                         render_to_string('transactions/expired_payment.html', {
-                             'document': transaction.document,
-                         }))
+        self.assertEqual(
+            force_str(response.content),
+            render_to_string(
+                "transactions/expired_payment.html",
+                {
+                    "document": transaction.document,
+                },
+            ),
+        )
 
     def test_pay_transaction_view_invalid_state(self):
         transaction = TransactionFactory.create(state=Transaction.States.Settled)
 
         response = self.client.get(get_payment_url(transaction, None))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(force_str(response.content),
-                         render_to_string('transactions/complete_payment.html', {
-                             'transaction': transaction,
-                             'document': transaction.document,
-                         }))
+        self.assertEqual(
+            force_str(response.content),
+            render_to_string(
+                "transactions/complete_payment.html",
+                {
+                    "transaction": transaction,
+                    "document": transaction.document,
+                },
+            ),
+        )
 
     def test_pay_transaction_view_not_consumable_transaction(self):
         last_year = timezone.now() - timedelta(days=365)
-        transaction = TransactionFactory.create(state=Transaction.States.Initial,
-                                                valid_until=last_year)
+        transaction = TransactionFactory.create(
+            state=Transaction.States.Initial, valid_until=last_year
+        )
 
         response = self.client.get(get_payment_url(transaction, None))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(force_str(response.content),
-                         render_to_string('transactions/expired_payment.html', {
-                             'document': transaction.document,
-                         }))
+        self.assertEqual(
+            force_str(response.content),
+            render_to_string(
+                "transactions/expired_payment.html",
+                {
+                    "document": transaction.document,
+                },
+            ),
+        )
 
     def test_pay_transaction_view_missing_view(self):
         last_year = timezone.now() - timedelta(days=365)
-        transaction = TransactionFactory.create(state=Transaction.States.Initial,
-                                                valid_until=last_year)
+        transaction = TransactionFactory.create(
+            state=Transaction.States.Initial, valid_until=last_year
+        )
 
         def get_view(processor, transaction, request):
             return None
 
-        with patch('silver.fixtures.test_fixtures.ManualProcessor.get_view',
-                   new=get_view):
+        with patch(
+                "silver.fixtures.test_fixtures.ManualProcessor.get_view", new=get_view
+        ):
             response = self.client.get(get_payment_url(transaction, None))
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(force_str(response.content),
-                         render_to_string('transactions/expired_payment.html', {
-                             'document': transaction.document,
-                         }))
+        self.assertEqual(
+            force_str(response.content),
+            render_to_string(
+                "transactions/expired_payment.html",
+                {
+                    "document": transaction.document,
+                },
+            ),
+        )
 
     def test_pay_transaction_not_implemented_get_call(self):
         last_year = timezone.now() - timedelta(days=365)
-        transaction = TransactionFactory.create(state=Transaction.States.Initial,
-                                                valid_until=last_year)
+        transaction = TransactionFactory.create(
+            state=Transaction.States.Initial, valid_until=last_year
+        )
 
         def get_view(processor, transaction, request):
             return not_implemented_view
 
-        with patch('silver.fixtures.test_fixtures.ManualProcessor.get_view',
-                   new=get_view):
+        with patch(
+                "silver.fixtures.test_fixtures.ManualProcessor.get_view", new=get_view
+        ):
             response = self.client.get(get_payment_url(transaction, None))
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(force_str(response.content),
-                         render_to_string('transactions/expired_payment.html', {
-                             'document': transaction.document,
-                         }))
+        self.assertEqual(
+            force_str(response.content),
+            render_to_string(
+                "transactions/expired_payment.html",
+                {
+                    "document": transaction.document,
+                },
+            ),
+        )
 
     def test_complete_payment_view_with_return_url(self):
         transaction = TransactionFactory.create(state=Transaction.States.Settled)
 
-        return_url = 'http://home.com'
-        complete_url = "{}?return_url={}".format(get_payment_complete_url(transaction, None),
-                                                 return_url)
-        expected_url = "{}?transaction_uuid={}".format(return_url,
-                                                       transaction.uuid)
+        return_url = "http://home.com"
+        complete_url = "{}?return_url={}".format(
+            get_payment_complete_url(transaction, None), return_url
+        )
+        expected_url = "{}?transaction_uuid={}".format(return_url, transaction.uuid)
 
         response = self.client.get(complete_url, follow=False)
-        self.assertRedirects(response, expected_url,
-                             fetch_redirect_response=False)
+        self.assertRedirects(response, expected_url, fetch_redirect_response=False)
 
     def test_complete_payment_view_without_return_url(self):
         transaction = TransactionFactory.create(state=Transaction.States.Settled)
@@ -130,9 +161,14 @@ class TestPaymentUrls(APITestCase):
         response = self.client.get(get_payment_complete_url(transaction, None))
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(force_str(response.content),
-                         render_to_string('transactions/complete_payment.html', {
-                             'expired': False,
-                             'transaction': transaction,
-                             'document': transaction.document,
-                         }))
+        self.assertEqual(
+            force_str(response.content),
+            render_to_string(
+                "transactions/complete_payment.html",
+                {
+                    "expired": False,
+                    "transaction": transaction,
+                    "document": transaction.document,
+                },
+            ),
+        )

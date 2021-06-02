@@ -25,8 +25,11 @@ from rest_framework.reverse import reverse
 
 from silver.api.serializers.payment_methods_serializers import PaymentMethodSerializer
 from silver.fixtures.factories import PaymentMethodFactory
-from silver.fixtures.test_fixtures import (PAYMENT_PROCESSORS, manual_processor,
-                                           ManualProcessor)
+from silver.fixtures.test_fixtures import (
+    PAYMENT_PROCESSORS,
+    manual_processor,
+    ManualProcessor,
+)
 from silver.tests.utils import build_absolute_test_url
 
 
@@ -37,40 +40,58 @@ class TestPaymentMethodSerializer(TestCase):
         payment_method = PaymentMethodFactory.create(added_at=now)
 
         factory = APIRequestFactory()
-        url = reverse('payment-method-detail',
-                      kwargs={'payment_method_id': payment_method.pk,
-                              'customer_pk': payment_method.customer.pk})
-        request = factory.get(url, format='json')
+        url = reverse(
+            "payment-method-detail",
+            kwargs={
+                "payment_method_id": payment_method.pk,
+                "customer_pk": payment_method.customer.pk,
+            },
+        )
+        request = factory.get(url, format="json")
 
-        serializer = PaymentMethodSerializer(payment_method, context={
-            'request': request
-        })
+        serializer = PaymentMethodSerializer(
+            payment_method, context={"request": request}
+        )
 
         self_url = build_absolute_test_url(url)
         transactions_url = build_absolute_test_url(
-            reverse('payment-method-transaction-list',
-                    [payment_method.pk, payment_method.customer.pk])
+            reverse(
+                "payment-method-transaction-list",
+                [payment_method.pk, payment_method.customer.pk],
+            )
         )
         customer_url = build_absolute_test_url(
-            reverse('customer-detail', [payment_method.customer.pk])
+            reverse("customer-detail", [payment_method.customer.pk])
         )
-        expected_data = OrderedDict([
-            ('url', self_url),
-            ('transactions', transactions_url),
-            ('customer', customer_url),
-            ('payment_processor_name', manual_processor),
-            ('payment_processor', OrderedDict([
-                ("type", ManualProcessor.type),
-                ("name", manual_processor),
-                ("allowed_currencies", []),
-                ("url", build_absolute_test_url(reverse('payment-processor-detail', ['manual'])))
-            ])),
-            ('added_at', payment_method.added_at),
-            ('verified', False),
-            ('canceled', False),
-            ('valid_until', None),
-            ('display_info', None),
-        ])
+        expected_data = OrderedDict(
+            [
+                ("url", self_url),
+                ("transactions", transactions_url),
+                ("customer", customer_url),
+                ("payment_processor_name", manual_processor),
+                (
+                    "payment_processor",
+                    OrderedDict(
+                        [
+                            ("type", ManualProcessor.type),
+                            ("name", manual_processor),
+                            ("allowed_currencies", []),
+                            (
+                                "url",
+                                build_absolute_test_url(
+                                    reverse("payment-processor-detail", ["manual"])
+                                ),
+                            ),
+                        ]
+                    ),
+                ),
+                ("added_at", payment_method.added_at),
+                ("verified", False),
+                ("canceled", False),
+                ("valid_until", None),
+                ("display_info", None),
+            ]
+        )
 
         json = JSONRenderer().render(serializer.data)
         self.assertEqual(json, JSONRenderer().render(expected_data))

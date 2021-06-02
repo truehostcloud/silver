@@ -61,49 +61,59 @@ def complete_payment_view(request, transaction, expired=None):
         payment_processor = get_instance(transaction.payment_processor)
         payment_processor.handle_transaction_response(transaction, request)
 
-    if 'return_url' in request.GET:
+    if "return_url" in request.GET:
         redirect_url = six.moves.urllib.parse.unquote(
-            furl(request.GET['return_url']).add(
-                {
-                    'transaction_uuid': transaction.uuid
-                }
-            ).url
+            furl(request.GET["return_url"])
+                .add({"transaction_uuid": transaction.uuid})
+                .url
         )
         return HttpResponseRedirect(redirect_url)
     else:
-        return render(request, 'transactions/complete_payment.html',
-                      {
-                          'transaction': transaction,
-                          'document': transaction.document,
-                          'fail_data': FAIL_CODES.get(transaction.fail_code),
-                      })
+        return render(
+            request,
+            "transactions/complete_payment.html",
+            {
+                "transaction": transaction,
+                "document": transaction.document,
+                "fail_data": FAIL_CODES.get(transaction.fail_code),
+            },
+        )
 
 
 @csrf_exempt
 @get_transaction_from_token
 def pay_transaction_view(request, transaction, expired=None):
     if expired:
-        return render(request, 'transactions/expired_payment.html',
-                      {
-                          'document': transaction.document,
-                      })
+        return render(
+            request,
+            "transactions/expired_payment.html",
+            {
+                "document": transaction.document,
+            },
+        )
 
     if transaction.state != Transaction.States.Initial:
-        return render(request, 'transactions/complete_payment.html',
-                      {
-                          'transaction': transaction,
-                          'document': transaction.document,
-                          'fail_data': FAIL_CODES.get(transaction.fail_code)
-                      })
+        return render(
+            request,
+            "transactions/complete_payment.html",
+            {
+                "transaction": transaction,
+                "document": transaction.document,
+                "fail_data": FAIL_CODES.get(transaction.fail_code),
+            },
+        )
 
     payment_processor = transaction.payment_method.get_payment_processor()
 
     view = payment_processor.get_view(transaction, request)
     if not view or not transaction.can_be_consumed:
-        return render(request, 'transactions/expired_payment.html',
-                      {
-                          'document': transaction.document,
-                      })
+        return render(
+            request,
+            "transactions/expired_payment.html",
+            {
+                "document": transaction.document,
+            },
+        )
 
     transaction.last_access = timezone.now()
     transaction.save()
@@ -122,15 +132,17 @@ class DocumentAutocomplete(autocomplete.Select2QuerySetView):
         queryset = self.model.objects.all()
 
         if self.q:
-            q = self.q.rsplit('-')
+            q = self.q.rsplit("-")
             if len(q) == 2:
-                query = (Q(series=q[0]) | Q(number=q[1]))
+                query = Q(series=q[0]) | Q(number=q[1])
             else:
-                query = (Q(series__istartswith=self.q) |
-                         Q(number__istartswith=self.q) |
-                         Q(customer__first_name__icontains=self.q) |
-                         Q(customer__last_name__icontains=self.q) |
-                         Q(customer__company__icontains=self.q))
+                query = (
+                        Q(series__istartswith=self.q)
+                        | Q(number__istartswith=self.q)
+                        | Q(customer__first_name__icontains=self.q)
+                        | Q(customer__last_name__icontains=self.q)
+                        | Q(customer__company__icontains=self.q)
+                )
             queryset = queryset.filter(query)
 
         return queryset
@@ -160,14 +172,18 @@ class PlanAutocomplete(autocomplete.Select2QuerySetView):
         if self.q:
             queryset = queryset.annotate(
                 name_provider__name__company=Concat(
-                    F("name"), Value(" "), F("provider__name"), Value(" "), F("provider__company")
+                    F("name"),
+                    Value(" "),
+                    F("provider__name"),
+                    Value(" "),
+                    F("provider__company"),
                 )
             )
             terms = self.q.split()
 
             query = reduce(
                 operator.and_,
-                (Q(name_provider__name__company__icontains=term) for term in terms)
+                (Q(name_provider__name__company__icontains=term) for term in terms),
             )
 
             queryset = queryset.filter(query)
@@ -185,14 +201,18 @@ class CustomerAutocomplete(autocomplete.Select2QuerySetView):
         if self.q:
             queryset = queryset.annotate(
                 first_last_company_name=Concat(
-                    F("first_name"), Value(" "), F("last_name"), Value(" "), F("company")
+                    F("first_name"),
+                    Value(" "),
+                    F("last_name"),
+                    Value(" "),
+                    F("company"),
                 )
             )
             terms = self.q.split()
 
             query = reduce(
                 operator.and_,
-                (Q(first_last_company_name__icontains=term) for term in terms)
+                (Q(first_last_company_name__icontains=term) for term in terms),
             )
 
             queryset = queryset.filter(query)
@@ -209,15 +229,12 @@ class ProviderAutocomplete(autocomplete.Select2QuerySetView):
 
         if self.q:
             queryset = queryset.annotate(
-                name_company=Concat(
-                    F("name"), Value(" "), F("company")
-                )
+                name_company=Concat(F("name"), Value(" "), F("company"))
             )
             terms = self.q.split()
 
             query = reduce(
-                operator.and_,
-                (Q(name_company__icontains=term) for term in terms)
+                operator.and_, (Q(name_company__icontains=term) for term in terms)
             )
 
             queryset = queryset.filter(query)
@@ -233,10 +250,12 @@ class PaymentMethodAutocomplete(autocomplete.Select2QuerySetView):
         queryset = PaymentMethod.objects.exclude(canceled=True)
 
         if self.q:
-            query = (Q(customer__first_name__istartswith=self.q) |
-                     Q(customer__last_name__istartswith=self.q) |
-                     Q(payment_processor__istartswith=self.q) |
-                     Q(display_info__istartswith=self.q))
+            query = (
+                    Q(customer__first_name__istartswith=self.q)
+                    | Q(customer__last_name__istartswith=self.q)
+                    | Q(payment_processor__istartswith=self.q)
+                    | Q(display_info__istartswith=self.q)
+            )
             queryset = queryset.filter(query)
 
         return queryset

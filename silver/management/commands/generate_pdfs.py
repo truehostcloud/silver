@@ -27,13 +27,18 @@ logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
-    help = 'Generates the billing documents (Invoices, Proformas).'
+    help = "Generates the billing documents (Invoices, Proformas)."
 
     def handle(self, *args, **options):
-        for document in chain(Invoice.objects.filter(pdf__dirty__gt=0),
-                              Proforma.objects.filter(pdf__dirty__gt=0)):
+        for document in chain(
+                Invoice.objects.filter(pdf__dirty__gt=0),
+                Proforma.objects.filter(pdf__dirty__gt=0),
+        ):
             try:
                 document.generate_pdf()
             except:
-                logger.exception('Encountered exception while generating PDF for document '
-                                 'with id=%s.', document.id)
+                logger.exception(
+                    "Encountered exception while generating PDF for document "
+                    "with id=%s.",
+                    document.id,
+                )

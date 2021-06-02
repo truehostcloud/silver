@@ -21,8 +21,9 @@ def spec_provider_url(provider):
 
 
 def spec_transaction_url(transaction):
-    return absolute_url(reverse("transaction-detail", args=[transaction.customer.id,
-                                                            transaction.uuid]))
+    return absolute_url(
+        reverse("transaction-detail", args=[transaction.customer.id, transaction.uuid])
+    )
 
 
 def spec_transaction_pay_url(transaction):
@@ -30,5 +31,9 @@ def spec_transaction_pay_url(transaction):
 
 
 def spec_payment_method_url(payment_method):
-    return absolute_url(reverse("payment-method-detail", args=[payment_method.customer.id,
-                                                               payment_method.id]))
+    return absolute_url(
+        reverse(
+            "payment-method-detail",
+            args=[payment_method.customer.id, payment_method.id],
+        )
+    )

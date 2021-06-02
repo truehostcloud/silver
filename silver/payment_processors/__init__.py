@@ -12,6 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from silver.payment_processors.base import PaymentProcessorBase, get_instance, get_all_instances
+from silver.payment_processors.base import (
+    PaymentProcessorBase,
+    get_instance,
+    get_all_instances,
+)
 from silver.payment_processors.manual import ManualProcessor
 from silver.payment_processors.mixins import PaymentProcessorTypes as Types

@@ -21,7 +21,7 @@ def settings():
 
 @pytest.fixture()
 def user(db):
-    return User.objects.create(username='user')
+    return User.objects.create(username="user")
 
 
 @pytest.fixture()
@@ -69,10 +69,12 @@ def issued_invoice(db):
 
 @pytest.fixture()
 def two_pages_of_invoices(db, settings):
-    allowed_states = [Invoice.STATES.ISSUED, Invoice.STATES.PAID, Invoice.STATES.CANCELED]
+    allowed_states = [
+        Invoice.STATES.ISSUED,
+        Invoice.STATES.PAID,
+        Invoice.STATES.CANCELED,
+    ]
     return InvoiceFactory.create_batch(
         settings.API_PAGE_SIZE * 2,
-        state=factory.Sequence(
-            lambda n: allowed_states[n % len(allowed_states)]
-        )
+        state=factory.Sequence(lambda n: allowed_states[n % len(allowed_states)]),
     )

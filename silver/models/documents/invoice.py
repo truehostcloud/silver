@@ -22,7 +22,9 @@ from django.db.models.signals import pre_delete, post_save
 from django.dispatch import receiver
 
 from silver.models.documents.base import (
-    BillingDocumentBase, BillingDocumentManager, BillingDocumentQuerySet
+    BillingDocumentBase,
+    BillingDocumentManager,
+    BillingDocumentQuerySet,
 )
 from silver.models.documents.entries import DocumentEntry
 from silver.models.billing_entities import Provider
@@ -31,7 +33,9 @@ from silver.models.billing_entities import Provider
 class InvoiceManager(BillingDocumentManager):
     def get_queryset(self):
         queryset = super(BillingDocumentManager, self).get_queryset()
-        return queryset.filter(kind='invoice').prefetch_related('invoice_entries__product_code')
+        return queryset.filter(kind="invoice").prefetch_related(
+            "invoice_entries__product_code"
+        )
 
 
 class Invoice(BillingDocumentBase):
@@ -53,8 +57,11 @@ class Invoice(BillingDocumentBase):
     def transactions(self):
         return self.invoice_transactions.all()
 
-    @transition(field='state', source=BillingDocumentBase.STATES.DRAFT,
-                target=BillingDocumentBase.STATES.ISSUED)
+    @transition(
+        field="state",
+        source=BillingDocumentBase.STATES.DRAFT,
+        target=BillingDocumentBase.STATES.ISSUED,
+    )
     def issue(self, issue_date=None, due_date=None):
         self.archived_provider = self.provider.get_archivable_field_values()
 
@@ -69,7 +76,7 @@ class Invoice(BillingDocumentBase):
         try:
             return self.provider.invoice_series
         except Provider.DoesNotExist:
-            return ''
+            return ""
 
     @property
     def entries(self):
@@ -95,16 +102,21 @@ class Invoice(BillingDocumentBase):
                 currency=self.currency,
                 transaction_currency=self.transaction_currency,
             )
-            storno_invoice.invoice_entries.add(*[DocumentEntry.objects.create(
-                unit_price=entry.unit_price,
-                unit=entry.unit,
-                quantity=entry.quantity * -1,
-                product_code=entry.product_code,
-                start_date=entry.start_date,
-                end_date=entry.end_date,
-                prorated=entry.prorated,
-                invoice=storno_invoice,
-            ) for entry in self.entries])
+            storno_invoice.invoice_entries.add(
+                *[
+                    DocumentEntry.objects.create(
+                        unit_price=entry.unit_price,
+                        unit=entry.unit,
+                        quantity=entry.quantity * -1,
+                        product_code=entry.product_code,
+                        start_date=entry.start_date,
+                        end_date=entry.end_date,
+                        prorated=entry.prorated,
+                        invoice=storno_invoice,
+                    )
+                    for entry in self.entries
+                ]
+            )
 
             return storno_invoice
 
@@ -125,8 +137,8 @@ def post_invoice_save(sender, instance, created=False, **kwargs):
     if not created:
         return
 
-    Transaction = apps.get_model('silver.Transaction')
-    BillingLog = apps.get_model('silver.BillingLog')
+    Transaction = apps.get_model("silver.Transaction")
+    BillingLog = apps.get_model("silver.BillingLog")
 
     invoice = instance
     proforma = invoice.related_document

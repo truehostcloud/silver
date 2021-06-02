@@ -21,33 +21,40 @@ from django.test import TestCase, override_settings
 from django.utils import timezone
 
 from silver.models import Invoice, Proforma
-from silver.fixtures.factories import (PaymentMethodFactory, InvoiceFactory,
-                                       ProformaFactory, TransactionFactory,
-                                       CustomerFactory)
-from silver.fixtures.test_fixtures import (PAYMENT_PROCESSORS, triggered_processor)
+from silver.fixtures.factories import (
+    PaymentMethodFactory,
+    InvoiceFactory,
+    ProformaFactory,
+    TransactionFactory,
+    CustomerFactory,
+)
+from silver.fixtures.test_fixtures import PAYMENT_PROCESSORS, triggered_processor
 
 
 @override_settings(PAYMENT_PROCESSORS=PAYMENT_PROCESSORS)
 class TestDocumentsTransactions(TestCase):
     def test_create_transaction_with_not_allowed_currency(self):
-        invoice = InvoiceFactory.create(transaction_currency='EUR',
-                                        transaction_xe_rate=Decimal('1.0'),
-                                        state=Invoice.STATES.ISSUED)
+        invoice = InvoiceFactory.create(
+            transaction_currency="EUR",
+            transaction_xe_rate=Decimal("1.0"),
+            state=Invoice.STATES.ISSUED,
+        )
         payment_method = PaymentMethodFactory.create(
             payment_processor=triggered_processor,
             customer=invoice.customer,
             canceled=False,
-            verified=False
+            verified=False,
         )
 
         expected_exception = ValidationError
-        expected_message = 'Currency EUR is not allowed by ' \
-                           'the payment method. Allowed currencies are ' \
-                           '[\'RON\', \'USD\'].'
+        expected_message = (
+            "Currency EUR is not allowed by "
+            "the payment method. Allowed currencies are "
+            "['RON', 'USD']."
+        )
         try:
-            TransactionFactory.create(payment_method=payment_method,
-                                      invoice=invoice)
-            self.fail('{} not raised.'.format(str(expected_exception)))
+            TransactionFactory.create(payment_method=payment_method, invoice=invoice)
+            self.fail("{} not raised.".format(str(expected_exception)))
         except expected_exception as e:
             self.assertTrue(expected_message in str(e))
 
@@ -55,25 +62,25 @@ class TestDocumentsTransactions(TestCase):
         customer = CustomerFactory.create()
 
         lone_invoice = InvoiceFactory.create(
-            transaction_currency='USD',
-            transaction_xe_rate=Decimal('1.0'),
+            transaction_currency="USD",
+            transaction_xe_rate=Decimal("1.0"),
             state=Invoice.STATES.ISSUED,
-            customer=customer
+            customer=customer,
         )
 
         lone_proforma = ProformaFactory.create(
-            transaction_currency='USD',
-            transaction_xe_rate=Decimal('1.0'),
+            transaction_currency="USD",
+            transaction_xe_rate=Decimal("1.0"),
             state=Proforma.STATES.ISSUED,
-            customer=customer
+            customer=customer,
         )
 
         paired_proforma = ProformaFactory.create(
-            transaction_currency='USD',
-            transaction_xe_rate=Decimal('1.0'),
+            transaction_currency="USD",
+            transaction_xe_rate=Decimal("1.0"),
             state=Proforma.STATES.ISSUED,
             issue_date=timezone.now().date(),
-            customer=customer
+            customer=customer,
         )
         paired_invoice = paired_proforma.create_invoice()
 
@@ -81,15 +88,16 @@ class TestDocumentsTransactions(TestCase):
             payment_processor=triggered_processor,
             customer=customer,
             canceled=False,
-            verified=True
+            verified=True,
         )
 
         self.assertEqual(lone_invoice.transactions.count(), 1)
 
         self.assertEqual(lone_proforma.transactions.count(), 1)
 
-        self.assertEqual(list(paired_invoice.transactions),
-                         list(paired_proforma.transactions))
+        self.assertEqual(
+            list(paired_invoice.transactions), list(paired_proforma.transactions)
+        )
 
         self.assertEqual(paired_invoice.transactions.count(), 1)
 
@@ -100,29 +108,29 @@ class TestDocumentsTransactions(TestCase):
             payment_processor=triggered_processor,
             customer=customer,
             canceled=False,
-            verified=False
+            verified=False,
         )
 
         lone_invoice = InvoiceFactory.create(
-            transaction_currency='USD',
-            transaction_xe_rate=Decimal('1.0'),
+            transaction_currency="USD",
+            transaction_xe_rate=Decimal("1.0"),
             state=Invoice.STATES.ISSUED,
-            customer=customer
+            customer=customer,
         )
 
         lone_proforma = ProformaFactory.create(
-            transaction_currency='USD',
-            transaction_xe_rate=Decimal('1.0'),
+            transaction_currency="USD",
+            transaction_xe_rate=Decimal("1.0"),
             state=Proforma.STATES.ISSUED,
-            customer=customer
+            customer=customer,
         )
 
         paired_proforma = ProformaFactory.create(
-            transaction_currency='USD',
-            transaction_xe_rate=Decimal('1.0'),
+            transaction_currency="USD",
+            transaction_xe_rate=Decimal("1.0"),
             state=Proforma.STATES.ISSUED,
             issue_date=timezone.now().date(),
-            customer=customer
+            customer=customer,
         )
         paired_invoice = paired_proforma.create_invoice()
 
@@ -135,7 +143,8 @@ class TestDocumentsTransactions(TestCase):
 
         self.assertEqual(lone_proforma.transactions.count(), 1)
 
-        self.assertEqual(list(paired_invoice.transactions),
-                         list(paired_proforma.transactions))
+        self.assertEqual(
+            list(paired_invoice.transactions), list(paired_proforma.transactions)
+        )
 
         self.assertEqual(paired_invoice.transactions.count(), 1)

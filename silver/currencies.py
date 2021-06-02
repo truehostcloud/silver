@@ -26,13 +26,12 @@ class RateNotFound(Exception):
 
     def __str__(self):
         if not all([self.from_currency, self.to_currency]):
-            return 'No rate was found.'
+            return "No rate was found."
 
         if not self.date:
-            return 'No rate for {} to {}.'.format(self.from_currency,
-                                                  self.to_currency)
+            return "No rate for {} to {}.".format(self.from_currency, self.to_currency)
 
-        return 'No rate for {} to {}, from {} was found.'.format(
+        return "No rate for {} to {}, from {} was found.".format(
             self.from_currency, self.to_currency, self.date
         )
 
@@ -42,6 +41,7 @@ class DummyConverter(object):
         if from_currency != to_currency:
             raise RateNotFound(from_currency, to_currency, date)
         return amount
+
 
 try:
     CurrencyConverter = import_string(settings.SILVER_CURRENCY_CONVERTER)()

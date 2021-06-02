@@ -22,8 +22,11 @@ from mock import patch, PropertyMock, MagicMock
 from django.test import TestCase
 
 from silver.models import Plan, Subscription, BillingLog
-from silver.fixtures.factories import (SubscriptionFactory, MeteredFeatureFactory,
-                                       PlanFactory)
+from silver.fixtures.factories import (
+    SubscriptionFactory,
+    MeteredFeatureFactory,
+    PlanFactory,
+)
 
 
 class TestSubscription(TestCase):
@@ -44,40 +47,47 @@ class TestSubscription(TestCase):
         subscription.plan.save()
         subscription.plan.separate_cycles_during_trial = True
 
-        subscription.trial_end = (subscription.start_date +
-                                  datetime.timedelta(days=15))
+        subscription.trial_end = subscription.start_date + datetime.timedelta(days=15)
 
         start_date = subscription.start_date
         assert start_date == subscription.bucket_start_date(
-            reference_date=datetime.date(year=2015, month=2, day=17))
+            reference_date=datetime.date(year=2015, month=2, day=17)
+        )
 
         end_date = datetime.date(year=2015, month=2, day=28)
         assert end_date == subscription.bucket_end_date(
-            reference_date=datetime.date(year=2015, month=2, day=23))
+            reference_date=datetime.date(year=2015, month=2, day=23)
+        )
 
         start_date = datetime.date(year=2015, month=3, day=1)
         assert start_date == subscription.bucket_start_date(
-            reference_date=datetime.date(year=2015, month=3, day=1))
+            reference_date=datetime.date(year=2015, month=3, day=1)
+        )
 
         end_date = datetime.date(year=2015, month=3, day=4)
         assert end_date == subscription.bucket_end_date(
-            reference_date=datetime.date(year=2015, month=3, day=1))
+            reference_date=datetime.date(year=2015, month=3, day=1)
+        )
 
         start_date = datetime.date(year=2015, month=3, day=5)
         assert start_date == subscription.bucket_start_date(
-            reference_date=datetime.date(year=2015, month=3, day=5))
+            reference_date=datetime.date(year=2015, month=3, day=5)
+        )
 
         end_date = datetime.date(year=2015, month=3, day=31)
         assert end_date == subscription.bucket_end_date(
-            reference_date=datetime.date(year=2015, month=3, day=22))
+            reference_date=datetime.date(year=2015, month=3, day=22)
+        )
 
         start_date = datetime.date(year=2015, month=4, day=1)
         assert start_date == subscription.bucket_start_date(
-            reference_date=datetime.date(year=2015, month=4, day=5))
+            reference_date=datetime.date(year=2015, month=4, day=5)
+        )
 
         end_date = datetime.date(year=2015, month=4, day=30)
         assert end_date == subscription.bucket_end_date(
-            reference_date=datetime.date(year=2015, month=4, day=22))
+            reference_date=datetime.date(year=2015, month=4, day=22)
+        )
 
     def test_subscription_mf_units_log_intervals_2(self):
         # Every 2 months, 5 months of trial (2015-05-30)
@@ -97,49 +107,58 @@ class TestSubscription(TestCase):
         subscription.plan.save()
 
         subscription.start_date = datetime.date(year=2014, month=12, day=31)
-        subscription.trial_end = (subscription.start_date +
-                                  datetime.timedelta(days=150))
+        subscription.trial_end = subscription.start_date + datetime.timedelta(days=150)
         subscription.save()
 
         start_date = datetime.date(year=2014, month=12, day=31)
         assert start_date == subscription.bucket_start_date(
-            reference_date=datetime.date(year=2014, month=12, day=31))
+            reference_date=datetime.date(year=2014, month=12, day=31)
+        )
 
         end_date = datetime.date(year=2014, month=12, day=31)
         assert end_date == subscription.bucket_end_date(
-            reference_date=datetime.date(year=2014, month=12, day=31))
+            reference_date=datetime.date(year=2014, month=12, day=31)
+        )
 
         start_date = datetime.date(year=2015, month=1, day=1)
         assert start_date == subscription.bucket_start_date(
-            reference_date=datetime.date(year=2015, month=1, day=1))
+            reference_date=datetime.date(year=2015, month=1, day=1)
+        )
 
         end_date = datetime.date(year=2015, month=1, day=31)
         assert end_date == subscription.bucket_end_date(
-            reference_date=datetime.date(year=2015, month=1, day=1))
+            reference_date=datetime.date(year=2015, month=1, day=1)
+        )
 
         start_date = datetime.date(year=2015, month=3, day=1)
         assert start_date == subscription.bucket_start_date(
-            reference_date=datetime.date(year=2015, month=3, day=23))
+            reference_date=datetime.date(year=2015, month=3, day=23)
+        )
 
         end_date = datetime.date(year=2015, month=4, day=30)
         assert end_date == subscription.bucket_end_date(
-            reference_date=datetime.date(year=2015, month=4, day=30))
+            reference_date=datetime.date(year=2015, month=4, day=30)
+        )
 
         start_date = datetime.date(year=2015, month=5, day=1)
         assert start_date == subscription.bucket_start_date(
-            reference_date=datetime.date(year=2015, month=5, day=23))
+            reference_date=datetime.date(year=2015, month=5, day=23)
+        )
 
         end_date = datetime.date(year=2015, month=5, day=30)
         assert end_date == subscription.bucket_end_date(
-            reference_date=datetime.date(year=2015, month=5, day=30))
+            reference_date=datetime.date(year=2015, month=5, day=30)
+        )
 
         start_date = datetime.date(year=2015, month=6, day=1)
         assert start_date == subscription.bucket_start_date(
-            reference_date=datetime.date(year=2015, month=6, day=1))
+            reference_date=datetime.date(year=2015, month=6, day=1)
+        )
 
         end_date = datetime.date(year=2015, month=6, day=30)
         assert end_date == subscription.bucket_end_date(
-            reference_date=datetime.date(year=2015, month=6, day=1))
+            reference_date=datetime.date(year=2015, month=6, day=1)
+        )
 
     def test_subscription_mf_units_log_intervals_3(self):
         # Every 2 weeks, 8 days of trial
@@ -159,41 +178,48 @@ class TestSubscription(TestCase):
         subscription.plan.save()
 
         subscription.start_date = datetime.date(year=2015, month=5, day=31)
-        subscription.trial_end = (subscription.start_date +
-                                  datetime.timedelta(days=7))
+        subscription.trial_end = subscription.start_date + datetime.timedelta(days=7)
         subscription.save()
 
         start_date = datetime.date(year=2015, month=5, day=31)
         assert start_date == subscription.bucket_start_date(
-            reference_date=datetime.date(year=2015, month=5, day=31))
+            reference_date=datetime.date(year=2015, month=5, day=31)
+        )
 
         end_date = datetime.date(year=2015, month=5, day=31)
         assert end_date == subscription.bucket_end_date(
-            reference_date=datetime.date(year=2015, month=5, day=31))
+            reference_date=datetime.date(year=2015, month=5, day=31)
+        )
 
         start_date = datetime.date(year=2015, month=6, day=1)
         assert start_date == subscription.bucket_start_date(
-            reference_date=datetime.date(year=2015, month=6, day=1))
+            reference_date=datetime.date(year=2015, month=6, day=1)
+        )
 
         end_date = datetime.date(year=2015, month=6, day=7)
         assert end_date == subscription.bucket_end_date(
-            reference_date=datetime.date(year=2015, month=6, day=1))
+            reference_date=datetime.date(year=2015, month=6, day=1)
+        )
 
         start_date = datetime.date(year=2015, month=6, day=8)
         assert start_date == subscription.bucket_start_date(
-            reference_date=datetime.date(year=2015, month=6, day=8))
+            reference_date=datetime.date(year=2015, month=6, day=8)
+        )
 
         end_date = datetime.date(year=2015, month=6, day=14)
         assert end_date == subscription.bucket_end_date(
-            reference_date=datetime.date(year=2015, month=6, day=8))
+            reference_date=datetime.date(year=2015, month=6, day=8)
+        )
 
         start_date = datetime.date(year=2015, month=6, day=15)
         assert start_date == subscription.bucket_start_date(
-            reference_date=datetime.date(year=2015, month=6, day=15))
+            reference_date=datetime.date(year=2015, month=6, day=15)
+        )
 
         end_date = datetime.date(year=2015, month=6, day=28)
         assert end_date == subscription.bucket_end_date(
-            reference_date=datetime.date(year=2015, month=6, day=28))
+            reference_date=datetime.date(year=2015, month=6, day=28)
+        )
 
     def test_subscription_mf_units_log_intervals_4(self):
         # Every year, 3 months (90 days) of trial
@@ -212,8 +238,7 @@ class TestSubscription(TestCase):
         subscription.plan.save()
 
         subscription.start_date = datetime.date(year=2015, month=2, day=2)
-        subscription.trial_end = (subscription.start_date +
-                                  datetime.timedelta(days=90))
+        subscription.trial_end = subscription.start_date + datetime.timedelta(days=90)
         subscription.save()
 
         start_date = subscription.start_date
@@ -223,23 +248,28 @@ class TestSubscription(TestCase):
 
         end_date = datetime.date(year=2015, month=5, day=3)
         assert end_date == subscription.bucket_end_date(
-            reference_date=datetime.date(year=2015, month=2, day=2))
+            reference_date=datetime.date(year=2015, month=2, day=2)
+        )
 
         start_date = datetime.date(year=2015, month=5, day=4)
         assert start_date == subscription.bucket_start_date(
-            reference_date=datetime.date(year=2015, month=5, day=4))
+            reference_date=datetime.date(year=2015, month=5, day=4)
+        )
 
         end_date = datetime.date(year=2015, month=12, day=31)
         assert end_date == subscription.bucket_end_date(
-            reference_date=datetime.date(year=2015, month=5, day=5))
+            reference_date=datetime.date(year=2015, month=5, day=5)
+        )
 
         start_date = datetime.date(year=2016, month=1, day=1)
         assert start_date == subscription.bucket_start_date(
-            reference_date=datetime.date(year=2016, month=1, day=1))
+            reference_date=datetime.date(year=2016, month=1, day=1)
+        )
 
         end_date = datetime.date(year=2016, month=12, day=31)
         assert end_date == subscription.bucket_end_date(
-            reference_date=datetime.date(year=2016, month=12, day=31))
+            reference_date=datetime.date(year=2016, month=12, day=31)
+        )
 
     def test_subscription_billing_cycle_intervals_1(self):
         """
@@ -256,8 +286,7 @@ class TestSubscription(TestCase):
         start_date = datetime.date(year=2015, month=2, day=17)
 
         subscription.start_date = start_date
-        subscription.trial_end = (subscription.start_date +
-                                  datetime.timedelta(days=15))
+        subscription.trial_end = subscription.start_date + datetime.timedelta(days=15)
         subscription.activate()
         subscription.save()
 
@@ -306,8 +335,7 @@ class TestSubscription(TestCase):
         subscription.plan.save()
 
         subscription.start_date = datetime.date(year=2014, month=12, day=31)
-        subscription.trial_end = (subscription.start_date +
-                                  datetime.timedelta(days=150))
+        subscription.trial_end = subscription.start_date + datetime.timedelta(days=150)
         subscription.activate()
         subscription.save()
 
@@ -343,7 +371,9 @@ class TestSubscription(TestCase):
         reference_date = start_date
         assert start_date == subscription.cycle_start_date(reference_date)
 
-        end_date = datetime.date(year=2015, month=6, day=30)  # realigned to initial alignment
+        end_date = datetime.date(
+            year=2015, month=6, day=30
+        )  # realigned to initial alignment
         assert end_date == subscription.cycle_end_date(reference_date)
 
         start_date = datetime.date(year=2015, month=7, day=1)
@@ -372,8 +402,7 @@ class TestSubscription(TestCase):
         subscription.plan.save()
 
         subscription.start_date = datetime.date(year=2015, month=5, day=31)
-        subscription.trial_end = (subscription.start_date +
-                                  datetime.timedelta(days=7))
+        subscription.trial_end = subscription.start_date + datetime.timedelta(days=7)
         subscription.activate()
         subscription.save()
 
@@ -395,7 +424,9 @@ class TestSubscription(TestCase):
         reference_date = start_date
         assert start_date == subscription.cycle_start_date(reference_date)
 
-        end_date = datetime.date(year=2015, month=6, day=14)  # cycle realignment after trial
+        end_date = datetime.date(
+            year=2015, month=6, day=14
+        )  # cycle realignment after trial
         assert end_date == subscription.cycle_end_date(reference_date)
 
         start_date = datetime.date(year=2015, month=6, day=15)
@@ -424,8 +455,7 @@ class TestSubscription(TestCase):
         subscription.plan.save()
 
         subscription.start_date = datetime.date(year=2015, month=2, day=2)
-        subscription.trial_end = (subscription.start_date +
-                                  datetime.timedelta(days=90))
+        subscription.trial_end = subscription.start_date + datetime.timedelta(days=90)
         subscription.activate()
         subscription.save()
 
@@ -459,15 +489,14 @@ class TestSubscriptionShouldBeBilled(TestCase):
             plan=plan,
             state=Subscription.STATES.CANCELED,
             start_date=datetime.date(2015, 8, 22),
-            cancel_date=datetime.date(2015, 9, 1)
+            cancel_date=datetime.date(2015, 9, 1),
         )
         correct_billing_date = datetime.date(2015, 9, 2)
         incorrect_billing_date = datetime.date(2015, 8, 22)
 
         true_property = PropertyMock(return_value=True)
         with patch.multiple(
-            Subscription,
-            _has_existing_customer_with_consolidated_billing=true_property
+                Subscription, _has_existing_customer_with_consolidated_billing=true_property
         ):
             assert subscription.should_be_billed(correct_billing_date) is True
             assert subscription.should_be_billed(incorrect_billing_date) is False
@@ -478,15 +507,14 @@ class TestSubscriptionShouldBeBilled(TestCase):
             plan=plan,
             state=Subscription.STATES.CANCELED,
             start_date=datetime.date(2015, 8, 10),
-            cancel_date=datetime.date(2015, 8, 22)
+            cancel_date=datetime.date(2015, 8, 22),
         )
         billing_date_1 = datetime.date(2015, 9, 1)
         billing_date_2 = datetime.date(2015, 8, 23)
 
         true_property = PropertyMock(return_value=True)
         with patch.multiple(
-            Subscription,
-            _has_existing_customer_with_consolidated_billing=true_property
+                Subscription, _has_existing_customer_with_consolidated_billing=true_property
         ):
             assert subscription.should_be_billed(billing_date_1) is True
             assert subscription.should_be_billed(billing_date_2) is True
@@ -497,14 +525,14 @@ class TestSubscriptionShouldBeBilled(TestCase):
             plan=plan,
             state=Subscription.STATES.CANCELED,
             start_date=datetime.date(2015, 8, 10),
-            cancel_date=datetime.date(2015, 8, 22)
+            cancel_date=datetime.date(2015, 8, 22),
         )
         correct_billing_date = datetime.date(2015, 8, 23)
 
         false_property = PropertyMock(return_value=False)
         with patch.multiple(
-            Subscription,
-            _has_existing_customer_with_consolidated_billing=false_property
+                Subscription,
+                _has_existing_customer_with_consolidated_billing=false_property,
         ):
             assert subscription.should_be_billed(correct_billing_date) is True
 
@@ -514,7 +542,7 @@ class TestSubscriptionShouldBeBilled(TestCase):
             plan=plan,
             state=Subscription.STATES.CANCELED,
             cancel_date=datetime.date(2015, 8, 22),
-            start_date=datetime.date(2015, 8, 1)
+            start_date=datetime.date(2015, 8, 1),
         )
         incorrect_billing_date = datetime.date(2015, 8, 10)
 
@@ -525,15 +553,13 @@ class TestSubscriptionShouldBeBilled(TestCase):
         subscription = SubscriptionFactory.create(
             plan=plan,
             state=Subscription.STATES.ACTIVE,
-            start_date=datetime.date(2015, 8, 12)
+            start_date=datetime.date(2015, 8, 12),
         )
         incorrect_billing_date = datetime.date(2015, 8, 11)
         correct_billing_date = datetime.date(2015, 8, 12)
 
         true_property = PropertyMock(return_value=True)
-        mocked_bucket_end_date = MagicMock(
-            return_value=datetime.date(2015, 8, 31)
-        )
+        mocked_bucket_end_date = MagicMock(return_value=datetime.date(2015, 8, 31))
         with patch.multiple(
             Subscription,
             _has_existing_customer_with_consolidated_billing=true_property,
@@ -548,7 +574,7 @@ class TestSubscriptionShouldBeBilled(TestCase):
         subscription = SubscriptionFactory.create(
             plan=plan,
             state=Subscription.STATES.ACTIVE,
-            start_date=datetime.date(2015, 8, 12)
+            start_date=datetime.date(2015, 8, 12),
         )
         correct_billing_date_1 = datetime.date(2015, 8, 12)
         correct_billing_date_2 = datetime.date(2015, 8, 20)
@@ -568,7 +594,7 @@ class TestSubscriptionShouldBeBilled(TestCase):
         subscription = SubscriptionFactory.create(
             plan=plan,
             state=Subscription.STATES.ACTIVE,
-            start_date=datetime.date(2015, 8, 22)
+            start_date=datetime.date(2015, 8, 22),
         )
         billing_date = datetime.date(2015, 8, 10)
 
@@ -580,7 +606,7 @@ class TestSubscriptionShouldBeBilled(TestCase):
             plan=plan,
             state=Subscription.STATES.ACTIVE,
             start_date=datetime.date(2015, 8, 12),
-            trial_end=datetime.date(2015, 8, 26)
+            trial_end=datetime.date(2015, 8, 26),
         )
         correct_billing_date_1 = datetime.date(2015, 9, 1)
         correct_billing_date_2 = datetime.date(2015, 8, 12)
@@ -604,7 +630,7 @@ class TestSubscriptionShouldBeBilled(TestCase):
             plan=plan,
             state=Subscription.STATES.ACTIVE,
             start_date=datetime.date(2015, 8, 12),
-            trial_end=datetime.date(2015, 8, 26)
+            trial_end=datetime.date(2015, 8, 26),
         )
         correct_billing_date_1 = datetime.date(2015, 8, 27)
         correct_billing_date_2 = datetime.date(2015, 8, 12)
@@ -612,14 +638,12 @@ class TestSubscriptionShouldBeBilled(TestCase):
 
         true_property = PropertyMock(return_value=True)
         false_property = PropertyMock(return_value=False)
-        mocked_bucket_end_date = MagicMock(
-            return_value=datetime.date(2015, 8, 26)
-        )
+        mocked_bucket_end_date = MagicMock(return_value=datetime.date(2015, 8, 26))
         with patch.multiple(
-            Subscription,
-            is_billed_first_time=true_property,
-            _has_existing_customer_with_consolidated_billing=false_property,
-            bucket_end_date=mocked_bucket_end_date
+                Subscription,
+                is_billed_first_time=true_property,
+                _has_existing_customer_with_consolidated_billing=false_property,
+                bucket_end_date=mocked_bucket_end_date,
         ):
             assert subscription.should_be_billed(correct_billing_date_1) is True
             assert subscription.should_be_billed(correct_billing_date_2) is True
@@ -631,7 +655,7 @@ class TestSubscriptionShouldBeBilled(TestCase):
             plan=plan,
             state=Subscription.STATES.ACTIVE,
             start_date=datetime.date(2015, 8, 12),
-            trial_end=datetime.date(2015, 9, 12)
+            trial_end=datetime.date(2015, 9, 12),
         )
         correct_billing_date_1 = datetime.date(2015, 9, 1)
         correct_billing_date_2 = datetime.date(2015, 8, 12)
@@ -639,14 +663,12 @@ class TestSubscriptionShouldBeBilled(TestCase):
         incorrect_billing_date_2 = datetime.date(2015, 7, 3)
 
         true_property = PropertyMock(return_value=True)
-        mocked_bucket_end_date = MagicMock(
-            return_value=datetime.date(2015, 8, 31)
-        )
+        mocked_bucket_end_date = MagicMock(return_value=datetime.date(2015, 8, 31))
         with patch.multiple(
-            Subscription,
-            is_billed_first_time=true_property,
-            _has_existing_customer_with_consolidated_billing=true_property,
-            bucket_end_date=mocked_bucket_end_date
+                Subscription,
+                is_billed_first_time=true_property,
+                _has_existing_customer_with_consolidated_billing=true_property,
+                bucket_end_date=mocked_bucket_end_date,
         ):
             assert subscription.should_be_billed(correct_billing_date_1) is True
             assert subscription.should_be_billed(correct_billing_date_2) is True
@@ -659,7 +681,7 @@ class TestSubscriptionShouldBeBilled(TestCase):
             plan=plan,
             state=Subscription.STATES.ACTIVE,
             start_date=datetime.date(2015, 8, 12),
-            trial_end=datetime.date(2015, 9, 12)
+            trial_end=datetime.date(2015, 9, 12),
         )
         correct_billing_date_1 = datetime.date(2015, 10, 1)
         correct_billing_date_2 = datetime.date(2015, 9, 12)
@@ -669,9 +691,7 @@ class TestSubscriptionShouldBeBilled(TestCase):
         true_property = PropertyMock(return_value=True)
         false_property = PropertyMock(return_value=False)
         mocked_on_trial = MagicMock(return_value=True)
-        mocked_last_billing_date = PropertyMock(
-            return_value=datetime.date(2015, 9, 2)
-        )
+        mocked_last_billing_date = PropertyMock(return_value=datetime.date(2015, 9, 2))
         with patch.multiple(
             Subscription,
             is_billed_first_time=false_property,
@@ -685,55 +705,53 @@ class TestSubscriptionShouldBeBilled(TestCase):
             assert subscription.should_be_billed(incorrect_billing_date) is False
 
     def test_already_billed_sub_wa_cb_on_trial_last_billing_date(self):
-        plan = PlanFactory.create(generate_after=100,
-                                  interval=Plan.INTERVALS.MONTH,
-                                  interval_count=1)
+        plan = PlanFactory.create(
+            generate_after=100, interval=Plan.INTERVALS.MONTH, interval_count=1
+        )
         subscription = SubscriptionFactory.create(
             plan=plan,
             state=Subscription.STATES.ACTIVE,
             start_date=datetime.date(2015, 8, 12),
-            trial_end=datetime.date(2015, 9, 12)
+            trial_end=datetime.date(2015, 9, 12),
         )
         correct_billing_date = datetime.date(2015, 8, 12)
         incorrect_billing_date_1 = datetime.date(2015, 8, 11)
 
         false_property = PropertyMock(return_value=False)
         mocked_on_trial = MagicMock(return_value=True)
-        mocked_last_billing_date = PropertyMock(
-            return_value=datetime.date(2015, 9, 2)
-        )
-        mocked_bucket_end_date = MagicMock(
-            return_value=datetime.date(2015, 9, 12)
-        )
+        mocked_last_billing_date = PropertyMock(return_value=datetime.date(2015, 9, 2))
+        mocked_bucket_end_date = MagicMock(return_value=datetime.date(2015, 9, 12))
         with patch.multiple(
-            Subscription,
-            is_billed_first_time=false_property,
-            on_trial=mocked_on_trial,
-            last_billing_date=mocked_last_billing_date,
-            _has_existing_customer_with_consolidated_billing=false_property,
-            bucket_end_date=mocked_bucket_end_date
+                Subscription,
+                is_billed_first_time=false_property,
+                on_trial=mocked_on_trial,
+                last_billing_date=mocked_last_billing_date,
+                _has_existing_customer_with_consolidated_billing=false_property,
+                bucket_end_date=mocked_bucket_end_date,
         ):
             assert subscription.should_be_billed(correct_billing_date) is True
             assert subscription.should_be_billed(incorrect_billing_date_1) is False
 
     def test_already_billed_sub_wa_cb(self):
-        plan = PlanFactory.create(generate_after=100,
-                                  interval=Plan.INTERVALS.MONTH,
-                                  interval_count=1)
+        plan = PlanFactory.create(
+            generate_after=100, interval=Plan.INTERVALS.MONTH, interval_count=1
+        )
         subscription = SubscriptionFactory.create(
             plan=plan,
             state=Subscription.STATES.ACTIVE,
-            start_date=datetime.date(2015, 1, 1)
+            start_date=datetime.date(2015, 1, 1),
         )
         correct_billing_date = datetime.date(2015, 10, 1)
         incorrect_billing_date_1 = datetime.date(2015, 9, 3)
         incorrect_billing_date_2 = datetime.date(2015, 9, 12)
         incorrect_billing_date_3 = datetime.date(2015, 9, 30)
 
-        BillingLog.objects.create(subscription=subscription,
-                                  billing_date=datetime.date(2015, 9, 2),
-                                  plan_billed_up_to=datetime.date(2015, 9, 30),
-                                  metered_features_billed_up_to=datetime.date(2015, 9, 2))
+        BillingLog.objects.create(
+            subscription=subscription,
+            billing_date=datetime.date(2015, 9, 2),
+            plan_billed_up_to=datetime.date(2015, 9, 30),
+            metered_features_billed_up_to=datetime.date(2015, 9, 2),
+        )
 
         assert subscription.should_be_billed(correct_billing_date) is True
         assert subscription.should_be_billed(incorrect_billing_date_1) is False
@@ -741,129 +759,144 @@ class TestSubscriptionShouldBeBilled(TestCase):
         assert subscription.should_be_billed(incorrect_billing_date_3) is False
 
     def test_canceled_sub_with_billed_plan_but_not_metered_features_1(self):
-        plan = PlanFactory.create(generate_after=100,
-                                  interval=Plan.INTERVALS.MONTH,
-                                  interval_count=1)
+        plan = PlanFactory.create(
+            generate_after=100, interval=Plan.INTERVALS.MONTH, interval_count=1
+        )
         subscription = SubscriptionFactory.create(
             plan=plan,
             state=Subscription.STATES.CANCELED,
             start_date=datetime.date(2015, 1, 1),
-            cancel_date=datetime.date(2018, 1, 20)
+            cancel_date=datetime.date(2018, 1, 20),
         )
 
         billing_log = BillingLog.objects.create(
             subscription=subscription,
             billing_date=datetime.date(2015, 9, 2),
             plan_billed_up_to=datetime.date(2018, 1, 31),
-            metered_features_billed_up_to=datetime.date(2017, 12, 31)
+            metered_features_billed_up_to=datetime.date(2017, 12, 31),
         )
 
         correct_billing_date_1 = subscription.cancel_date + datetime.timedelta(days=1)
         correct_billing_date_2 = datetime.date(2018, 2, 1)
         incorrect_billing_date = correct_billing_date_1 - datetime.timedelta(days=1)
 
-        assert \
-            billing_log.metered_features_billed_up_to \
-            < incorrect_billing_date \
-            <= subscription.cancel_date \
-            < correct_billing_date_1 \
-            < billing_log.plan_billed_up_to \
-            < correct_billing_date_2 \
-
+        assert (
+                billing_log.metered_features_billed_up_to
+                < incorrect_billing_date
+                <= subscription.cancel_date
+                < correct_billing_date_1
+                < billing_log.plan_billed_up_to
+                < correct_billing_date_2
+        )
         assert subscription.should_be_billed(correct_billing_date_1)
         assert subscription.should_be_billed(correct_billing_date_2)
         assert not subscription.should_be_billed(incorrect_billing_date)
 
     def test_canceled_sub_with_billed_plan_but_not_metered_features_2(self):
         # Like previous test, but this time there's cycle_billing_duration added to the mix
-        plan = PlanFactory.create(generate_after=100,
-                                  interval=Plan.INTERVALS.MONTH,
-                                  interval_count=1,
-                                  cycle_billing_duration=datetime.timedelta(days=5))
+        plan = PlanFactory.create(
+            generate_after=100,
+            interval=Plan.INTERVALS.MONTH,
+            interval_count=1,
+            cycle_billing_duration=datetime.timedelta(days=5),
+        )
 
         subscription = SubscriptionFactory.create(
             plan=plan,
             state=Subscription.STATES.CANCELED,
             start_date=datetime.date(2015, 1, 1),
-            cancel_date=datetime.date(2018, 1, 20)
+            cancel_date=datetime.date(2018, 1, 20),
         )
 
         billing_log = BillingLog.objects.create(
             subscription=subscription,
             billing_date=datetime.date(2015, 9, 2),
             plan_billed_up_to=datetime.date(2018, 1, 31),
-            metered_features_billed_up_to=datetime.date(2017, 12, 31)
+            metered_features_billed_up_to=datetime.date(2017, 12, 31),
         )
 
         correct_billing_date = datetime.date(2018, 2, 1)
         incorrect_billing_date_1 = subscription.cancel_date + datetime.timedelta(days=1)
         incorrect_billing_date_2 = correct_billing_date - datetime.timedelta(days=1)
 
-        assert \
-            billing_log.metered_features_billed_up_to \
-            < subscription.cancel_date \
-            < incorrect_billing_date_1 \
-            < incorrect_billing_date_2 \
-            <= billing_log.plan_billed_up_to \
-            < correct_billing_date
+        assert (
+                billing_log.metered_features_billed_up_to
+                < subscription.cancel_date
+                < incorrect_billing_date_1
+                < incorrect_billing_date_2
+                <= billing_log.plan_billed_up_to
+                < correct_billing_date
+        )
 
         assert subscription.should_be_billed(correct_billing_date)
         assert not subscription.should_be_billed(incorrect_billing_date_1)
         assert not subscription.should_be_billed(incorrect_billing_date_2)
 
-    @freeze_time('2015-01-01')
+    @freeze_time("2015-01-01")
     def test_updateable_buckets_active_subscription(self):
-        plan = PlanFactory.create(generate_after=24 * 60,
-                                  interval=Plan.INTERVALS.MONTH,
-                                  interval_count=1)
+        plan = PlanFactory.create(
+            generate_after=24 * 60, interval=Plan.INTERVALS.MONTH, interval_count=1
+        )
         subscription = SubscriptionFactory.create(
             plan=plan,
             state=Subscription.STATES.ACTIVE,
-            start_date=datetime.date(2015, 1, 1)
+            start_date=datetime.date(2015, 1, 1),
         )
         assert subscription.updateable_buckets() == [
-            {'start_date': datetime.date(2015, 1, 1), 'end_date': datetime.date(2015, 1, 31)},
+            {
+                "start_date": datetime.date(2015, 1, 1),
+                "end_date": datetime.date(2015, 1, 31),
+            },
         ]
 
-    @freeze_time('2015-01-01')
+    @freeze_time("2015-01-01")
     def test_updateable_buckets_2_months_active_subscription(self):
-        plan = PlanFactory.create(generate_after=24 * 60,
-                                  interval=Plan.INTERVALS.MONTH,
-                                  interval_count=1)
+        plan = PlanFactory.create(
+            generate_after=24 * 60, interval=Plan.INTERVALS.MONTH, interval_count=1
+        )
         subscription = SubscriptionFactory.create(
             plan=plan,
             state=Subscription.STATES.ACTIVE,
-            start_date=datetime.date(2014, 1, 1)
+            start_date=datetime.date(2014, 1, 1),
         )
         assert subscription.updateable_buckets() == [
-            {'start_date': datetime.date(2015, 1, 1), 'end_date': datetime.date(2015, 1, 31)},
-            {'start_date': datetime.date(2014, 12, 1), 'end_date': datetime.date(2014, 12, 31)},
+            {
+                "start_date": datetime.date(2015, 1, 1),
+                "end_date": datetime.date(2015, 1, 31),
+            },
+            {
+                "start_date": datetime.date(2014, 12, 1),
+                "end_date": datetime.date(2014, 12, 31),
+            },
         ]
 
-    @freeze_time('2015-01-01')
+    @freeze_time("2015-01-01")
     def test_updateable_buckets_2_months_canceled_subscription_at_end_of_month(self):
-        plan = PlanFactory.create(generate_after=24 * 60,
-                                  interval=Plan.INTERVALS.MONTH,
-                                  interval_count=1)
+        plan = PlanFactory.create(
+            generate_after=24 * 60, interval=Plan.INTERVALS.MONTH, interval_count=1
+        )
         subscription = SubscriptionFactory.create(
             plan=plan,
             state=Subscription.STATES.CANCELED,
             start_date=datetime.date(2015, 1, 1),
-            cancel_date=datetime.date(2015, 1, 31)
+            cancel_date=datetime.date(2015, 1, 31),
         )
         assert subscription.updateable_buckets() == [
-            {'start_date': datetime.date(2015, 1, 1), 'end_date': datetime.date(2015, 1, 31)},
+            {
+                "start_date": datetime.date(2015, 1, 1),
+                "end_date": datetime.date(2015, 1, 31),
+            },
         ]
 
-    @freeze_time('2015-01-01')
+    @freeze_time("2015-01-01")
     def test_updateable_buckets_2_months_canceled_subscription_last_month(self):
-        plan = PlanFactory.create(generate_after=24 * 60,
-                                  interval=Plan.INTERVALS.MONTH,
-                                  interval_count=1)
+        plan = PlanFactory.create(
+            generate_after=24 * 60, interval=Plan.INTERVALS.MONTH, interval_count=1
+        )
         subscription = SubscriptionFactory.create(
             plan=plan,
             state=Subscription.STATES.CANCELED,
             start_date=datetime.date(2014, 1, 1),
-            cancel_date=datetime.date(2014, 12, 31)
+            cancel_date=datetime.date(2014, 12, 31),
         )
         assert subscription.updateable_buckets() == []

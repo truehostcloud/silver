@@ -23,23 +23,27 @@ from django.db import models, migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('silver', '0001_initial'),
+        ("silver", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='documententry',
-            name='description',
+            model_name="documententry",
+            name="description",
             field=models.CharField(max_length=1024),
         ),
         migrations.AlterField(
-            model_name='documententry',
-            name='unit',
+            model_name="documententry",
+            name="unit",
             field=models.CharField(max_length=1024, null=True, blank=True),
         ),
         migrations.AlterField(
-            model_name='plan',
-            name='product_code',
-            field=models.ForeignKey(help_text=b'The product code for this plan.', to='silver.ProductCode', on_delete=django.db.models.deletion.CASCADE),
+            model_name="plan",
+            name="product_code",
+            field=models.ForeignKey(
+                help_text=b"The product code for this plan.",
+                to="silver.ProductCode",
+                on_delete=django.db.models.deletion.CASCADE,
+            ),
         ),
     ]

@@ -22,24 +22,24 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('silver', '0004_auto_20150429_1731'),
+        ("silver", "0004_auto_20150429_1731"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='invoice',
-            options={'ordering': ('-issue_date', 'series', 'number')},
+            name="invoice",
+            options={"ordering": ("-issue_date", "series", "number")},
         ),
         migrations.AlterModelOptions(
-            name='proforma',
-            options={'ordering': ('-issue_date', 'series', 'number')},
+            name="proforma",
+            options={"ordering": ("-issue_date", "series", "number")},
         ),
         migrations.AlterUniqueTogether(
-            name='invoice',
-            unique_together=set([('provider', 'series', 'number')]),
+            name="invoice",
+            unique_together=set([("provider", "series", "number")]),
         ),
         migrations.AlterUniqueTogether(
-            name='proforma',
-            unique_together=set([('provider', 'series', 'number')]),
+            name="proforma",
+            unique_together=set([("provider", "series", "number")]),
         ),
     ]

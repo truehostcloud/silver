@@ -22,12 +22,11 @@ from django.core.management import call_command
 from django.test import TestCase
 
 from silver.management.commands.generate_docs import date as generate_docs_date
-from silver.models import (Plan)
-from silver.fixtures.factories import (SubscriptionFactory, PlanFactory)
+from silver.models import Plan
+from silver.fixtures.factories import SubscriptionFactory, PlanFactory
 
 
 class TestGenerateDocsArguments(TestCase):
-
     """
     Quick tests to ensure that generate_docs parses any arguments
     correctly
@@ -44,71 +43,76 @@ class TestGenerateDocsArguments(TestCase):
     def __init__(self, *args, **kwargs):
         super(TestGenerateDocsArguments, self).__init__(*args, **kwargs)
         self.output = StringIO()
-        self.good_output = 'Done. You can have a Club-Mate now. :)\n'
-        self.date_string = '2016-06-01'
+        self.good_output = "Done. You can have a Club-Mate now. :)\n"
+        self.date_string = "2016-06-01"
         self.date = generate_docs_date(self.date_string)
 
     def setUp(self):
         # Setup simple subscription
-        self.plan = PlanFactory.create(interval=Plan.INTERVALS.MONTH,
-                                       interval_count=1, generate_after=120,
-                                       enabled=True, amount=Decimal('200.00'),
-                                       trial_period_days=0)
+        self.plan = PlanFactory.create(
+            interval=Plan.INTERVALS.MONTH,
+            interval_count=1,
+            generate_after=120,
+            enabled=True,
+            amount=Decimal("200.00"),
+            trial_period_days=0,
+        )
 
-        self.subscription = SubscriptionFactory.create(plan=self.plan,
-                                                       start_date=self.date)
+        self.subscription = SubscriptionFactory.create(
+            plan=self.plan, start_date=self.date
+        )
         self.subscription.activate()
         self.subscription.save()
 
     def test_generate_docs_no_args(self):
-
-        call_command('generate_docs', stdout=self.output)
+        call_command("generate_docs", stdout=self.output)
 
         assert self.output.getvalue() == self.good_output
 
     def test_generate_docs_subscription_argparser(self):
 
         call_command(
-            'generate_docs', '--subscription=%s' % self.subscription.id,
-            stdout=self.output
+            "generate_docs",
+            "--subscription=%s" % self.subscription.id,
+            stdout=self.output,
         )
 
         assert self.output.getvalue() == self.good_output
 
     def test_generate_docs_subscription_options(self):
-
-        call_command('generate_docs', subscription=self.subscription.id,
-                     stdout=self.output)
+        call_command(
+            "generate_docs", subscription=self.subscription.id, stdout=self.output
+        )
         assert self.output.getvalue() == self.good_output
 
     def test_generate_docs_date_argparser(self):
-
-        call_command('generate_docs', '--date=%s' % self.date_string,
-                     stdout=self.output)
+        call_command(
+            "generate_docs", "--date=%s" % self.date_string, stdout=self.output
+        )
 
         assert self.output.getvalue() == self.good_output
 
     def test_generate_docs_date_options(self):
-
-        call_command('generate_docs', billing_date=self.date,
-                     stdout=self.output)
+        call_command("generate_docs", billing_date=self.date, stdout=self.output)
 
         assert self.output.getvalue() == self.good_output
 
     def test_generate_docs_date_sub_argparser(self):
-
-        call_command('generate_docs',
-                     '--date=%s' % self.date_string,
-                     '--subscription=%s' % self.subscription.id,
-                     stdout=self.output)
+        call_command(
+            "generate_docs",
+            "--date=%s" % self.date_string,
+            "--subscription=%s" % self.subscription.id,
+            stdout=self.output,
+        )
 
         assert self.output.getvalue() == self.good_output
 
     def test_generate_docs_date_sub_options(self):
-
-        call_command('generate_docs',
-                     billing_date=self.date,
-                     subscription=self.subscription.id,
-                     stdout=self.output)
+        call_command(
+            "generate_docs",
+            billing_date=self.date,
+            subscription=self.subscription.id,
+            stdout=self.output,
+        )
 
         assert self.output.getvalue() == self.good_output
