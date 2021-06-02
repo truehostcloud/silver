@@ -109,9 +109,7 @@ class DocumentsGenerator(object):
         )
 
     @staticmethod
-    def get_subscriptions_prepared_for_billing(
-        customer, billing_date, force_generate
-    ):
+    def get_subscriptions_prepared_for_billing(customer, billing_date, force_generate):
         # Select all the active or canceled subscriptions
         subs_to_bill = []
         criteria = {
