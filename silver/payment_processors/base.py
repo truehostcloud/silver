@@ -37,7 +37,7 @@ def get_all_instances():
 
 
 @deconstructible
-class PaymentProcessorBase(object):
+class PaymentProcessorBase:
     form_class = None
     template_slug = None
     payment_method_class = None
