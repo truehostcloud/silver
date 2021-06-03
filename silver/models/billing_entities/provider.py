@@ -125,13 +125,13 @@ class Provider(BaseBillingEntity):
                     "proforma.",
                 }
                 raise ValidationError(errors)
-            elif not self.proforma_series:
+            if not self.proforma_series:
                 errors = {
                     "proforma_series": "This field is required as the "
                     "chosen flow is proforma."
                 }
                 raise ValidationError(errors)
-            elif not self.proforma_starting_number:
+            if not self.proforma_starting_number:
                 errors = {
                     "proforma_starting_number": "This field is required "
                     "as the chosen flow is "
