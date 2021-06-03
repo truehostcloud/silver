@@ -11,7 +11,7 @@ decimal_string_or_none = lambda input_decimal: (
 )
 
 
-class ResourceDefinition(object):
+class ResourceDefinition:
     def __init__(self, resource_name, field_definitions):
         # TODO: parse field definitions
         self.field_definitions = field_definitions

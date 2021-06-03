@@ -22,17 +22,17 @@ from django_fsm import TransitionNotAllowed
 logger = logging.getLogger(__name__)
 
 
-class PaymentProcessorTypes(object):
+class PaymentProcessorTypes:
     Manual = "manual"
     Automatic = "automatic"
     Triggered = "triggered"
 
 
-class ManualProcessorMixin(object):
+class ManualProcessorMixin:
     type = PaymentProcessorTypes.Manual
 
 
-class BaseActionableProcessor(object):
+class BaseActionableProcessor:
     """
     Not a Manual type Processor
     """

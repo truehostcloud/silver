@@ -35,7 +35,7 @@ from silver.utils.dates import ONE_DAY
 logger = logging.getLogger(__name__)
 
 
-class DocumentsGenerator(object):
+class DocumentsGenerator:
     def generate(
         self, subscription=None, billing_date=None, customers=None, force_generate=False
     ):
