@@ -24,7 +24,6 @@ from silver.models import PaymentMethod
 
 
 class PaymentProcessorUrl(serializers.HyperlinkedRelatedField):
-
     def get_url(self, obj, view_name, request, format):
         lookup_value = getattr(obj, self.lookup_field)
         kwargs = {"processor_name": lookup_value}
