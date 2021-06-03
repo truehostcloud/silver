@@ -100,9 +100,6 @@ class InvoiceEntryCreate(DocEntryCreate):
     serializer_class = DocumentEntrySerializer
     queryset = DocumentEntry.objects.all()
 
-    def post(self, request, *args, **kwargs):
-        return super(InvoiceEntryCreate, self).post(request, *args, **kwargs)
-
     def get_model(self):
         return Invoice
 
@@ -173,12 +170,6 @@ class InvoiceEntryUpdateDestroy(DocEntryUpdateDestroy):
     permission_classes = (permissions.IsAuthenticated,)
     serializer_class = DocumentEntrySerializer
     queryset = DocumentEntry.objects.all()
-
-    def put(self, request, *args, **kwargs):
-        return super(InvoiceEntryUpdateDestroy, self).put(request, *args, **kwargs)
-
-    def delete(self, request, *args, **kwargs):
-        return super(InvoiceEntryUpdateDestroy, self).delete(request, *args, **kwargs)
 
     def get_model(self):
         return Invoice
@@ -258,9 +249,6 @@ class ProformaEntryCreate(DocEntryCreate):
     serializer_class = DocumentEntrySerializer
     queryset = DocumentEntry.objects.all()
 
-    def post(self, request, *args, **kwargs):
-        return super(ProformaEntryCreate, self).post(request, *args, **kwargs)
-
     def get_model(self):
         return Proforma
 
@@ -272,12 +260,6 @@ class ProformaEntryUpdateDestroy(DocEntryUpdateDestroy):
     permission_classes = (permissions.IsAuthenticated,)
     serializer_class = DocumentEntrySerializer
     queryset = DocumentEntry.objects.all()
-
-    def put(self, request, *args, **kwargs):
-        return super(ProformaEntryUpdateDestroy, self).put(request, *args, **kwargs)
-
-    def delete(self, request, *args, **kwargs):
-        return super(ProformaEntryUpdateDestroy, self).delete(request, *args, **kwargs)
 
     def get_model(self):
         return Proforma
