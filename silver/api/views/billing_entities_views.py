@@ -38,7 +38,7 @@ class CustomerList(generics.ListCreateAPIView):
 
 class CustomerDetail(generics.RetrieveUpdateDestroyAPIView):
     def get_object(self):
-        pk = self.kwargs.get("customer_pk", None)
+        pk = self.kwargs.get("customer_pk")
         try:
             return Customer.objects.get(pk=pk)
         except (TypeError, ValueError, Customer.DoesNotExist):
