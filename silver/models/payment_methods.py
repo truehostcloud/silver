@@ -49,7 +49,7 @@ class PaymentMethod(models.Model):
 
         @classmethod
         def as_list(cls):
-            return [name for name in settings.PAYMENT_PROCESSORS.keys()]
+            return list(settings.PAYMENT_PROCESSORS.keys())
 
     payment_processor = models.CharField(
         choices=PaymentProcessors.as_choices(), blank=False, null=False, max_length=256
