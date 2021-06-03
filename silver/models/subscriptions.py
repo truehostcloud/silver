@@ -199,7 +199,7 @@ class Subscription(models.Model):
     meta = JSONField(blank=True, null=True, default=dict, encoder=DjangoJSONEncoder)
 
     def clean(self):
-        errors = dict()
+        errors = {}
         if self.start_date and self.trial_end:
             if self.trial_end < self.start_date:
                 errors.update(
