@@ -69,8 +69,7 @@ class BaseActionableProcessor:
             transaction.save()
         except TransitionNotAllowed:
             logger.exception(
-                "Couldn't process transaction with pk %d." % transaction.pk
-            )
+                "Couldn't process transaction with pk %d.", transaction.pk)
 
             return False
 
