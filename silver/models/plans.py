@@ -134,7 +134,7 @@ class Plan(models.Model):
 
     @staticmethod
     def validate_metered_features(metered_features):
-        product_codes = dict()
+        product_codes = {}
         for mf in metered_features:
             if product_codes.get(mf.product_code.value, None):
                 err_msg = (

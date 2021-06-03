@@ -206,7 +206,7 @@ class InvoiceSerializer(
 
         # Add the invoice entries
         for entry in entries:
-            entry_dict = dict()
+            entry_dict = {}
             entry_dict["invoice"] = invoice
             for field in entry.items():
                 entry_dict[field[0]] = field[1]
@@ -308,7 +308,7 @@ class ProformaSerializer(
         proforma = Proforma.objects.create(**validated_data)
 
         for entry in entries:
-            entry_dict = dict()
+            entry_dict = {}
             entry_dict["proforma"] = proforma
             for field in entry.items():
                 entry_dict[field[0]] = field[1]
