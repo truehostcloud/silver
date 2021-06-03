@@ -72,7 +72,7 @@ class PaymentMethodList(ListCreateAPIView):
         context = self.get_parser_context(request)
         kwargs = context["kwargs"]
 
-        customer_pk = kwargs.get("customer_pk", None)
+        customer_pk = kwargs.get("customer_pk")
 
         return get_object_or_404(Customer, id=customer_pk)
 

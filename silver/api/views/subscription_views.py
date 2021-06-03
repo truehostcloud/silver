@@ -58,7 +58,7 @@ class MeteredFeatureDetail(generics.RetrieveAPIView):
     model = MeteredFeature
 
     def get_object(self):
-        customer_pk = self.kwargs.get("pk", None)
+        customer_pk = self.kwargs.get("pk")
         return get_object_or_404(MeteredFeature, pk=customer_pk)
 
 
@@ -69,12 +69,12 @@ class SubscriptionList(generics.ListCreateAPIView):
     filterset_class = SubscriptionFilter
 
     def get_queryset(self):
-        customer_pk = self.kwargs.get("customer_pk", None)
+        customer_pk = self.kwargs.get("customer_pk")
         queryset = Subscription.objects.filter(customer__pk=customer_pk)
         return queryset.order_by("start_date")
 
     def post(self, request, *args, **kwargs):
-        customer_pk = self.kwargs.get("customer_pk", None)
+        customer_pk = self.kwargs.get("customer_pk")
         url = reverse(
             "customer-detail", kwargs={"customer_pk": customer_pk}, request=request
         )
@@ -88,8 +88,8 @@ class SubscriptionDetail(generics.RetrieveUpdateAPIView):
     serializer_class = SubscriptionDetailSerializer
 
     def get_object(self):
-        customer_pk = self.kwargs.get("customer_pk", None)
-        subscription_pk = self.kwargs.get("subscription_pk", None)
+        customer_pk = self.kwargs.get("customer_pk")
+        subscription_pk = self.kwargs.get("subscription_pk")
         return get_object_or_404(
             Subscription, customer__id=customer_pk, pk=subscription_pk
         )
@@ -102,7 +102,7 @@ class SubscriptionDetail(generics.RetrieveUpdateAPIView):
 
     def patch(self, request, *args, **kwargs):
         sub = get_object_or_404(
-            Subscription.objects, pk=self.kwargs.get("subscription_pk", None)
+            Subscription.objects, pk=self.kwargs.get("subscription_pk")
         )
         state = sub.state
         meta = request.data.pop("meta", None)
@@ -119,7 +119,7 @@ class SubscriptionActivate(APIView):
 
     def post(self, request, *args, **kwargs):
         sub = get_object_or_404(
-            Subscription.objects, pk=self.kwargs.get("subscription_pk", None)
+            Subscription.objects, pk=self.kwargs.get("subscription_pk")
         )
         if sub.state != Subscription.STATES.INACTIVE:
             message = "Cannot activate subscription from %s state." % sub.state
@@ -173,7 +173,7 @@ class SubscriptionCancel(APIView):
 
     @staticmethod
     def post(request, *args, **kwargs):
-        sub = get_object_or_404(Subscription, pk=kwargs.get("subscription_pk", None))
+        sub = get_object_or_404(Subscription, pk=kwargs.get("subscription_pk"))
         when = request.data.get("when", None)
         if sub.state != Subscription.STATES.ACTIVE:
             message = "Cannot cancel subscription from %s state." % sub.state
@@ -207,7 +207,7 @@ class SubscriptionReactivate(APIView):
 
     @staticmethod
     def post(request, *args, **kwargs):
-        sub = get_object_or_404(Subscription, pk=kwargs.get("subscription_pk", None))
+        sub = get_object_or_404(Subscription, pk=kwargs.get("subscription_pk"))
         if sub.state != Subscription.STATES.CANCELED:
             msg = "Cannot reactivate subscription from %s state." % sub.state
             return Response({"error": msg}, status=status.HTTP_400_BAD_REQUEST)
@@ -231,8 +231,8 @@ class MeteredFeatureUnitsLogDetail(APIView):
 
     @staticmethod
     def get(request, format=None, **kwargs):
-        subscription_pk = kwargs.get("subscription_pk", None)
-        mf_product_code = kwargs.get("mf_product_code", None)
+        subscription_pk = kwargs.get("subscription_pk")
+        mf_product_code = kwargs.get("mf_product_code")
 
         subscription = Subscription.objects.get(pk=subscription_pk)
 
@@ -248,8 +248,8 @@ class MeteredFeatureUnitsLogDetail(APIView):
         return Response(serializer.data)
 
     def patch(self, request, *args, **kwargs):
-        mf_product_code = self.kwargs.get("mf_product_code", None)
-        subscription_pk = self.kwargs.get("subscription_pk", None)
+        mf_product_code = self.kwargs.get("mf_product_code")
+        subscription_pk = self.kwargs.get("subscription_pk")
 
         try:
             subscription = Subscription.objects.get(pk=subscription_pk)

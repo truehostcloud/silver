@@ -42,7 +42,7 @@ class TransactionList(ListCreateAPIView):
     filterset_class = TransactionFilter
 
     def get_queryset(self):
-        customer_pk = self.kwargs.get("customer_pk", None)
+        customer_pk = self.kwargs.get("customer_pk")
 
         payment_method_id = self.kwargs.get("payment_method_id")
         if payment_method_id:
@@ -68,7 +68,7 @@ class TransactionDetail(RetrieveUpdateAPIView):
     http_method_names = ("get", "patch", "head", "options")
 
     def get_object(self):
-        transaction_uuid = self.kwargs.get("transaction_uuid", None)
+        transaction_uuid = self.kwargs.get("transaction_uuid")
         try:
             uuid = UUID(transaction_uuid, version=4)
         except ValueError:

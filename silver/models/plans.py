@@ -136,7 +136,7 @@ class Plan(models.Model):
     def validate_metered_features(metered_features):
         product_codes = {}
         for mf in metered_features:
-            if product_codes.get(mf.product_code.value, None):
+            if product_codes.get(mf.product_code.value):
                 err_msg = (
                     "A plan cannot have two or more metered features "
                     "with the same product code. (%s, %s)"

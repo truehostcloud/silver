@@ -42,11 +42,11 @@ class PlanDetail(generics.RetrieveDestroyAPIView):
     model = Plan
 
     def get_object(self):
-        pk = self.kwargs.get("pk", None)
+        pk = self.kwargs.get("pk")
         return get_object_or_404(Plan, pk=pk)
 
     def patch(self, request, *args, **kwargs):
-        plan = get_object_or_404(Plan.objects, pk=self.kwargs.get("pk", None))
+        plan = get_object_or_404(Plan.objects, pk=self.kwargs.get("pk"))
         name = request.data.get("name", None)
         generate_after = request.data.get("generate_after", None)
         plan.name = name or plan.name
@@ -58,7 +58,7 @@ class PlanDetail(generics.RetrieveDestroyAPIView):
         )
 
     def delete(self, request, *args, **kwargs):
-        plan = get_object_or_404(Plan.objects, pk=self.kwargs.get("pk", None))
+        plan = get_object_or_404(Plan.objects, pk=self.kwargs.get("pk"))
         plan.enabled = False
         plan.save()
         return Response({"deleted": not plan.enabled}, status=status.HTTP_200_OK)
