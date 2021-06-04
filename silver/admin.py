@@ -201,7 +201,7 @@ class PlanAdmin(ModelAdmin):
             if f.included_units > 0:
                 d += "<code> ({:.2f} included)</code>".format(f.included_units)
             d += "<br>"
-        return d
+        return format_html(d)
 
     description.allow_tags = True
 
@@ -240,7 +240,7 @@ class MeteredFeatureUnitsLogInLine(TabularInline):
     def formfield_for_foreignkey(self, db_field, request=None, **kwargs):
         if db_field.name == "metered_feature" and hasattr(self, "parent_obj"):
             if self.parent_obj:
-                kwargs["queryset"] = db_field.rel.to.objects.filter(
+                kwargs["queryset"] = db_field.related_model.objects.filter(
                     **{"plan": self.parent_obj.plan}
                 )
         return super(MeteredFeatureUnitsLogInLine, self).formfield_for_foreignkey(
@@ -262,7 +262,7 @@ class BillingLogInLine(TabularInline):
     verbose_name = "Automatic billing log"
     verbose_name_plural = verbose_name
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj=None):
         return False
 
     def has_delete_permission(self, request, obj=None):
