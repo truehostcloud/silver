@@ -196,6 +196,10 @@ class Subscription(models.Model):
         default=STATES.INACTIVE,
         help_text="The state the subscription is in.",
     )
+    granulate = models.BooleanField(
+        default=True,
+        help_text="If this is set to False, billing intervals will be combined into 1 entry."
+    )
     meta = JSONField(blank=True, null=True, default=dict, encoder=DjangoJSONEncoder)
 
     def clean(self):
@@ -424,18 +428,18 @@ class Subscription(models.Model):
     def cycle_end_date(self, reference_date=None):
         return self._cycle_end_date(
             ignore_trial=self._ignore_trial_end,
-            granulate=False,
+            granulate=self.granulate,
             reference_date=reference_date,
         )
 
     def bucket_start_date(self, reference_date=None):
         return self._cycle_start_date(
-            reference_date=reference_date, ignore_trial=False, granulate=True
+            reference_date=reference_date, ignore_trial=False, granulate=self.granulate
         )
 
     def bucket_end_date(self, reference_date=None):
         return self._cycle_end_date(
-            reference_date=reference_date, ignore_trial=False, granulate=True
+            reference_date=reference_date, ignore_trial=False, granulate=self.granulate
         )
 
     def updateable_buckets(self):
