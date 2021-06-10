@@ -29,7 +29,7 @@ transaction_definition = ResourceDefinition(
         },
         "url": {
             "read_only": True,
-            "output": lambda transaction: spec_transaction_url(transaction),
+            "output": spec_transaction_url,
         },
         "customer": {
             "expected_input_types": str,
