@@ -198,7 +198,7 @@ class Subscription(models.Model):
     )
     granulate = models.BooleanField(
         default=True,
-        help_text="If this is set to False, billing intervals will be combined into 1 entry."
+        help_text="If this is set to False, billing intervals will be combined into 1 entry.",
     )
     meta = JSONField(blank=True, null=True, default=dict, encoder=DjangoJSONEncoder)
 
@@ -1204,4 +1204,3 @@ def cancel_billing_documents(sender, instance, **kwargs):
                         "subscription": subscription.id,
                     },
                 )
-                pass
