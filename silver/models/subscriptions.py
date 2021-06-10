@@ -1204,4 +1204,3 @@ def cancel_billing_documents(sender, instance, **kwargs):
                         "subscription": subscription.id,
                     },
                 )
-                pass
