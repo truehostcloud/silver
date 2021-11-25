@@ -18,27 +18,26 @@ import logging
 from datetime import datetime, timedelta
 from decimal import Decimal
 
-from django.core.serializers.json import DjangoJSONEncoder
-from django.db.models import JSONField
-from django_fsm import FSMField, transition, TransitionNotAllowed, post_transition
-from model_utils import Choices
-
 from django.apps import apps
-from django.db.models.signals import post_save
-from django.dispatch import receiver
 from django.conf import settings
 from django.core.exceptions import ValidationError, NON_FIELD_ERRORS
-from django.urls import reverse
+from django.core.serializers.json import DjangoJSONEncoder
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.db import transaction as db_transaction
-from django.db.models import Max, ForeignKey, F
+from django.db.models import JSONField
+from django.db.models import Max, ForeignKey
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.template.loader import select_template
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.encoding import force_str
+from django.utils.module_loading import import_string
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
-from django.utils.module_loading import import_string
+from django_fsm import FSMField, transition, TransitionNotAllowed, post_transition
+from model_utils import Choices
 
 from silver.currencies import CurrencyConverter, RateNotFound
 from silver.models.billing_entities import Customer, Provider
@@ -46,7 +45,6 @@ from silver.models.documents.entries import DocumentEntry
 from silver.models.documents.pdf import PDF
 from silver.utils.decorators import require_transaction_currency_and_xe_rate
 from silver.utils.international import currencies
-
 
 _storage = getattr(settings, "SILVER_DOCUMENT_STORAGE", None)
 if _storage:
@@ -289,6 +287,10 @@ class BillingDocumentBase(models.Model):
             self.paid_date = datetime.strptime(paid_date, "%Y-%m-%d").date()
         if not self.paid_date and not paid_date:
             self.paid_date = timezone.now().date()
+        try:
+            import_string(settings.SILVER_PAID_TRANSACTION_CALLBACK)(self)
+        except AttributeError:
+            pass
 
     @transition(field=state, source=STATES.ISSUED, target=STATES.PAID)
     def pay(self, paid_date=None):
