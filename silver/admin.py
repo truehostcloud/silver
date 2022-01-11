@@ -23,10 +23,8 @@ from decimal import Decimal
 
 import requests
 from PyPDF2 import PdfFileReader, PdfFileMerger
+from admin_auto_filters.filters import AutocompleteFilter
 from dal import autocomplete
-from django_fsm import TransitionNotAllowed
-from furl import furl
-
 from django import forms
 from django.contrib import messages
 from django.contrib.admin import (
@@ -49,9 +47,11 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.encoding import force_str
 from django.utils.html import escape, conditional_escape
+from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
-from django.utils.html import format_html
+from django_fsm import TransitionNotAllowed
+from furl import furl
 
 from silver.documents_generator import DocumentsGenerator
 from silver.models import (
@@ -73,8 +73,6 @@ from silver.models import (
 from silver.payment_processors.mixins import PaymentProcessorTypes
 from silver.utils.international import currencies
 from silver.utils.payments import get_payment_url
-
-from admin_auto_filters.filters import AutocompleteFilter
 
 logger = logging.getLogger("silver")
 
@@ -456,7 +454,7 @@ class CustomerAdmin(LiveModelAdmin):
         "extra",
         "meta",
     ]
-    list_display = ["name", "customer_reference", tax, "consolidated_billing", metadata]
+    list_display = ["id", "name", "customer_reference", tax, "consolidated_billing", metadata]
     search_fields = [
         "customer_reference",
         "first_name",
