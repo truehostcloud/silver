@@ -44,7 +44,12 @@ class DummyConverter:
         return amount
 
 
+SILVER_CURRENCY_CONVERTER = None
 try:
-    CurrencyConverter = import_string(settings.SILVER_CURRENCY_CONVERTER)()
+    SILVER_CURRENCY_CONVERTER = settings.SILVER_CURRENCY_CONVERTER
 except AttributeError:
-    CurrencyConverter = DummyConverter()
+    pass
+if not SILVER_CURRENCY_CONVERTER:
+    SILVER_CURRENCY_CONVERTER = DummyConverter
+else:
+    CurrencyConverter = import_string(settings.SILVER_CURRENCY_CONVERTER)()
