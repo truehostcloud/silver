@@ -8,18 +8,28 @@ import silver.models.documents.pdf
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('silver', '0056_auto_20210604_1344'),
+        ("silver", "0056_auto_20210604_1344"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='customer',
-            name='payment_due_days',
-            field=models.PositiveIntegerField(default=5, help_text='Due days for generated proforma/invoice.'),
+            model_name="customer",
+            name="payment_due_days",
+            field=models.PositiveIntegerField(
+                default=5, help_text="Due days for generated proforma/invoice."
+            ),
         ),
         migrations.AlterField(
-            model_name='pdf',
-            name='pdf_file',
-            field=models.FileField(blank=True, editable=False, null=True, storage=registration.storages.SilverS3Boto3Storage(access_key='minio', bucket_name='billing', secret_key='714419Ji#'), upload_to=silver.models.documents.pdf.get_upload_path),
+            model_name="pdf",
+            name="pdf_file",
+            field=models.FileField(
+                blank=True,
+                editable=False,
+                null=True,
+                storage=registration.storages.SilverS3Boto3Storage(
+                    access_key="minio", bucket_name="billing", secret_key="714419Ji#"
+                ),
+                upload_to=silver.models.documents.pdf.get_upload_path,
+            ),
         ),
     ]
