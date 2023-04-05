@@ -53,7 +53,13 @@ install_requires = list(
         [
             line.split("#")[0].strip()
             for line in open("requirements/common.txt").readlines()
-            if not any([line.startswith("https://"), line.startswith("http://")])
+            if not any(
+                [
+                    line.startswith("https://"),
+                    line.startswith("http://"),
+                    line.startswith("git+"),
+                ]
+            )
         ],
     )
 )
