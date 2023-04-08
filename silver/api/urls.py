@@ -14,7 +14,7 @@
 
 from __future__ import absolute_import
 
-from django.conf.urls import re_path
+from django.urls import re_path
 
 from silver import views as silver_views
 from silver.api.views import (

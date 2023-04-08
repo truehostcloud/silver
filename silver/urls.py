@@ -16,8 +16,7 @@
 """URLs for the silver app."""
 
 from __future__ import absolute_import
-
-from django.conf.urls import include, re_path
+from django.urls import include, re_path
 from django.contrib import admin
 
 from silver.views import (
