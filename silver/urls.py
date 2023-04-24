@@ -16,8 +16,6 @@
 """URLs for the silver app."""
 
 from __future__ import absolute_import
-
-from django.conf import settings
 from django.urls import include, re_path
 from django.contrib import admin
 
@@ -39,6 +37,7 @@ admin.autodiscover()
 urlpatterns = [
     re_path(r"^admin/", admin.site.urls),
     re_path(r"^api-auth/", include("rest_framework.urls", namespace="rest_framework")),
+    re_path(r"", include("silver.api.urls")),
     re_path(r"pay/(?P<token>[0-9a-zA-Z-_\.]+)/$", pay_transaction_view, name="payment"),
     re_path(
         r"pay/(?P<token>[0-9a-zA-Z-_\.]+)/complete$",
@@ -74,7 +73,3 @@ urlpatterns = [
         name="autocomplete-provider",
     ),
 ]
-if getattr(settings, "SILVER_ENABLE_API", True):
-    urlpatterns += [
-        re_path(r"", include("silver.api.urls")),
-    ]
