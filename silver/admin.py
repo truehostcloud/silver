@@ -84,6 +84,11 @@ class CustomerFilter(AutocompleteFilter):
     field_name = "customer"
 
 
+class PaymentMethodCustomer(AutocompleteFilter):
+    title = "Customer"
+    field_name = "payment_method"
+
+
 class PlanFilter(AutocompleteFilter):
     title = _("Plan")
     field_name = "plan"
@@ -713,6 +718,7 @@ class DocumentEntryInline(TabularInline):
     model = DocumentEntry
     form = DocumentEntryForm
     extra = 0
+    fk_name = "invoice"
 
 
 class BillingDocumentForm(forms.ModelForm):
@@ -838,9 +844,10 @@ class DueDateFilter(SimpleListFilter):
         return queryset
 
 
-class InvoiceFilter(SimpleListFilter):
+class InvoiceFilter(AutocompleteFilter):
     title = _("invoice")
     parameter_name = "invoice"
+    field_name = "invoice"
 
     def lookups(self, request, model_admin):
         queryset = model_admin.get_queryset(request)
@@ -1499,7 +1506,7 @@ class TransactionAdmin(ModelAdmin):
         "get_is_recurring",
     )
     list_filter = (
-        "payment_method__customer",
+        PaymentMethodCustomer,
         "state",
         "payment_method__payment_processor",
         ProformaFilter,
@@ -1709,3 +1716,4 @@ site.register(Invoice, InvoiceAdmin)
 site.register(Proforma, ProformaAdmin)
 site.register(ProductCode)
 site.register(MeteredFeature)
+site.register(BillingDocumentBase, BillingDocumentAdmin)
