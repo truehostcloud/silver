@@ -1587,7 +1587,6 @@ class TransactionAdmin(ModelAdmin):
                 % (display_verb or action, transactions_count),
             )
         elif failed_count != transactions_count:
-
             self.message_user(
                 request,
                 "%s %d transactions, %d failed."
