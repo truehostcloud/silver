@@ -62,6 +62,15 @@ FAIL_CODES = {
 DEFAULT_REFUND_CODE = "default"
 REFUND_CODES = {
     DEFAULT_REFUND_CODE: {"message": "The transaction has been refunded."},
+    "duplicate": {
+        "message": "Transaction charged twice.",
+    },
+    "fraudulent": {
+        "message": "Transaction is fraudulent.",
+    },
+    "requested_by_customer": {
+        "message": "Transaction refunded at customer's request.",
+    },
 }
 
 DEFAULT_CANCEL_CODE = "default"
