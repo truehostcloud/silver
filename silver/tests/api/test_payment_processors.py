@@ -67,8 +67,8 @@ class TestPaymentProcessorsEndpoints(APITestCase):
         self.assertEqual(
             response.data,
             {
-                "name": u"manual",
-                "type": u"manual",
+                "name": "manual",
+                "type": "manual",
                 "allowed_currencies": [],
                 "url": build_absolute_test_url(
                     reverse("payment-processor-detail", ["manual"])

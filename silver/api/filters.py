@@ -50,7 +50,6 @@ if _df_version >= 2:
     class MultipleCharFilter(BaseInFilter, CharFilter):
         pass
 
-
 else:
     # TODO remove this when Python2 is deprecated and django filters version must be >= 2
     class MultipleCharFilter(CharFilter):

@@ -6,7 +6,6 @@ import django_fsm
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("silver", "0054_auto_20210109_1153"),
     ]

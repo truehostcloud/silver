@@ -70,7 +70,6 @@ class TestGenerateDocsArguments(TestCase):
         assert self.output.getvalue() == self.good_output
 
     def test_generate_docs_subscription_argparser(self):
-
         call_command(
             "generate_docs",
             "--subscription=%s" % self.subscription.id,

@@ -7,7 +7,6 @@ import django_fsm
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("silver", "0052_billingdocumentbase_is_storno"),
     ]

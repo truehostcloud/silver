@@ -12,7 +12,6 @@ import uuid
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("silver", "0031_auto_20170125_1343"),
     ]

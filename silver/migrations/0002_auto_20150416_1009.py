@@ -21,7 +21,6 @@ from django.db import models, migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("silver", "0001_initial"),
     ]

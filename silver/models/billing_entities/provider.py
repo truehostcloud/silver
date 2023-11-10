@@ -153,7 +153,7 @@ class Provider(BaseBillingEntity):
             display += "<hr> " + escape(self.company)
 
         link = reverse("admin:silver_provider_change", args=[self.pk])
-        return u'<a href="%s">%s</a>' % (link, display)
+        return '<a href="%s">%s</a>' % (link, display)
 
     def __str__(self):
         return self.name

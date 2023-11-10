@@ -11,7 +11,6 @@ import silver.models.documents.pdf
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("silver", "0035_auto_20170206_0941"),
     ]

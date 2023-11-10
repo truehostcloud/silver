@@ -20,7 +20,6 @@ from django.db import models, migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("silver", "0006_auto_20150430_1457"),
     ]
