@@ -23,7 +23,6 @@ def change_pdf_dirty_from_integer_to_boolean(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("silver", "0037_auto_20170719_1159"),
     ]

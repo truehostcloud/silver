@@ -28,7 +28,6 @@ from silver.models import Plan, MeteredFeature
 
 
 class PlanList(generics.ListCreateAPIView):
-
     permission_classes = (permissions.IsAuthenticated,)
     serializer_class = PlanSerializer
     queryset = Plan.objects.all().prefetch_related("metered_features")

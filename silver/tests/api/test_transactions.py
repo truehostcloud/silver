@@ -176,8 +176,8 @@ class TestTransactionEndpoint(APITestCase):
 
         expected_data = {
             "non_field_errors": [
-                u"The transaction must have at least one billing document "
-                u"(invoice or proforma)."
+                "The transaction must have at least one billing document "
+                "(invoice or proforma)."
             ]
         }
         self.assertEqual(response.data, expected_data)
@@ -210,8 +210,8 @@ class TestTransactionEndpoint(APITestCase):
 
         expected_data = {
             "non_field_errors": [
-                u"The transaction must have a non-draft billing document "
-                u"(invoice or proforma)."
+                "The transaction must have a non-draft billing document "
+                "(invoice or proforma)."
             ]
         }
         self.assertEqual(response.data, expected_data)
@@ -251,7 +251,7 @@ class TestTransactionEndpoint(APITestCase):
 
         response = self.client.post(url, format="json", data=data)
 
-        expected_data = {"non_field_errors": [u"Invoice and proforma are not related."]}
+        expected_data = {"non_field_errors": ["Invoice and proforma are not related."]}
         self.assertEqual(response.data, expected_data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -290,7 +290,7 @@ class TestTransactionEndpoint(APITestCase):
         response = self.client.post(url, format="json", data=data)
 
         expected_data = {
-            "non_field_errors": [u"Customer doesn't match with the one in documents."]
+            "non_field_errors": ["Customer doesn't match with the one in documents."]
         }
         self.assertEqual(response.data, expected_data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -390,8 +390,8 @@ class TestTransactionEndpoint(APITestCase):
 
         expected_data = {
             "non_field_errors": [
-                u"Transaction currency is different from it's "
-                u"document's transaction_currency."
+                "Transaction currency is different from it's "
+                "document's transaction_currency."
             ]
         }
         self.assertEqual(response.data, expected_data)
@@ -518,11 +518,11 @@ class TestTransactionEndpoint(APITestCase):
         self.assertEqual(
             response.data,
             {
-                "proforma": [u"This field may not be modified."],
-                "invoice": [u"This field may not be modified."],
-                "currency": [u"This field may not be modified."],
-                "amount": [u"This field may not be modified."],
-                "payment_method": [u"This field may not be modified."],
+                "proforma": ["This field may not be modified."],
+                "invoice": ["This field may not be modified."],
+                "currency": ["This field may not be modified."],
+                "amount": ["This field may not be modified."],
+                "payment_method": ["This field may not be modified."],
             },
         )
 
@@ -542,8 +542,8 @@ class TestTransactionEndpoint(APITestCase):
         self.assertEqual(
             response.data,
             {
-                u"non_field_errors": [
-                    u"The transaction cannot be modified once it is in pending state."
+                "non_field_errors": [
+                    "The transaction cannot be modified once it is in pending state."
                 ]
             },
         )

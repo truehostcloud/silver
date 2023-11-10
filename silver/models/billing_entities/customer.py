@@ -120,7 +120,7 @@ class Customer(BaseBillingEntity):
 
     @property
     def name(self):
-        return u"%s %s" % (self.first_name, self.last_name)
+        return "%s %s" % (self.first_name, self.last_name)
 
     @property
     def admin_change_url(self):
@@ -129,7 +129,7 @@ class Customer(BaseBillingEntity):
             display += "<hr> " + escape(self.company)
 
         link = reverse("admin:silver_customer_change", args=[self.pk])
-        return u'<a href="%s">%s</a>' % (link, display)
+        return '<a href="%s">%s</a>' % (link, display)
 
     def __str__(self):
         return self.name

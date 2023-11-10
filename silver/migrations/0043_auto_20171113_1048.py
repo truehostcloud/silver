@@ -96,7 +96,6 @@ def move_documents_to_billing_document(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("silver", "0042_compute_totals_in_document_view"),
     ]

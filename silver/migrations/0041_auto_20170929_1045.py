@@ -19,7 +19,6 @@ def fill_billing_log_created_at_field(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("silver", "0040_auto_20170925_0646"),
     ]

@@ -59,13 +59,14 @@ class ResourceDefinition:
                 if value is None:
                     continue
 
-            assert isinstance(
-                value, expected_input_types
-            ), "Expected request value < {value} > for field '{field}' to be one of " "{expected_input_types}. Actual type is {actual_type}.".format(
-                field=field,
-                value=value,
-                expected_input_types=expected_input_types,
-                actual_type=type(value),
+            assert isinstance(value, expected_input_types), (
+                "Expected request value < {value} > for field '{field}' to be one of "
+                "{expected_input_types}. Actual type is {actual_type}.".format(
+                    field=field,
+                    value=value,
+                    expected_input_types=expected_input_types,
+                    actual_type=type(value),
+                )
             )
 
     def check_request_input_output(self, resource, request_data, response_data):

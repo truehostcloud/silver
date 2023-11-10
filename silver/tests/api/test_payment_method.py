@@ -131,7 +131,7 @@ class TestPaymentMethodEndpoints(APIGetAssert):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(
             response.data,
-            {"payment_processor_name": [u"This field may not be modified."]},
+            {"payment_processor_name": ["This field may not be modified."]},
         )
 
     def test_put_detail_reenable_payment_method(self):
@@ -159,7 +159,7 @@ class TestPaymentMethodEndpoints(APIGetAssert):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(
             response.data,
-            {"non_field_errors": [u"You cannot update a canceled payment method."]},
+            {"non_field_errors": ["You cannot update a canceled payment method."]},
         )
 
     def test_put_detail_unverify_payment_method(self):
@@ -186,7 +186,7 @@ class TestPaymentMethodEndpoints(APIGetAssert):
         response = self.client.put(url, data=data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(
-            response.data, {"verified": [u"You cannot unverify a payment method."]}
+            response.data, {"verified": ["You cannot unverify a payment method."]}
         )
 
     def test_put_detail(self):

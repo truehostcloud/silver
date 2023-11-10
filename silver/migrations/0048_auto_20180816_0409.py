@@ -10,7 +10,6 @@ import silver.utils.models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("silver", "0047_auto_20180507_1319"),
     ]

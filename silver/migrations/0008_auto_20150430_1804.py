@@ -21,7 +21,6 @@ import django.core.validators
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("silver", "0007_auto_20150430_1549"),
     ]

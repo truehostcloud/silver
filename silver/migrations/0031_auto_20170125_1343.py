@@ -7,7 +7,6 @@ import django.core.validators
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("silver", "0009_auto_20150717_1428"),
     ]

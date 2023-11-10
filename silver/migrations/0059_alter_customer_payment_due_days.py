@@ -4,15 +4,16 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('silver', '0058_alter_transaction_refund_code'),
+        ("silver", "0058_alter_transaction_refund_code"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='customer',
-            name='payment_due_days',
-            field=models.PositiveIntegerField(default=0, help_text='Due days for generated proforma/invoice.'),
+            model_name="customer",
+            name="payment_due_days",
+            field=models.PositiveIntegerField(
+                default=0, help_text="Due days for generated proforma/invoice."
+            ),
         ),
     ]
