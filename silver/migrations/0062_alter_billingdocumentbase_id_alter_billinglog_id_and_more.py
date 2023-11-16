@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("silver", "0061_alter_billingdocumentbase_id_alter_billinglog_id_and_more"),
     ]
